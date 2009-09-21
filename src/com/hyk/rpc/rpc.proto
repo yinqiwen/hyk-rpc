@@ -1,0 +1,37 @@
+option java_package = "com.hyk.rpc.message";
+option java_outer_classname = "impl";
+
+ enum MessageType {
+    REQUEST = 0;
+    RESPONSE = 1;
+  }
+ enum Location {
+    LOCAL = 0;
+    REMOTE = 1;
+  }
+message RemoteObject{
+    required string className = 1;
+    required int64 objID = 2;   
+    required Location location = 3; 
+}
+
+message Request{
+   required int64 sessionID = 1;
+   required int64 objID = 2;
+   required int32 methodID = 3;
+   optional bytes args = 4;
+}
+
+message Result{
+   
+}
+
+message Response{
+   required int64 sessionID = 1;
+   required Result result = 2;
+}
+
+message Message{
+    required MessageType type = 1;
+    required bytes value = 2;
+}
