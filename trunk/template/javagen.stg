@@ -1,0 +1,19 @@
+group javagen.stg;
+
+file(desc, clazz) ::= <<
+package <desc.options.javaPackage>;
+
+
+public class Adapter{
+   <desc.messageTypeList:convertor(<desc.options.javaPackage>.<desc.options.javaOuterClassname>); separator="\n\n">
+}
+>>
+
+convertor(genClassName) ::= <<
+   public void convert<it.name>(<genClassName>.<it.name> in, <it.name> out){
+      
+   }
+   
+   public void convert<it.name>(<it.name> in,<genClassName>.<it.name> out){
+   }
+>>
