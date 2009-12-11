@@ -1,0 +1,32 @@
+group protobufgen;
+
+file(desc) ::= <<
+package gen;
+
+option java_package="<desc.options.javaPackage>";
+option java_outer_classname="<desc.options.javaOuterClassname>";
+
+<desc.enumTypeList:enum(); separator="\n\n">
+<desc.messageTypeList:message(); separator="\n\n">
+>>
+
+enum() ::= <<
+enum <it.name>
+{
+}
+>>
+
+message() ::= <<
+message <it.name> 
+{ 
+    <it.fieldList:field(); separator="\n">
+}
+>>
+
+field() ::= <<
+  <if(it.hasTypeName)>
+     <it.label> <it.typeName> <it.name> = <it.number>;
+  <else>
+     <it.label> <it.type> <it.name> = <it.number>;
+  <endif>
+>>

@@ -1,0 +1,37 @@
+group protocolbuffer;
+
+file(enums,messages) ::= <<
+package gen;
+
+option java_package = "";
+option java_outer_classname = "";
+
+<enums:enum(); separator="\n\n">
+<messages:message(); separator="\n\n">
+>>
+
+enum() ::= <<
+enum <it.name>
+{
+
+}
+>>
+
+message() ::= <<
+message <it.name> 
+{ 
+
+    <it.fields:field(); separator="\n">
+}
+>>
+
+field() ::= <<
+<if(it.isRequired)>
+required
+<elseif(it.isOptional)>
+optional
+<elseif(it.isRepeated)>
+repeated
+<endif>
+<it.type> <it.name> = <it.tag>;
+>>
