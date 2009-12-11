@@ -3,11 +3,17 @@
  */
 package target;
 
+import java.io.Externalizable;
+import java.io.IOException;
+import java.io.ObjectInput;
+import java.io.ObjectOutput;
+import java.io.Serializable;
+
 /**
  * @author qiying.wang
  *
  */
-public class TargetClass {
+public class TargetClass implements Serializable, Externalizable{
 
 	public String getName() {
 		return name;
@@ -32,8 +38,25 @@ public class TargetClass {
 	public void setTag(long tag) {
 		this.tag = tag;
 	}
-	private String name;
+	private String name = "hello";
 	private int number;
 	private long tag;
 	private boolean isOK;
+	@Override
+	public void readExternal(ObjectInput in) throws IOException,
+			ClassNotFoundException {
+		// TODO Auto-generated method stub
+		name = in.readUTF();
+		number = in.readInt();
+		tag = in.readLong();
+		isOK = in.readBoolean();
+	}
+	@Override
+	public void writeExternal(ObjectOutput out) throws IOException {
+		// TODO Auto-generated method stub
+		out.writeUTF(name);
+		out.writeInt(number);
+		out.writeLong(tag);
+		out.writeBoolean(isOK);
+	}
 }
