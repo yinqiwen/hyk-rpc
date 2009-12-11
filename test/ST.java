@@ -18,7 +18,6 @@ import com.google.protobuf.DescriptorProtos.FieldDescriptorProto;
 import com.google.protobuf.DescriptorProtos.FileDescriptorProto;
 import com.google.protobuf.DescriptorProtos.FieldDescriptorProto.Label;
 import com.google.protobuf.DescriptorProtos.FieldDescriptorProto.Type;
-import com.hyk.protobuf.mapping.data.MessageInfo;
 import com.hyk.protobuf.mapping.util.ClassAnalyzer;
 import com.hyk.protobuf.mapping.util.ObjectRender;
 
