@@ -17,9 +17,9 @@ import com.google.protobuf.DescriptorProtos.FileDescriptorProto;
 import com.google.protobuf.DescriptorProtos.FileOptions;
 import com.google.protobuf.DescriptorProtos.FieldDescriptorProto.Label;
 import com.google.protobuf.DescriptorProtos.FieldDescriptorProto.Type;
-import com.hyk.protobuf.mapping.data.DataType;
-import com.hyk.protobuf.mapping.data.FieldInfo;
-import com.hyk.protobuf.mapping.data.MessageInfo;
+//import com.hyk.protobuf.mapping.data.DataType;
+//import com.hyk.protobuf.mapping.data.FieldInfo;
+//import com.hyk.protobuf.mapping.data.MessageInfo;
 
 /**
  * @author qiying.wang
@@ -75,32 +75,32 @@ public class ClassAnalyzer {
 		return Label.LABEL_OPTIONAL;
 	}
 	
-	public List<MessageInfo> analyze(Class clazz)
-	{
-		List<MessageInfo> ret = new LinkedList<MessageInfo>();
-		MessageInfo info = new MessageInfo();
-		info.type = DataType.wrap(clazz);
-		//info.simpleName = clazz.getSimpleName();
-		Field[] fs = clazz.getDeclaredFields();
-		for (int i = 0; i < fs.length; i++) {
-			Field f = fs[i];
-			Class type = f.getType();
-			DataType dataType = DataType.wrap(type);
-			FieldInfo fi = new FieldInfo();
-			fi.name = f.getName();
-			fi.tag = i + 1;
-			fi.type = dataType;
-			info.fields.add(fi);
-			
-			if(!dataType.isReserved())
-			{
-				List<MessageInfo> temp = analyze(type);
-				ret.addAll(temp);
-			}		
-		}
-		ret.add(info);
-		return ret;
-	}
+//	public List<MessageInfo> analyze(Class clazz)
+//	{
+//		List<MessageInfo> ret = new LinkedList<MessageInfo>();
+//		MessageInfo info = new MessageInfo();
+//		info.type = DataType.wrap(clazz);
+//		//info.simpleName = clazz.getSimpleName();
+//		Field[] fs = clazz.getDeclaredFields();
+//		for (int i = 0; i < fs.length; i++) {
+//			Field f = fs[i];
+//			Class type = f.getType();
+//			DataType dataType = DataType.wrap(type);
+//			FieldInfo fi = new FieldInfo();
+//			fi.name = f.getName();
+//			fi.tag = i + 1;
+//			fi.type = dataType;
+//			info.fields.add(fi);
+//			
+//			if(!dataType.isReserved())
+//			{
+//				List<MessageInfo> temp = analyze(type);
+//				ret.addAll(temp);
+//			}		
+//		}
+//		ret.add(info);
+//		return ret;
+//	}
 	
 	private FileDescriptorProto.Builder getFileDescriptorProtoBuilder(List<FileDescriptorProto.Builder> buffer, Class clazz)
 	{
