@@ -86,7 +86,7 @@ public final class CodedInputStream {
     lastTag = readRawVarint32();
     if (lastTag == 0) {
       // If we actually read zero, that's not a valid tag.
-      throw InvalidProtocolBufferException.invalidTag();
+      //throw InvalidProtocolBufferException.invalidTag();
     }
     return lastTag;
   }
