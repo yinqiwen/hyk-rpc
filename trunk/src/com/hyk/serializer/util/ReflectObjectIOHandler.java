@@ -19,7 +19,7 @@ public class ReflectObjectIOHandler implements ObjectIOHandler {
 		public final int getValue() { return value; }
 	}
 
-	private static Map<Class, Type> reservedClassTable = new HashMap<Class, Type>();
+	static Map<Class, Type> reservedClassTable = new HashMap<Class, Type>();
 	static {
 		reservedClassTable.put(byte.class, Type.BYTE);
 		reservedClassTable.put(Byte.class, Type.BYTE);
@@ -47,7 +47,7 @@ public class ReflectObjectIOHandler implements ObjectIOHandler {
 		reservedClassTable.put(int[].class, Type.ARRAY);
 	}
 
-	private static Type getType(Class clazz) {
+	static Type getType(Class clazz) {
 		if (reservedClassTable.containsKey(clazz)) {
 			return reservedClassTable.get(clazz);
 		}
@@ -60,7 +60,8 @@ public class ReflectObjectIOHandler implements ObjectIOHandler {
 	@Override
 	public <T> T read(Class<T> clazz, Input in) throws IOException {
 		try {
-			Field[] fs = clazz.getDeclaredFields();
+			//Field[] fs = clazz.getDeclaredFields();
+			Field[] fs = ReflectionCache.getDeclaredFields(clazz);
 			T ret = clazz.newInstance();
 			while (true) {
 				int tag = in.readTag();
@@ -68,11 +69,13 @@ public class ReflectObjectIOHandler implements ObjectIOHandler {
 					break;
 
 				Field f = fs[tag - 1];
-				f.setAccessible(true);
+				
+				//f.setAccessible(true);
 				Class fieldType = f.getType();
 				Type t = getType(fieldType);
 				switch (t) {
 				case BOOL: {
+					//f.setBoolean(ret, in.readBool())
 					f.set(ret, in.readBool());
 					break;
 				}
@@ -134,10 +137,10 @@ public class ReflectObjectIOHandler implements ObjectIOHandler {
 	public void write(Object obj, Output out) throws IOException {
 		try {
 			Class clazz = obj.getClass();
-			Field[] fs = clazz.getDeclaredFields();
+			Field[] fs = ReflectionCache.getDeclaredFields(clazz);
 			for (int i = 0; i < fs.length; i++) {
 				Field f = fs[i];
-				f.setAccessible(true);
+				//f.setAccessible(true);
 				Object fieldValue = f.get(obj);
 				if (fieldValue != null) {
 					out.writeTag(i + 1);
