@@ -13,6 +13,7 @@ import java.io.ObjectOutput;
 import java.io.ObjectOutputStream;
 import java.io.OutputStream;
 
+import com.hyk.serializer.util.BufferedInputStream;
 import com.hyk.serializer.util.ObjectIOHandler;
 import com.hyk.serializer.util.ReflectObjectIOHandler;
 
@@ -304,10 +305,11 @@ public class HykSerializer implements Serializer {
 
 	public static class Input implements ObjectInput {
 
-		InputStream is;
+		//InputStream is;
+		BufferedInputStream is;
 		//Class
 
-		public Input(InputStream is)
+		public Input(BufferedInputStream is)
 		{
 			this.is = is;
 		}
@@ -495,16 +497,18 @@ public class HykSerializer implements Serializer {
 		@Override
 		public String readUTF() throws IOException {
 			int size = readInt();
-			byte[] data = new byte[size];
-			int ret = read(data);
-			if(ret == size)
-			{
-				return new String(data, "UTF-8");
-			}
-			else
-			{
-				throw new IOException("not enought space for read " + size);
-			}
+			return is.readString(size);
+//			byte[] data = new byte[size];
+//			int ret = read(data);
+//			//int ret = size;
+//			if(ret == size)
+//			{
+//				return new String(data, "UTF-8");
+//			}
+//			else
+//			{
+//				throw new IOException("not enought space for read " + size);
+//			}
 		}
 
 		@Override
@@ -544,8 +548,10 @@ public class HykSerializer implements Serializer {
 	@Override
 	public <T> T deserialize(Class<T> type, byte[] data)
 			throws NotSerializableException, IOException  {
-		ByteArrayInputStream bis = new ByteArrayInputStream(data);
-		Input in = new Input(bis);
+		//ByteArrayInputStream bis = new ByteArrayInputStream(data);
+		BufferedInputStream is = new BufferedInputStream(data);
+		Input in = new Input(is);
+		//return null;
 		return in.readObject(type);
 	}
 
