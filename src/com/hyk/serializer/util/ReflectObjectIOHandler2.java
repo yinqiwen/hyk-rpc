@@ -80,6 +80,7 @@ public class ReflectObjectIOHandler2 implements ObjectIOHandler {
 	@Override
 	public <T> T read(Class<T> clazz, Input in) throws IOException {
 		try {
+			if(in.available() == 0) return null;
 			Type t = getType(clazz);
 			switch (t) {
 			case BOOL: {

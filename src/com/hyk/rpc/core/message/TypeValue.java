@@ -13,32 +13,22 @@ import com.hyk.serializer.HykSerializer.Output;
  * @author qiying.wang
  *
  */
-public class Request implements Externalizable{
-
-	
-	protected long sessionID;
-	protected long objID;
-	protected int operationID;
-
-	protected TypeValue[] args;
-	
+public class TypeValue implements Externalizable{
+	String typeName;
+	Object value;
 	@Override
 	public void readExternal(Input in) throws IOException,
 			ClassNotFoundException {
-		sessionID = in.readLong();
-		objID = in.readLong();
-		operationID = in.readInt();
-		args = in.readObject(TypeValue[].class);
+		typeName = in.readUTF();
+		if(null != typeName)
+		{
+			value = in.readObject(Class.forName(typeName));
+		}
 		
 	}
-	
 	@Override
 	public void writeExternal(Output out) throws IOException {
-		out.writeLong(sessionID);
-		out.writeLong(objID);
-		out.writeInt(operationID);
-		out.writeObject(args);
+		out.writeUTF(typeName);
+		out.writeObject(value);
 	}
-	
-	
 }
