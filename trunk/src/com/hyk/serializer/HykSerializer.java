@@ -3,19 +3,15 @@
  */
 package com.hyk.serializer;
 
-import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
-import java.io.InputStream;
 import java.io.NotSerializableException;
-import java.io.ObjectInput;
-import java.io.ObjectOutput;
-import java.io.ObjectOutputStream;
 import java.io.OutputStream;
 
 import com.hyk.serializer.util.BufferedInputStream;
 import com.hyk.serializer.util.ObjectIOHandler;
-import com.hyk.serializer.util.ReflectObjectIOHandler;
+import com.hyk.serializer.util.ObjectIOHandlerFactory;
+import com.hyk.serializer.util.ReflectObjectIOHandler2;
 
 
 /**
@@ -135,7 +131,7 @@ public class HykSerializer implements Serializer {
 		}
 	}
 
-	public static class Output implements ObjectOutput {
+	public static class Output {
 			
 		OutputStream stream;
 
@@ -144,35 +140,30 @@ public class HykSerializer implements Serializer {
 			this.stream = stream;
 		}
 
-		@Override
 		public void close() throws IOException {
 			stream.close();
 		}
 
-		@Override
 		public void flush() throws IOException {
 			stream.flush();
 		}
 
-		@Override
 		public void write(byte[] b) throws IOException {
 			//buffer.put(b);
 			stream.write(b);
 		}
 
-		@Override
 		public void write(byte[] b, int off, int len) throws IOException {
 			//buffer.put(b, off, len);
 			stream.write(b,off,len);
 		}
 
-		@Override
 		public void writeObject(Object obj) throws IOException {
-			ObjectIOHandler handler = new ReflectObjectIOHandler();
+			if(null == obj) return;
+			ObjectIOHandler handler = ObjectIOHandlerFactory.getObjectIOHandler(obj.getClass());
 			handler.write(obj, this);
 		}
 
-		@Override
 		public void writeBytes(String s) throws IOException {
 			// TODO Auto-generated method stub
 			final byte[] bytes = s.getBytes("UTF-8");
@@ -180,7 +171,6 @@ public class HykSerializer implements Serializer {
 			write(bytes);
 		}
 
-		@Override
 		public void writeChars(String s) throws IOException {
 			// TODO Auto-generated method stub
 			writeBytes(s);
@@ -296,14 +286,13 @@ public class HykSerializer implements Serializer {
 			write(tag);
 		}
 
-		@Override
 		public void writeUTF(String s) throws IOException {
 			writeChars(s);
 		}
 
 	}
 
-	public static class Input implements ObjectInput {
+	public static class Input {
 
 		//InputStream is;
 		BufferedInputStream is;
@@ -338,64 +327,60 @@ public class HykSerializer implements Serializer {
 					| (((long) b7 & 0xff) << 48) | (((long) b8 & 0xff) << 56);
 		}
 
-		@Override
+	
 		public int available() throws IOException {
 			return is.available();
 		}
 
-		@Override
+	
 		public void close() throws IOException {
 			is.close();       
 		}
 
-		@Override
+		
 		public int read() throws IOException {
 			// TODO Auto-generated method stub
 			return readByte();
 		}
 
-		@Override
+		
 		public int read(byte[] b) throws IOException {
 			return is.read(b);
 		}
 
-		@Override
+		
 		public int read(byte[] b, int off, int len) throws IOException {
 			return is.read(b, off, len);
 		}
 
-		@Override
-		public Object readObject() throws ClassNotFoundException, IOException {
-			throw new IOException("Not support now!");
-		}
 		
 		public <T> T readObject(Class<T> clazz) throws IOException {
-			ObjectIOHandler handler = new ReflectObjectIOHandler();
+			ObjectIOHandler handler = ObjectIOHandlerFactory.getObjectIOHandler(clazz);
 			return handler.read(clazz, this);
 		}
 
-		@Override
+		
 		public long skip(long n) throws IOException {
 			return is.skip(n);
 		}
 
-		@Override
+		
 		public boolean readBoolean() throws IOException {
 			// TODO Auto-generated method stub
 			return readInt() != 0;
 		}
 
-		@Override
+		
 		public void readFully(byte[] b) throws IOException {
 			is.read(b);
 		}
 
-		@Override
+		
 		public void readFully(byte[] b, int off, int len) throws IOException {
 			is.read(b, off, len);
 		}
 
-		@Override
+		
 		public String readLine() throws IOException {
 			// TODO Auto-generated method stub
 			return readUTF();
@@ -494,36 +479,25 @@ public class HykSerializer implements Serializer {
 			return Float.intBitsToFloat(readRawLittleEndian32());
 		}
 
-		@Override
+		
 		public String readUTF() throws IOException {
 			int size = readInt();
 			return is.readString(size);
-//			byte[] data = new byte[size];
-//			int ret = read(data);
-//			//int ret = size;
-//			if(ret == size)
-//			{
-//				return new String(data, "UTF-8");
-//			}
-//			else
-//			{
-//				throw new IOException("not enought space for read " + size);
-//			}
+
 		}
 
-		@Override
+		
 		public int readUnsignedByte() throws IOException {
 			// TODO Auto-generated method stub
 			return read();
 		}
 
-		@Override
+	
 		public int readUnsignedShort() throws IOException {
 			
 			return readInt();
 		}
 
-		@Override
 		public int skipBytes(int n) throws IOException {
 			return (int) is.skip(n);
 		}
@@ -547,8 +521,11 @@ public class HykSerializer implements Serializer {
 	 */
 	@Override
 	public <T> T deserialize(Class<T> type, byte[] data)
-			throws NotSerializableException, IOException  {
-		//ByteArrayInputStream bis = new ByteArrayInputStream(data);
+			throws NotSerializableException, IOException,InstantiationException  {
+		if(type.isInterface())
+		{
+			throw new InstantiationException(type.getName());
+		}
 		BufferedInputStream is = new BufferedInputStream(data);
 		Input in = new Input(is);
 		//return null;

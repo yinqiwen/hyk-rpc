@@ -1,11 +1,14 @@
 package com.hyk.serializer.util;
 
 import java.io.IOException;
+import java.io.NotSerializableException;
+import java.io.Serializable;
 import java.lang.reflect.Array;
 import java.lang.reflect.Field;
 import java.util.HashMap;
 import java.util.Map;
 
+import com.hyk.serializer.Externalizable;
 import com.hyk.serializer.HykSerializer.Input;
 import com.hyk.serializer.HykSerializer.Output;
 
@@ -45,6 +48,10 @@ public class ReflectObjectIOHandler implements ObjectIOHandler {
 		reservedClassTable.put(byte[].class, Type.ARRAY);
 		reservedClassTable.put(char[].class, Type.ARRAY);
 		reservedClassTable.put(int[].class, Type.ARRAY);
+		reservedClassTable.put(short[].class, Type.ARRAY);
+		reservedClassTable.put(long[].class, Type.ARRAY);
+		reservedClassTable.put(float[].class, Type.ARRAY);
+		reservedClassTable.put(double[].class, Type.ARRAY);
 	}
 
 	static Type getType(Class clazz) {
@@ -59,18 +66,25 @@ public class ReflectObjectIOHandler implements ObjectIOHandler {
 
 	@Override
 	public <T> T read(Class<T> clazz, Input in) throws IOException {
-		try {
-			//Field[] fs = clazz.getDeclaredFields();
-			Field[] fs = ReflectionCache.getDeclaredFields(clazz);
+		try {	
 			T ret = clazz.newInstance();
+			if(!(ret instanceof Serializable))
+			{
+				throw new NotSerializableException(clazz.getName());
+			}
+			if(ret instanceof Externalizable)
+			{
+				Externalizable externalizable = (Externalizable) ret;
+				externalizable.readExternal(in);
+				return ret;
+			}
+			Field[] fs = ReflectionCache.getDeclaredFields(clazz);
 			while (true) {
 				int tag = in.readTag();
 				if (tag == 0)
 					break;
 
 				Field f = fs[tag - 1];
-				
-				//f.setAccessible(true);
 				Class fieldType = f.getType();
 				Type t = getType(fieldType);
 				switch (t) {
@@ -127,7 +141,10 @@ public class ReflectObjectIOHandler implements ObjectIOHandler {
 				}
 			}
 			return ret;
-		} catch (Exception e) {
+		}catch (IOException e) {
+			throw e;
+		} 
+		catch (Exception e) {
 			throw new IOException(e);
 		}
 
@@ -137,6 +154,16 @@ public class ReflectObjectIOHandler implements ObjectIOHandler {
 	public void write(Object obj, Output out) throws IOException {
 		try {
 			Class clazz = obj.getClass();
+			if(!(obj instanceof Serializable))
+			{
+				throw new NotSerializableException(clazz.getName());
+			}
+			if(obj instanceof Externalizable)
+			{
+				Externalizable externalizable = (Externalizable) obj;
+				externalizable.writeExternal(out);
+				return;
+			}
 			Field[] fs = ReflectionCache.getDeclaredFields(clazz);
 			for (int i = 0; i < fs.length; i++) {
 				Field f = fs[i];

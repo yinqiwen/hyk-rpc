@@ -12,7 +12,7 @@ import java.io.InputStream;
  */
 public class BufferedInputStream extends InputStream {
 	
-	private static final int DEFAULT_BUFFER_SIZE = 32;
+	private static final int DEFAULT_BUFFER_SIZE = 4096;
 	
 	private byte[] buffer;
 	private int pos;
