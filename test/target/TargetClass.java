@@ -41,7 +41,7 @@ public class TargetClass implements Serializable, Externalizable{
 	private String name = "hello";
 	private int number;
 	private long tag;
-	private boolean isOK;
+	private Boolean isOK = true;
 	@Override
 	public void readExternal(ObjectInput in) throws IOException,
 			ClassNotFoundException {
