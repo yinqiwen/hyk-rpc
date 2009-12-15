@@ -165,7 +165,7 @@ public class HykSerializer implements Serializer {
 		}
 
 		public void writeBytes(String s) throws IOException {
-			// TODO Auto-generated method stub
+			if(null == s) return;
 			final byte[] bytes = s.getBytes("UTF-8");
 			writeInt(bytes.length);
 			write(bytes);
