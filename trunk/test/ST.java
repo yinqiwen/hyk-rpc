@@ -18,8 +18,6 @@ import com.google.protobuf.DescriptorProtos.FieldDescriptorProto;
 import com.google.protobuf.DescriptorProtos.FileDescriptorProto;
 import com.google.protobuf.DescriptorProtos.FieldDescriptorProto.Label;
 import com.google.protobuf.DescriptorProtos.FieldDescriptorProto.Type;
-import com.hyk.protobuf.mapping.util.ClassAnalyzer;
-import com.hyk.protobuf.mapping.util.ObjectRender;
 
 /**
  * 
@@ -44,45 +42,7 @@ public class ST {
 		StringTemplate st = group.getInstanceOf("file");
 		
 		
-		ClassAnalyzer analyzer = new ClassAnalyzer();
-//		List<MessageInfo> infos = analyzer.analyze(TargetClassTop.class);
-//
-//		st.setAttribute("messages", infos);
-//		System.out.println(st);
-		
-		List<FileDescriptorProto.Builder> buffer = new LinkedList<FileDescriptorProto.Builder>();
-		analyzer.parse(TargetClassTop.class, buffer);
-		st.setAttribute("desc", buffer.get(0));
-		st.registerRenderer(Type.class, new ObjectRender());
-		st.registerRenderer(Label.class, new ObjectRender());
-		st.registerPropertyRetriever(FieldDescriptorProto.class, new PropertyRetriver() {
-			
-			@Override
-			public Method getRetriever(Class type,String propertyName) {
-				// TODO Auto-generated method stub
-				try {
-					return type.getMethod(propertyName, null);
-				} catch (SecurityException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
-				} catch (NoSuchMethodException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
-				}
-				return null;
-			}
-		});
-		System.out.println(st);
-		
-		FileOutputStream fos = new FileOutputStream("test.proto");
-		try {
-			fos.write(st.toString().getBytes());
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}finally{
-			fos.close();
-		}
+
 	}
 
 }

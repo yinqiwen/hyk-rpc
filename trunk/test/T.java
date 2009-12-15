@@ -1,3 +1,5 @@
+import java.io.FileNotFoundException;
+import java.io.FileReader;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
@@ -5,6 +7,7 @@ import java.util.Map;
 
 import org.antlr.stringtemplate.StringTemplate;
 import org.antlr.stringtemplate.StringTemplateGroup;
+import org.antlr.stringtemplate.language.AngleBracketTemplateLexer;
 
 import target.TargetClass;
 import target.TargetClassTop;
@@ -19,13 +22,23 @@ import target.TargetClassTop;
  */
 public class T {
 
+	public static class Element
+	{
+		public String name = "ele";
+	}
 	
+	public static class TList
+	{
+		public String name = "list";
+		public List<Element> list = new LinkedList<Element>();
+	}
 
 	
 	/**
 	 * @param args
+	 * @throws FileNotFoundException 
 	 */
-	public static void main(String[] args) {
+	public static void main(String[] args) throws FileNotFoundException {
 		//StringTemplateGroup stg = new StringTemplateGroup();
 		String template = "$aMap.keys:{k| $k$ maps to $aMap.(k)$}$.";
 		String template2 = "int sum = 0;$numbers:{ n | sum += $n$;}$";
@@ -43,15 +56,14 @@ public class T {
 		st.setAttribute("numbers",list);
 		System.out.println(st);
 		
-		String template3 = "$if(obj.hasType())$ waht a fuck!$endif$";
-		//TargetClassTop stl = new TargetClassTop();
-		TargetClass target = new TargetClass();
-		//target.setName("ghjk");
-		//stl.setTarget(target);
-		StringTemplate st2 = new StringTemplate(template3);
-		st2.setAttribute("obj", target);
-		System.out.println(st2);
-		System.out.println(T.class.getPackage());
+		StringTemplateGroup group =
+            new StringTemplateGroup(new FileReader("template/test.stg"),
+                AngleBracketTemplateLexer.class);
+		TList tlist = new TList();
+		tlist.list.add(new Element());
+		StringTemplate st3 = group.getInstanceOf("test");
+		st3.setAttribute("value", tlist);
+		System.out.println(st3.toString());
 	}
 
 }
