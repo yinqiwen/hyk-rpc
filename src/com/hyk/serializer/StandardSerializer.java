@@ -12,7 +12,7 @@ public class StandardSerializer implements Serializer {
 	
 	@Override
 	public <T> T deserialize(Class<T> type, byte[] data)
-			throws NotSerializableException, IOException {
+			throws NotSerializableException, IOException,InstantiationException {
 		ByteArrayInputStream bis = new ByteArrayInputStream(data);
 		try {
 			ObjectInputStream ois = new ObjectInputStream(bis);
@@ -23,7 +23,7 @@ public class StandardSerializer implements Serializer {
 	}
 
 	@Override
-	public byte[] serialize(Object obj) throws NotSerializableException, IOException {
+	public byte[] serialize(Object obj) throws NotSerializableException,IOException {
 		
 		ByteArrayOutputStream bos = new ByteArrayOutputStream(256);
 		ObjectOutputStream oos = new ObjectOutputStream(bos);
