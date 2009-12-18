@@ -4,6 +4,7 @@
 package com.hyk.serializer.util;
 
 import java.lang.reflect.Field;
+import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
@@ -15,6 +16,7 @@ import java.util.concurrent.ConcurrentHashMap;
 public class ReflectionCache {
 
 	private static Map<Class, Field[]> fieldCacheTable = new ConcurrentHashMap<Class, Field[]>();
+	private static Map<Class, Method[]> methodCacheTable = new ConcurrentHashMap<Class, Method[]>();
 	
 	protected static ArrayList<Field> getAllDeaclaredFields(Class clazz)
 	{
@@ -48,6 +50,17 @@ public class ReflectionCache {
 			fieldCacheTable.put(clazz, fs);
 		}
 		return fs;
+	}
+	
+	public static Method[] getMethods(Class clazz)
+	{
+		Method[] ms = methodCacheTable.get(clazz);
+		if(null == ms)
+		{
+			ms = clazz.getMethods();
+			methodCacheTable.put(clazz, ms);
+		}
+		return ms;
 	}
 	
 }

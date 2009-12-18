@@ -13,20 +13,23 @@ import com.hyk.serializer.HykSerializer.Output;
  * @author qiying.wang
  *
  */
-public class Response implements Externalizable{
-	
-	protected long sessionID;
+public class Response extends AbstractMessageObject{
+
 	protected TypeValue reply;
 	@Override
 	public void readExternal(Input in) throws IOException,
 			ClassNotFoundException {
-		sessionID = in.readLong();
+
 		reply = in.readObject(TypeValue.class);
 	}
 	@Override
 	public void writeExternal(Output out) throws IOException {
-		out.writeLong(sessionID);
+
 		out.writeObject(reply);		
+	}
+	@Override
+	public MessageType getType() {
+		return MessageType.Response;
 	}
 	
 }
