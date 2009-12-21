@@ -6,6 +6,7 @@ package com.hyk.serializer.util;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
+import java.lang.reflect.Modifier;
 import java.util.ArrayList;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
@@ -44,6 +45,10 @@ public class ReflectionCache {
 		{
 			Field[] fs = clazz.getDeclaredFields();
 			for (Field field : fs) {
+				if(Modifier.isTransient(field.getModifiers()) || Modifier.isStatic(field.getModifiers()))
+				{
+					continue;
+				}
 				field.setAccessible(true);
 				ret.add(field);
 			}
@@ -54,7 +59,7 @@ public class ReflectionCache {
 		
 	}
 	
-	public static Field[] getDeclaredFields(Class clazz)
+	public static Field[] getSerializableFields(Class clazz)
 	{
 		Field[] fs = fieldCacheTable.get(clazz);
 		if(null == fs)
