@@ -71,17 +71,21 @@ public class ReflectObjectIOHandler2 implements ObjectIOHandler {
 		if (reservedClassTable.containsKey(clazz)) {
 			return reservedClassTable.get(clazz);
 		}
+		Type ret = null;
 		if (clazz.isArray()) {
-			return Type.ARRAY;
+			ret = Type.ARRAY;
 		}
-		if (clazz.isEnum()) {
-			return Type.ENUM;
+		else if (clazz.isEnum()) {
+			ret = Type.ENUM;
 		}
-		if(Proxy.isProxyClass(clazz))
-		{
-			return Type.PROXY;
+		else if (Proxy.isProxyClass(clazz)) {
+			ret = Type.PROXY;
 		}
-		return Type.OBJECT;
+		else{
+			ret = Type.OBJECT;
+		}
+		reservedClassTable.put(clazz, ret);
+		return ret;
 	}
 
 	@Override
@@ -155,16 +159,12 @@ public class ReflectObjectIOHandler2 implements ObjectIOHandler {
 					externalizable.readExternal(in);
 					return ret;
 				}
-				Field[] fs = ReflectionCache.getDeclaredFields(clazz);
+				Field[] fs = ReflectionCache.getSerializableFields(clazz);
 				while (true) {
 					int tag = in.readTag();
 					if (tag == 0)
 						break;
 					Field f = fs[tag - 1];
-					if(Modifier.isTransient(f.getModifiers()) || Modifier.isStatic(f.getModifiers()))
-					{
-						throw new IOException("Transient type:" + f );
-					}
 					Class fieldType = f.getType();
 					f.set(ret, read(fieldType, in));
 				}
@@ -265,20 +265,16 @@ public class ReflectObjectIOHandler2 implements ObjectIOHandler {
 					externalizable.writeExternal(out);
 					return;
 				}
-				Field[] fs = ReflectionCache.getDeclaredFields(clazz);
+				Field[] fs = ReflectionCache.getSerializableFields(clazz);
 				for (int i = 0; i < fs.length; i++) {
 					Field f = fs[i];
-					if(Modifier.isTransient(f.getModifiers()) || Modifier.isStatic(f.getModifiers()))
-					{
-						continue;
-					}
+					
 					Object fieldValue = f.get(obj);
 					if(null != fieldValue)
 					{
 						out.writeTag(i + 1);
 						write(fieldValue, out);
-					}
-					
+					}		
 				}
 				out.writeTag(0);
 				break;
