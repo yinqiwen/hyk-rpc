@@ -4,8 +4,11 @@ import java.io.IOException;
 import java.io.NotSerializableException;
 import java.io.Serializable;
 import java.lang.reflect.Array;
+import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
+import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.Modifier;
+import java.lang.reflect.Proxy;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -17,7 +20,7 @@ public class ReflectObjectIOHandler2 implements ObjectIOHandler {
 
 	static enum Type {
 		BOOL(0), BYTE(1), INT(2), LONG(3), FLOAT(4), DOUBLE(5), SHORT(6), CHAR(
-				7), STRING(8), ARRAY(9), OBJECT(10), ENUM(11);
+				7), STRING(8), ARRAY(9), OBJECT(10), ENUM(11), PROXY(12);
 
 		private int value;
 
@@ -74,6 +77,10 @@ public class ReflectObjectIOHandler2 implements ObjectIOHandler {
 		if (clazz.isEnum()) {
 			return Type.ENUM;
 		}
+		if(Proxy.isProxyClass(clazz))
+		{
+			return Type.PROXY;
+		}
 		return Type.OBJECT;
 	}
 
@@ -125,8 +132,21 @@ public class ReflectObjectIOHandler2 implements ObjectIOHandler {
 				Class cls = clazz;
 				return (T) Enum.valueOf(cls, name);
 			}
+			case PROXY:
+			{			
+				ClassLoader loader = clazz.getClassLoader();
+				String[] interfaceNames = read(String[].class, in);
+				Class[] interfaces = new Class[interfaceNames.length];
+				for (int i = 0; i < interfaceNames.length; i++) {
+					interfaces[i] = Class.forName(interfaceNames[i], true, loader);
+				}
+				Class proxyHandlerClass = Class.forName(in.readUTF(), true, loader);
+				InvocationHandler handler = (InvocationHandler) read(proxyHandlerClass, in);
+				return (T) Proxy.newProxyInstance(loader, interfaces, handler);
+			}
 			case OBJECT: {
-				T ret = clazz.newInstance();
+				Constructor<T> cons = ReflectionCache.getDefaultConstructor(clazz);
+				T ret = cons.newInstance(null);
 				if (!(ret instanceof Serializable)) {
 					throw new NotSerializableException(clazz.getName());
 				}
@@ -221,6 +241,19 @@ public class ReflectObjectIOHandler2 implements ObjectIOHandler {
 			{
 				Enum e = (Enum) obj;
 				out.writeUTF(e.name());
+				break;
+			}
+			case PROXY:
+			{
+				Class[] interfaces = clazz.getInterfaces();
+				String[] interfaceNames = new String[interfaces.length];
+				for (int i = 0; i < interfaceNames.length; i++) {
+					interfaceNames[i] = interfaces[i].getName();
+				}
+				write(interfaceNames,out);
+				InvocationHandler handler = Proxy.getInvocationHandler(obj);
+				out.writeUTF(handler.getClass().getName());
+				write(handler,out);
 				break;
 			}
 			case OBJECT: {
