@@ -3,6 +3,7 @@
  */
 package com.hyk.serializer.util;
 
+import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
@@ -17,6 +18,20 @@ public class ReflectionCache {
 
 	private static Map<Class, Field[]> fieldCacheTable = new ConcurrentHashMap<Class, Field[]>();
 	private static Map<Class, Method[]> methodCacheTable = new ConcurrentHashMap<Class, Method[]>();
+	private static Map<Class, Constructor> defaultConstructorCacheTable = new ConcurrentHashMap<Class, Constructor>();
+	
+	public static Constructor getDefaultConstructor(Class clazz) throws SecurityException, NoSuchMethodException
+	{
+		Constructor cons = defaultConstructorCacheTable.get(clazz);
+		if(null == cons)
+		{
+			cons = clazz.getDeclaredConstructor(null);
+			cons.setAccessible(true);
+			defaultConstructorCacheTable.put(clazz, cons);
+		}
+		return cons;
+	}
+	
 	
 	protected static ArrayList<Field> getAllDeaclaredFields(Class clazz)
 	{

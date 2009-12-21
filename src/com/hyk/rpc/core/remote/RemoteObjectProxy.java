@@ -15,7 +15,7 @@ import com.hyk.serializer.HykSerializer.Output;
  * @author qiying.wang
  *
  */
-public class RemoteObjectProxy implements InvocationHandler,Externalizable {
+public class RemoteObjectProxy implements InvocationHandler {
 
 	private long objID;
 	
@@ -29,17 +29,6 @@ public class RemoteObjectProxy implements InvocationHandler,Externalizable {
 		return null;
 	}
 
-	@Override
-	public void readExternal(Input in) throws IOException,
-			ClassNotFoundException {
-		// TODO Auto-generated method stub
-		
-	}
 
-	@Override
-	public void writeExternal(Output out) throws IOException {
-		// TODO Auto-generated method stub
-		
-	}
 
 }
