@@ -45,23 +45,14 @@ public class HykObjectOutput<T> implements ObjectOutput {
 		stream.write(b, off, len);
 	}
 
-	private void writeRawObject(Object obj, Class declareType)throws IOException
-	{
-		if (null == obj)
-			return;
-		if(obj.getClass().equals(declareType))
-		{
-			writeInt(0);
-		}
-		else
-		{
-			writeInt(1);
-			writeUTF(obj.getClass().getName());
-		}
-		writeObject(obj);
-	}
 	
 	public void writeObject(Object obj) throws IOException {
+		if (null == obj)
+			return;
+		writeObject(obj, obj.getClass());
+	}
+	
+	public void writeObject(Object obj, Class declClass) throws IOException {
 		if (null == obj)
 			return;
 		try {
@@ -134,6 +125,16 @@ public class HykObjectOutput<T> implements ObjectOutput {
 					externalizable.writeExternal(this);
 					return;
 				}
+				if(clazz.equals(declClass))
+				{
+					writeInt(0);
+				}
+				else
+				{
+					writeInt(1);
+					writeUTF(obj.getClass().getName());
+				}				
+				
 				Field[] fs = ReflectionCache.getSerializableFields(clazz);
 				for (int i = 0; i < fs.length; i++) {
 					Field f = fs[i];
@@ -142,7 +143,7 @@ public class HykObjectOutput<T> implements ObjectOutput {
 					if(null != fieldValue)
 					{
 						writeTag(i + 1);
-						writeObject(fieldValue);
+						writeObject(fieldValue, f.getType());
 					}		
 				}
 				writeTag(0);
