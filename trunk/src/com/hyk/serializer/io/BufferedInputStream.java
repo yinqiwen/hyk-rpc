@@ -1,7 +1,7 @@
 /**
  * 
  */
-package com.hyk.serializer.util;
+package com.hyk.serializer.io;
 
 import java.io.IOException;
 import java.io.InputStream;

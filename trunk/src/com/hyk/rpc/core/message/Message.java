@@ -3,11 +3,11 @@
  */
 package com.hyk.rpc.core.message;
 
+import java.io.Externalizable;
 import java.io.IOException;
+import java.io.ObjectInput;
+import java.io.ObjectOutput;
 
-import com.hyk.serializer.Externalizable;
-import com.hyk.serializer.HykSerializer.Input;
-import com.hyk.serializer.HykSerializer.Output;
 
 /**
  * @author qiying.wang
@@ -28,37 +28,19 @@ public class Message implements Externalizable{
 	{
 		return value;
 	}
-	
+
+
 	@Override
-	public void readExternal(Input in) throws IOException,
+	public void readExternal(ObjectInput in) throws IOException,
 			ClassNotFoundException {
-		sessionID = in.readLong();
-		int typeValue = in.readInt();
-		type = MessageType.valueOf(typeValue);
-		switch (type) {
-		case Request:
-		{
-			value = in.readObject(Request.class);
-			break;
-		}	
-		case Response:
-		{
-			value = in.readObject(Response.class);
-			break;
-		}
-		case Exception:
-		{
-			break;
-		}
-		default:
-			break;
-		}
+		// TODO Auto-generated method stub
+		
 	}
+
 	@Override
-	public void writeExternal(Output out) throws IOException {
-		out.writeLong(sessionID);
-		out.writeInt(type.getValue());
-		out.writeObject(value);		
+	public void writeExternal(ObjectOutput out) throws IOException {
+		// TODO Auto-generated method stub
+		
 	}
 	
 	

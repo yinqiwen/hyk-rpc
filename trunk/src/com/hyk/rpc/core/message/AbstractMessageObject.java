@@ -3,7 +3,9 @@
  */
 package com.hyk.rpc.core.message;
 
-import com.hyk.serializer.Externalizable;
+import java.io.Externalizable;
+
+
 
 /**
  * @author qiying.wang

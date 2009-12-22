@@ -4,10 +4,9 @@
 package com.hyk.rpc.core.message;
 
 import java.io.IOException;
+import java.io.ObjectInput;
+import java.io.ObjectOutput;
 
-import com.hyk.serializer.Externalizable;
-import com.hyk.serializer.HykSerializer.Input;
-import com.hyk.serializer.HykSerializer.Output;
 
 /**
  * @author qiying.wang
@@ -16,20 +15,23 @@ import com.hyk.serializer.HykSerializer.Output;
 public class Response extends AbstractMessageObject{
 
 	protected TypeValue reply;
-	@Override
-	public void readExternal(Input in) throws IOException,
-			ClassNotFoundException {
-
-		reply = in.readObject(TypeValue.class);
-	}
-	@Override
-	public void writeExternal(Output out) throws IOException {
-
-		out.writeObject(reply);		
-	}
+	
 	@Override
 	public MessageType getType() {
 		return MessageType.Response;
+	}
+
+	@Override
+	public void readExternal(ObjectInput in) throws IOException,
+			ClassNotFoundException {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void writeExternal(ObjectOutput out) throws IOException {
+		// TODO Auto-generated method stub
+		
 	}
 	
 }
