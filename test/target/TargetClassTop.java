@@ -9,8 +9,6 @@ import java.io.ObjectInput;
 import java.io.ObjectOutput;
 import java.io.Serializable;
 
-import com.hyk.serializer.HykSerializer.Input;
-import com.hyk.serializer.HykSerializer.Output;
 
 /**
  * @author qiying.wang
@@ -51,17 +49,5 @@ public class TargetClassTop implements Serializable
 //		//Output output = (Output) out;
 //		out.writeUTF(name);
 //	}
-//	@Override
-//	public void readExternal(Input in) throws IOException,
-//			ClassNotFoundException {
-//		// TODO Auto-generated method stub
-//		target = in.readObject(TargetClass.class);
-//		name = in.readUTF();
-//	}
-//	@Override
-//	public void writeExternal(Output out) throws IOException {
-//		// TODO Auto-generated method stub
-//		out.writeObject(target);
-//		out.writeUTF(name);
-//	}
+
 }
