@@ -330,6 +330,11 @@ public class HykObjectInput implements ObjectInput {
 	
 	public String readUTF() throws IOException {
 		int size = readInt();
+//		char[] buf = new char[size];
+//		for (int i = 0; i < buf.length; i++) {
+//			buf[i] = readChar();
+//		}
+//		return new String(buf);
 		return is.readString(size);
 
 	}

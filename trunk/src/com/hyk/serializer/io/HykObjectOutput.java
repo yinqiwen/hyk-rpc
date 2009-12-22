@@ -54,10 +54,11 @@ public class HykObjectOutput<T> implements ObjectOutput {
 	
 	public void writeObject(Object obj, Class declClass) throws IOException {
 		if (null == obj)
+		{
 			return;
+		}
+			
 		try {
-			if (null == obj)
-				return;
 			Class clazz = obj.getClass();
 			Type t = ReflectionCache.getType(clazz);
 			switch (t) {
@@ -178,6 +179,13 @@ public class HykObjectOutput<T> implements ObjectOutput {
 	public void writeChars(String s) throws IOException {
 		// TODO Auto-generated method stub
 		writeBytes(s);
+//		if (null == s)
+//			return;
+//		writeInt(s.length());
+//		char[] buf = s.toCharArray();
+//		for (int i = 0; i < buf.length; i++) {
+//			writeChar(buf[i]);
+//		}
 	}
 
 	public void writeByte(final byte value) throws IOException {
