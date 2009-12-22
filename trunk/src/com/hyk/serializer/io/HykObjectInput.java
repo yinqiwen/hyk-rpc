@@ -153,17 +153,23 @@ public class HykObjectInput implements ObjectInput {
 				return (T) Proxy.newProxyInstance(loader, interfaces, handler);
 			}
 			case OBJECT: {
-				Constructor<T> cons = ReflectionCache.getDefaultConstructor(clazz);
+				int indicator = readInt();
+				Class realClass = clazz;
+				if(indicator == 1)
+				{
+					realClass =  Class.forName(readUTF());
+				}
+				Constructor<T> cons = ReflectionCache.getDefaultConstructor(realClass);
 				T ret = cons.newInstance(null);
 				if (!(ret instanceof Serializable)) {
-					throw new NotSerializableException(clazz.getName());
+					throw new NotSerializableException(realClass.getName());
 				}
 				if (ret instanceof Externalizable) {
 					Externalizable externalizable = (Externalizable) ret;
 					externalizable.readExternal(this);
 					return ret;
 				}
-				Field[] fs = ReflectionCache.getSerializableFields(clazz);
+				Field[] fs = ReflectionCache.getSerializableFields(realClass);
 				while (true) {
 					int tag = readTag();
 					if (tag == 0)
