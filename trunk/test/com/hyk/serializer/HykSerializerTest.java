@@ -2,6 +2,10 @@ package com.hyk.serializer;
 
 import java.io.IOException;
 import java.io.NotSerializableException;
+import java.io.Serializable;
+import java.lang.reflect.InvocationHandler;
+import java.lang.reflect.Method;
+import java.lang.reflect.Proxy;
 import java.util.Arrays;
 
 import target.TargetClassTop;
@@ -10,6 +14,16 @@ import junit.framework.TestCase;
 public class HykSerializerTest extends TestCase {
 
 	static enum TEST{A, B, C};
+	
+	static interface TI{ public String say();}
+	static String expectedProxyTestResult = "testProxy";
+	static class TH implements InvocationHandler,Serializable{
+
+		@Override
+		public Object invoke(Object proxy, Method method, Object[] args)
+				throws Throwable {
+			return expectedProxyTestResult;
+		}}
 	
 	Serializer serializer = null;
 	
@@ -81,12 +95,21 @@ public class HykSerializerTest extends TestCase {
 		assertEquals(result, "hello,world");
 	}
 	
+	public void testProxy() throws NotSerializableException, IOException, IllegalArgumentException, InstantiationException
+	{
+		Object obj = Proxy.newProxyInstance(HykSerializerTest.class.getClassLoader(), new Class[]{TI.class}, new TH());
+		byte[] data = serializer.serialize(obj);
+		TI t = (TI) serializer.deserialize(Proxy.getProxyClass(HykSerializerTest.class.getClassLoader(), new Class[]{TI.class}), data);
+		assertEquals(expectedProxyTestResult, t.say());
+	}
+	
 	
 	public static void main(String[] args) throws IOException, ClassNotFoundException, InstantiationException {
 		// TODO Auto-generated method stub
 		TargetClassTop test = new TargetClassTop();
 		test.setName("wangqiying!");
 		Serializer serializer = new HykSerializer();
+		//Serializer serializer = new StandardSerializer();
 		long start = System.currentTimeMillis();
 		for (int i = 0; i < 99999; i++) {
 			//byte[] buf = new byte[100];
