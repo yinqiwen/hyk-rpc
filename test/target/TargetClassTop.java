@@ -20,7 +20,7 @@ public class TargetClassTop implements Serializable
 {
 
 	public TargetClass getTarget() {
-		return target;
+		return (TargetClass) target;
 	}
 	public void setTarget(TargetClass target) {
 		this.target = target;
