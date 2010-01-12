@@ -10,6 +10,7 @@ import java.io.ObjectOutputStream;
 public class StandardSerializer implements Serializer {
 
 	
+	@SuppressWarnings("unchecked")
 	@Override
 	public <T> T deserialize(Class<T> type, byte[] data)
 			throws NotSerializableException, IOException,InstantiationException {
