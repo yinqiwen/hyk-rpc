@@ -138,8 +138,7 @@ public class HykObjectOutput<T> implements ObjectOutput {
 				
 				Field[] fs = ReflectionCache.getSerializableFields(clazz);
 				for (int i = 0; i < fs.length; i++) {
-					Field f = fs[i];
-					
+					Field f = fs[i];		
 					Object fieldValue = f.get(obj);
 					if(null != fieldValue)
 					{
