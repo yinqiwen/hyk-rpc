@@ -126,6 +126,7 @@ public class HykObjectOutput<T> implements ObjectOutput {
 					externalizable.writeExternal(this);
 					return;
 				}
+				clazz = ReflectionCache.extractClass(clazz);
 				if(clazz.equals(declClass))
 				{
 					writeInt(0);

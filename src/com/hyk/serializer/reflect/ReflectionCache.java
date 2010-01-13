@@ -14,6 +14,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
+import net.sf.cglib.proxy.Enhancer;
+import net.sf.cglib.proxy.NoOp;
+
 import com.hyk.serializer.io.Type;
 
 /**
@@ -58,12 +61,35 @@ public class ReflectionCache {
 		reservedClassTable.put(double[].class, Type.ARRAY);
 	}
 	
+	public static boolean isGeneratedClassByCGLIB(Class clazz)
+	{
+		return Enhancer.isEnhanced(clazz);
+	}
+	
+	public static Class extractClass(Class clazz)
+	{
+		while(isGeneratedClassByCGLIB(clazz))
+		{
+			clazz = clazz.getSuperclass();
+		}
+		return clazz;
+	}
+	
 	public static Constructor getDefaultConstructor(Class clazz) throws SecurityException, NoSuchMethodException
 	{
 		Constructor cons = defaultConstructorCacheTable.get(clazz);
 		if(null == cons)
 		{
-			cons = clazz.getDeclaredConstructor(null);
+			try {
+				cons = clazz.getDeclaredConstructor(null);
+			} catch (Exception e) {
+				Enhancer en = new Enhancer();
+				en.setSuperclass(clazz);
+				en.setCallback(new NoOp() {
+				});
+				cons = en.createClass().getConstructor(null);
+			}
+			
 			cons.setAccessible(true);
 			defaultConstructorCacheTable.put(clazz, cons);
 		}
