@@ -6,7 +6,6 @@ package com.hyk.serializer;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.NotSerializableException;
-import java.io.OutputStream;
 
 import com.hyk.serializer.io.HykObjectInput;
 import com.hyk.serializer.io.BufferedInputStream;
