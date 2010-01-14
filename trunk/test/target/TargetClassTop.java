@@ -19,7 +19,7 @@ public class TargetClassTop implements Serializable
 //                                         , com.hyk.serializer.Externalizable
 {
 
-	public TargetClassTop(int i)
+	public TargetClassTop()
 	{
 
 	}
