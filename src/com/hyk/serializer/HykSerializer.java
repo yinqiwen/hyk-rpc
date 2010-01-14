@@ -6,10 +6,16 @@ package com.hyk.serializer;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.NotSerializableException;
+import java.lang.reflect.Constructor;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
 import com.hyk.serializer.io.HykObjectInput;
 import com.hyk.serializer.io.BufferedInputStream;
 import com.hyk.serializer.io.HykObjectOutput;
+import com.hyk.serializer.reflect.DefaultConstructor;
+import com.hyk.serializer.util.ClassUtil;
 
 
 /**
@@ -18,6 +24,8 @@ import com.hyk.serializer.io.HykObjectOutput;
  */
 public class HykSerializer implements Serializer {
 
+	private Map<Class, DefaultConstructor> deafultConstructorMap = new ConcurrentHashMap<Class, DefaultConstructor>();
+	
 	public static long encodeZigZag(final long n) {
 		// Note: the right-shift must be arithmetic
 		return (n << 1) ^ (n >> 63);
@@ -141,7 +149,7 @@ public class HykSerializer implements Serializer {
 			throw new InstantiationException(type.getName());
 		}
 		BufferedInputStream is = new BufferedInputStream(data);
-		HykObjectInput in = new HykObjectInput(is);
+		HykObjectInput in = new HykObjectInput(is, this);
 		//return null;
 		return in.readObject(type);
 	}
@@ -159,5 +167,30 @@ public class HykSerializer implements Serializer {
 		out.flush();
 		return bos.toByteArray();
 	}
+	
+	protected void registerDefaultConstructor(Class clazz, Constructor cons, Object[] parameterValues) throws NoSuchMethodException
+	{
+		cons.setAccessible(true);
+		deafultConstructorMap.put(clazz, new DefaultConstructor(cons, parameterValues));
+	}
+	
+	public void registerDefaultConstructor(Class clazz, Class[] parameterTypes, Object... parameterValues) throws SecurityException, NoSuchMethodException
+	{
+		Constructor cons = clazz.getConstructor(parameterTypes);
+		registerDefaultConstructor(clazz, cons, parameterValues);
+	}
+	
+	public void registerDefaultConstructor(Class clazz, Object... parameterValues) throws SecurityException, NoSuchMethodException
+	{
+		Constructor cons = ClassUtil.getConstructor(clazz, parameterValues);
+		registerDefaultConstructor(clazz, cons, parameterValues);
+	}
+	
+	public DefaultConstructor getDefaultConstructor(Class clazz)
+	{
+		return deafultConstructorMap.get(clazz);
+	}
+	
+	
 
 }
