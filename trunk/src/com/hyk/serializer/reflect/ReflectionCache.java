@@ -14,23 +14,23 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
-import net.sf.cglib.proxy.Enhancer;
-import net.sf.cglib.proxy.NoOp;
-
+import com.hyk.serializer.HykSerializer;
 import com.hyk.serializer.io.Type;
 
 /**
  * @author qiying.wang
- *
+ * 
  */
-public class ReflectionCache {
+public class ReflectionCache
+{
 
-	private static Map<Class, List<Type>> typeListCacheTable = new ConcurrentHashMap<Class, List<Type>>();
-	private static Map<Class, Field[]> fieldCacheTable = new ConcurrentHashMap<Class, Field[]>();
-	private static Map<Class, Method[]> methodCacheTable = new ConcurrentHashMap<Class, Method[]>();
-	private static Map<Class, Constructor> defaultConstructorCacheTable = new ConcurrentHashMap<Class, Constructor>();
-	private static Map<Class, Type> reservedClassTable = new HashMap<Class, Type>();
-	static {
+	private static Map<Class, List<Type>>			typeListCacheTable				= new ConcurrentHashMap<Class, List<Type>>();
+	private static Map<Class, Field[]>				fieldCacheTable					= new ConcurrentHashMap<Class, Field[]>();
+	private static Map<Class, Method[]>				methodCacheTable				= new ConcurrentHashMap<Class, Method[]>();
+	private static Map<Class, DefaultConstructor>	defaultConstructorCacheTable	= new ConcurrentHashMap<Class, DefaultConstructor>();
+	private static Map<Class, Type>					reservedClassTable				= new HashMap<Class, Type>();
+	static
+	{
 		reservedClassTable.put(byte.class, Type.BYTE);
 		reservedClassTable.put(Byte.class, Type.BYTE);
 		reservedClassTable.put(char.class, Type.CHAR);
@@ -60,43 +60,24 @@ public class ReflectionCache {
 		reservedClassTable.put(float[].class, Type.ARRAY);
 		reservedClassTable.put(double[].class, Type.ARRAY);
 	}
-	
-	public static boolean isGeneratedClassByCGLIB(Class clazz)
+
+	public static DefaultConstructor getDefaultConstructor(Class clazz, HykSerializer serializer) throws SecurityException, NoSuchMethodException
 	{
-		return Enhancer.isEnhanced(clazz);
-	}
-	
-	public static Class extractClass(Class clazz)
-	{
-		while(isGeneratedClassByCGLIB(clazz))
-		{
-			clazz = clazz.getSuperclass();
-		}
-		return clazz;
-	}
-	
-	public static Constructor getDefaultConstructor(Class clazz) throws SecurityException, NoSuchMethodException
-	{
-		Constructor cons = defaultConstructorCacheTable.get(clazz);
+		DefaultConstructor cons = defaultConstructorCacheTable.get(clazz);
 		if(null == cons)
 		{
-			try {
-				cons = clazz.getDeclaredConstructor(null);
-			} catch (Exception e) {
-				Enhancer en = new Enhancer();
-				en.setSuperclass(clazz);
-				en.setCallback(new NoOp() {
-				});
-				cons = en.createClass().getConstructor(null);
+			cons = serializer.getDefaultConstructor(clazz);
+			if(null == cons)
+			{
+				Constructor jcons = clazz.getDeclaredConstructor(null);
+				jcons.setAccessible(true);
+				cons = new DefaultConstructor(jcons, null);		
 			}
-			
-			cons.setAccessible(true);
 			defaultConstructorCacheTable.put(clazz, cons);
 		}
 		return cons;
 	}
-	
-	
+
 	protected static ArrayList<Field> getAllDeaclaredFields(Class clazz)
 	{
 		if(null == clazz || clazz.isPrimitive())
@@ -107,10 +88,9 @@ public class ReflectionCache {
 		while(!clazz.equals(Object.class))
 		{
 			Field[] fs = clazz.getDeclaredFields();
-			for (Field field : fs) {
-				if(Modifier.isTransient(field.getModifiers()) 
-						|| Modifier.isStatic(field.getModifiers())
-						|| Modifier.isFinal(field.getModifiers()))
+			for(Field field : fs)
+			{
+				if(Modifier.isTransient(field.getModifiers()) || Modifier.isStatic(field.getModifiers()))
 				{
 					continue;
 				}
@@ -119,11 +99,11 @@ public class ReflectionCache {
 			}
 			clazz = clazz.getSuperclass();
 		}
-		
+
 		return ret;
-		
+
 	}
-	
+
 	public static Field[] getSerializableFields(Class clazz)
 	{
 		Field[] fs = fieldCacheTable.get(clazz);
@@ -136,7 +116,7 @@ public class ReflectionCache {
 		}
 		return fs;
 	}
-	
+
 	public static Method[] getMethods(Class clazz)
 	{
 		Method[] ms = methodCacheTable.get(clazz);
@@ -147,47 +127,55 @@ public class ReflectionCache {
 		}
 		return ms;
 	}
-	
-	public static Type getType(Class clazz) {
-		if (reservedClassTable.containsKey(clazz)) {
+
+	public static Type getType(Class clazz)
+	{
+		if(reservedClassTable.containsKey(clazz))
+		{
 			return reservedClassTable.get(clazz);
 		}
 		Type ret = null;
-		if (clazz.isArray()) {
+		if(clazz.isArray())
+		{
 			ret = Type.ARRAY;
 		}
-		else if (clazz.isEnum()) {
+		else if(clazz.isEnum())
+		{
 			ret = Type.ENUM;
 		}
-		else if (Proxy.isProxyClass(clazz)) {
+		else if(Proxy.isProxyClass(clazz))
+		{
 			ret = Type.PROXY;
 		}
-		else{
+		else
+		{
 			ret = Type.OBJECT;
 		}
 		reservedClassTable.put(clazz, ret);
 		return ret;
 	}
-	
+
 	private static void getTypeList(Class clazz, List<Type> typeList)
 	{
 		Type type = getType(clazz);
 		typeList.add(type);
-		switch (type) {
-		case OBJECT:
-		case PROXY:
+		switch(type)
 		{
-			Field[] fs = getSerializableFields(clazz);
-			for (Field field : fs) {
-				getTypeList(field.getClass(), typeList);
+			case OBJECT:
+			case PROXY:
+			{
+				Field[] fs = getSerializableFields(clazz);
+				for(Field field : fs)
+				{
+					getTypeList(field.getClass(), typeList);
+				}
+				break;
 			}
-			break;
-		}
-		default:
-			break;
+			default:
+				break;
 		}
 	}
-	
+
 	public static List<Type> getTypeList(Class clazz)
 	{
 		List<Type> ret = typeListCacheTable.get(clazz);
@@ -199,5 +187,5 @@ public class ReflectionCache {
 		getTypeList(clazz, ret);
 		return ret;
 	}
-	
+
 }

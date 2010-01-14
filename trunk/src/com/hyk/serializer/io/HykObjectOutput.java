@@ -118,15 +118,10 @@ public class HykObjectOutput<T> implements ObjectOutput {
 				break;
 			}
 			case OBJECT: {
+				
 				if (!(obj instanceof Serializable)) {
 					throw new NotSerializableException(clazz.getName());
 				}
-				if (obj instanceof Externalizable) {
-					Externalizable externalizable = (Externalizable) obj;
-					externalizable.writeExternal(this);
-					return;
-				}
-				clazz = ReflectionCache.extractClass(clazz);
 				if(clazz.equals(declClass))
 				{
 					writeInt(0);
@@ -135,7 +130,12 @@ public class HykObjectOutput<T> implements ObjectOutput {
 				{
 					writeInt(1);
 					writeUTF(obj.getClass().getName());
-				}				
+				}			
+				if (obj instanceof Externalizable) {
+					Externalizable externalizable = (Externalizable) obj;
+					externalizable.writeExternal(this);
+					return;
+				}					
 				
 				Field[] fs = ReflectionCache.getSerializableFields(clazz);
 				for (int i = 0; i < fs.length; i++) {

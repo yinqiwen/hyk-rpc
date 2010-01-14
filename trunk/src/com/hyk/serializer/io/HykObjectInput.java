@@ -14,6 +14,8 @@ import java.lang.reflect.Field;
 import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.Proxy;
 
+import com.hyk.serializer.HykSerializer;
+import com.hyk.serializer.reflect.DefaultConstructor;
 import com.hyk.serializer.reflect.ReflectionCache;
 
 
@@ -26,10 +28,12 @@ public class HykObjectInput implements ObjectInput {
 	//InputStream is;
 	BufferedInputStream is;
 	Class clazz;
+	HykSerializer serializer;
 
-	public HykObjectInput(BufferedInputStream is)
+	public HykObjectInput(BufferedInputStream is, HykSerializer serializer)
 	{
 		this.is = is;
+		this.serializer = serializer;
 	}
 	
 	public int readRawLittleEndian32() throws IOException {
@@ -159,8 +163,8 @@ public class HykObjectInput implements ObjectInput {
 				{
 					realClass =  Class.forName(readUTF());
 				}
-				Constructor<T> cons = ReflectionCache.getDefaultConstructor(realClass);
-				T ret = cons.newInstance(null);
+				DefaultConstructor<T> cons = ReflectionCache.getDefaultConstructor(realClass, serializer);
+				T ret = cons.newInstance();
 				if (!(ret instanceof Serializable)) {
 					throw new NotSerializableException(realClass.getName());
 				}
@@ -176,6 +180,7 @@ public class HykObjectInput implements ObjectInput {
 						break;
 					Field f = fs[tag - 1];
 					Class fieldType = f.getType();
+					System.out.println("####" + f.getName());
 					f.set(ret, readObject(fieldType));
 				}
 				return ret;
@@ -198,6 +203,7 @@ public class HykObjectInput implements ObjectInput {
 		} catch (IOException e) {
 			throw e;
 		} catch (Exception e) {
+			e.printStackTrace();
 			throw new IOException(e);
 		}
 
@@ -335,6 +341,7 @@ public class HykObjectInput implements ObjectInput {
 //			buf[i] = readChar();
 //		}
 //		return new String(buf);
+		
 		return is.readString(size);
 
 	}
