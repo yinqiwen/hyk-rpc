@@ -15,12 +15,13 @@ import com.hyk.compress.Compressor;
  */
 public class SevenZipCompressor extends AbstractCompressor {
 
-	
+	private static com.hyk.compress.sevenzip.Compression.LZMA.Decoder decoder = new com.hyk.compress.sevenzip.Compression.LZMA.Decoder();
+	private static com.hyk.compress.sevenzip.Compression.LZMA.Encoder encoder = new com.hyk.compress.sevenzip.Compression.LZMA.Encoder();
 	@Override
 	public byte[] compress(byte[] data, int offset, int length) throws IOException {
 		ByteArrayOutputStream bos = new ByteArrayOutputStream(length / 3);
 		ByteArrayInputStream bis = new ByteArrayInputStream(data, offset, length);
-		com.hyk.compress.sevenzip.Compression.LZMA.Encoder encoder = new com.hyk.compress.sevenzip.Compression.LZMA.Encoder();
+		
 		encoder.WriteCoderProperties(bos);
 		encoder.SetEndMarkerMode(false);
 		long size = data.length;
@@ -35,7 +36,7 @@ public class SevenZipCompressor extends AbstractCompressor {
 	 */
 	@Override
 	public byte[] decompress(byte[] data, int offset, int length) throws IOException{
-		com.hyk.compress.sevenzip.Compression.LZMA.Decoder decoder = new com.hyk.compress.sevenzip.Compression.LZMA.Decoder();
+		
 		ByteArrayInputStream inStream = new ByteArrayInputStream(data, offset, length);
 		ByteArrayOutputStream outStream = new ByteArrayOutputStream(length*3);
 		int propertiesSize = 5;

@@ -8,15 +8,12 @@
 	<property name="distroot" value="${root}/dist" />
 	<property name="docdir" value="${root}/doc" />
 	<property name="srcroot" value="${root}/src" />
+	<property name="src3rd-compress" value="${root}/3rd/compress" />
 	<property name="testroot" value="${root}/test" />
 	<property name="junit_jar" value="${root}/lib/junit.jar" />
-	<property name="log_jar" value="${root}/lib/log4j-1.2.8.jar" />
-	<property name="sip_jar" value="${root}/lib/sip-sdp.jar" />
-	<property name="framework_jar" value="${root}/lib/hyk-framework.jar" />
-	<property name="expression_jar" value="${root}/lib/hyk-expression.jar" />
 	<property name="version" value="0.1.1" />
 	<property name="release" value="release" />
-	<property name="project_name" value="hyk-sipunit++" />
+	<property name="project_name" value="hyk-rpc" />
 
 	<target name="prepare">
 	    <mkdir dir="${classes}"/>

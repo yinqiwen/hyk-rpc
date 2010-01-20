@@ -16,7 +16,7 @@ import com.hyk.serializer.io.BufferedInputStream;
 import com.hyk.serializer.io.HykObjectOutput;
 import com.hyk.serializer.reflect.DefaultConstructor;
 import com.hyk.serializer.util.ClassUtil;
-
+import com.hyk.util.buffer.ByteArray;
 
 /**
  * @author Administrator
@@ -24,8 +24,8 @@ import com.hyk.serializer.util.ClassUtil;
  */
 public class HykSerializer implements Serializer {
 
-	private Map<Class, DefaultConstructor> deafultConstructorMap = new ConcurrentHashMap<Class, DefaultConstructor>();
-	
+	//private Map<Class, DefaultConstructor> deafultConstructorMap = new ConcurrentHashMap<Class, DefaultConstructor>();
+
 	public static long encodeZigZag(final long n) {
 		// Note: the right-shift must be arithmetic
 		return (n << 1) ^ (n >> 63);
@@ -45,7 +45,7 @@ public class HykSerializer implements Serializer {
 		// Note: the right-shift must be arithmetic
 		return (n << 1) ^ (n >> 15);
 	}
-	
+
 	public static class SizeComputer {
 		public static final int LITTLE_ENDIAN_64_SIZE = 8;
 		public static final int LITTLE_ENDIAN_32_SIZE = 4;
@@ -136,22 +136,37 @@ public class HykSerializer implements Serializer {
 			return computeVarintSize(encodeZigZag(value));
 		}
 	}
+
 	/*
 	 * (non-Javadoc)
 	 * 
 	 * @see com.hyk.serializer.Serializer#deserialize(java.lang.Class, byte[])
 	 */
-	@Override
-	public <T> T deserialize(Class<T> type, byte[] data)
-			throws NotSerializableException, IOException,InstantiationException  {
-		if(type.isInterface())
-		{
+	//@Override
+	public <T> T deserialize_(Class<T> type, byte[] data)
+			throws NotSerializableException, IOException,
+			InstantiationException {
+		if (type.isInterface()) {
 			throw new InstantiationException(type.getName());
 		}
 		BufferedInputStream is = new BufferedInputStream(data);
 		HykObjectInput in = new HykObjectInput(is, this);
-		//return null;
+		// return null;
 		return in.readObject(type);
+	}
+
+	public <T> T deserialize(Class<T> type, ByteArray data)
+			throws NotSerializableException, IOException,
+			InstantiationException {
+		if (type.isInterface()) {
+			throw new InstantiationException(type.getName());
+		}
+		BufferedInputStream is = new BufferedInputStream(data.input);
+		HykObjectInput in = new HykObjectInput(is, this);
+		// return null;
+		T ret =  in.readObject(type);
+		in.close();
+		return ret;
 	}
 
 	/*
@@ -159,38 +174,24 @@ public class HykSerializer implements Serializer {
 	 * 
 	 * @see com.hyk.serializer.Serializer#serialize(java.lang.Object)
 	 */
-	@Override
-	public byte[] serialize(Object obj) throws NotSerializableException, IOException {
+	//@Override
+	public byte[] serialize_(Object obj) throws NotSerializableException,
+			IOException {
 		ByteArrayOutputStream bos = new ByteArrayOutputStream(32);
 		HykObjectOutput out = new HykObjectOutput(bos);
 		out.writeObject(obj);
 		out.flush();
 		return bos.toByteArray();
 	}
-	
-	protected void registerDefaultConstructor(Class clazz, Constructor cons, Object[] parameterValues) throws NoSuchMethodException
-	{
-		cons.setAccessible(true);
-		deafultConstructorMap.put(clazz, new DefaultConstructor(cons, parameterValues));
+
+	public ByteArray serialize(Object obj) throws NotSerializableException,
+			IOException {
+		ByteArray array = pool.apply(32);
+		HykObjectOutput out = new HykObjectOutput(array.output);
+		out.writeObject(obj);
+		out.close();
+		return array;
 	}
-	
-	public void registerDefaultConstructor(Class clazz, Class[] parameterTypes, Object... parameterValues) throws SecurityException, NoSuchMethodException
-	{
-		Constructor cons = clazz.getConstructor(parameterTypes);
-		registerDefaultConstructor(clazz, cons, parameterValues);
-	}
-	
-	public void registerDefaultConstructor(Class clazz, Object... parameterValues) throws SecurityException, NoSuchMethodException
-	{
-		Constructor cons = ClassUtil.getConstructor(clazz, parameterValues);
-		registerDefaultConstructor(clazz, cons, parameterValues);
-	}
-	
-	public DefaultConstructor getDefaultConstructor(Class clazz)
-	{
-		return deafultConstructorMap.get(clazz);
-	}
-	
-	
+
 
 }

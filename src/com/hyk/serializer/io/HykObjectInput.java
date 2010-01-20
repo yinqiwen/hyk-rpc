@@ -180,7 +180,7 @@ public class HykObjectInput implements ObjectInput {
 						break;
 					Field f = fs[tag - 1];
 					Class fieldType = f.getType();
-					System.out.println("####" + f.getName());
+					//System.out.println("####" + f.getName());
 					f.set(ret, readObject(fieldType));
 				}
 				return ret;

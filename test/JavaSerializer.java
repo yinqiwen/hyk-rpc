@@ -4,6 +4,9 @@ import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 
+import com.hyk.serializer.StandardSerializer;
+import com.hyk.util.buffer.ByteArray;
+
 import target.TargetClassTop;
 
 /**
@@ -20,39 +23,31 @@ public class JavaSerializer {
 	 * @param args
 	 * @throws IOException 
 	 * @throws ClassNotFoundException 
+	 * @throws InstantiationException 
 	 */
-	public static void main(String[] args) throws IOException, ClassNotFoundException {
+	public static void main(String[] args) throws IOException, ClassNotFoundException, InstantiationException {
 		// TODO Auto-generated method stub
 		TargetClassTop test = new TargetClassTop();
 		test.setName("wangqiying!");
-		//ObjectOutputStream oos = new ObjectOutputStream(out);
+		StandardSerializer ser = new StandardSerializer();
 		long start = System.currentTimeMillis();
 		for (int i = 0; i < 99999; i++) {
-			//byte[] buf = new byte[100];
-			ByteArrayOutputStream bos = new ByteArrayOutputStream(208);
-			ObjectOutputStream oos = new ObjectOutputStream(bos);
-			oos.writeObject(test);
+			ByteArray array = ser.serialize_(test);
+			array.free();
 		}
-		ByteArrayOutputStream bos = new ByteArrayOutputStream(208);
-		ObjectOutputStream oos = new ObjectOutputStream(bos);
-		oos.writeObject(test);
+		ByteArray array = ser.serialize_(test);
 		long end = System.currentTimeMillis();
 		System.out.println("####Serialize time:" + (end - start));
 		
-		byte[] data = bos.toByteArray();
-		System.out.println("####Serialize size:" + data.length);
+		//byte[] data = bos.toByteArray();
+		System.out.println("####Serialize size:" + array.size());
 		
 		
 		start = System.currentTimeMillis();
 		for (int i = 0; i < 99999; i++) {
-			//byte[] buf = new byte[100];
-			ByteArrayInputStream bis = new ByteArrayInputStream(data);
-			ObjectInputStream ios = new ObjectInputStream(bis);
-			ios.readObject();
+			ser.deserialize_(TargetClassTop.class, array);
 		}
-		ByteArrayInputStream bis = new ByteArrayInputStream(data);
-		ObjectInputStream ios = new ObjectInputStream(bis);
-		ios.readObject();
+		ser.deserialize_(TargetClassTop.class, array);
 		end = System.currentTimeMillis();
 		System.out.println("####Deserialize time:" + (end - start));
 	}
