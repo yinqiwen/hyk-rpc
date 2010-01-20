@@ -27,6 +27,7 @@ public class GZipCompressor extends AbstractCompressor {
 		ByteArrayOutputStream bos = new ByteArrayOutputStream(length / 3);
 		GZIPOutputStream gos = new GZIPOutputStream(bos);
 		gos.write(data, offset, length);
+		gos.finish();
 		gos.flush();
 		gos.close();
 		return bos.toByteArray();

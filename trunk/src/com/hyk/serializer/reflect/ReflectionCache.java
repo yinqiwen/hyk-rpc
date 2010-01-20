@@ -66,8 +66,8 @@ public class ReflectionCache
 		DefaultConstructor cons = defaultConstructorCacheTable.get(clazz);
 		if(null == cons)
 		{
-			cons = serializer.getDefaultConstructor(clazz);
-			if(null == cons)
+			//cons = serializer.getDefaultConstructor(clazz);
+			//if(null == cons)
 			{
 				Constructor jcons = clazz.getDeclaredConstructor(null);
 				jcons.setAccessible(true);

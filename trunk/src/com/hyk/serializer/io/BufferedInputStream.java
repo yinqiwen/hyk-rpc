@@ -122,5 +122,10 @@ public class BufferedInputStream extends InputStream {
 		}
 		
 	}
+	
+	public void close() throws IOException 
+	{
+		is.close();
+	}
 
 }

@@ -8,6 +8,8 @@ import java.lang.reflect.Method;
 import java.lang.reflect.Proxy;
 import java.util.Arrays;
 
+import com.hyk.util.buffer.ByteArray;
+
 import target.TargetClassTop;
 import junit.framework.TestCase;
 
@@ -108,25 +110,32 @@ public class HykSerializerTest extends TestCase {
 		// TODO Auto-generated method stub
 		TargetClassTop test = new TargetClassTop();
 		test.setName("wangqiying!");
-		Serializer serializer = new HykSerializer();
+		HykSerializer serializer = new HykSerializer();
 		//Serializer serializer = new StandardSerializer();
 		long start = System.currentTimeMillis();
-		for (int i = 0; i < 999999; i++) {
+		for (int i = 0; i < 99999; i++) {
 			//byte[] buf = new byte[100];
-			serializer.serialize(test);
+			//serializer.serialize(test);
+			ByteArray array = serializer.serialize_(test);
+			array.free();
 		}
-		byte[] data = serializer.serialize(test);
+		//byte[] data = serializer.serialize(test);
+		ByteArray array = serializer.serialize_(test);
 		long end = System.currentTimeMillis();
 		System.out.println("####Serialize time:" + (end - start));
 
-		System.out.println("####Serialize size:" + data.length);
+		System.out.println("####Serialize size:" + array.size());
+		//System.out.println("####Serialize size:" + data.length);
 		
 		start = System.currentTimeMillis();
-		for (int i = 0; i < 999999; i++) {
+		for (int i = 0; i < 99999; i++) {
+			//System.out.println("????");
 			//byte[] buf = new byte[100];
-			serializer.deserialize(TargetClassTop.class, data);
+			//serializer.deserialize(TargetClassTop.class, data);
+			serializer.deserialize(TargetClassTop.class, array);
 		}
-		test = serializer.deserialize(TargetClassTop.class, data);
+		//test = serializer.deserialize(TargetClassTop.class, data);
+		test = serializer.deserialize(TargetClassTop.class, array);
 		end = System.currentTimeMillis();
 		System.out.println("####Deserialize time:" + (end - start));
 		System.out.println("####" + test.getName());
