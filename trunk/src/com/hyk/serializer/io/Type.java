@@ -9,7 +9,7 @@ package com.hyk.serializer.io;
  */
 public enum Type {
 	BOOL(0), BYTE(1), INT(2), LONG(3), FLOAT(4), DOUBLE(5), SHORT(6), CHAR(
-			7), STRING(8), ARRAY(9), OBJECT(10), ENUM(11), PROXY(12);
+			7), STRING(8), ARRAY(9), POJO(10), ENUM(11), PROXY(12),OTHER(13);
 
 	private int value;
 

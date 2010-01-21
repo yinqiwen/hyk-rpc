@@ -11,6 +11,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
+import com.hyk.serializer.impl.SerializerImplFactory;
 import com.hyk.serializer.io.HykObjectInput;
 import com.hyk.serializer.io.BufferedInputStream;
 import com.hyk.serializer.io.HykObjectOutput;
@@ -24,7 +25,8 @@ import com.hyk.util.buffer.ByteArray;
  */
 public class HykSerializer implements Serializer {
 
-	//private Map<Class, DefaultConstructor> deafultConstructorMap = new ConcurrentHashMap<Class, DefaultConstructor>();
+	// private Map<Class, DefaultConstructor> deafultConstructorMap = new
+	// ConcurrentHashMap<Class, DefaultConstructor>();
 
 	public static long encodeZigZag(final long n) {
 		// Note: the right-shift must be arithmetic
@@ -142,7 +144,7 @@ public class HykSerializer implements Serializer {
 	 * 
 	 * @see com.hyk.serializer.Serializer#deserialize(java.lang.Class, byte[])
 	 */
-	//@Override
+	// @Override
 	public <T> T deserialize_(Class<T> type, byte[] data)
 			throws NotSerializableException, IOException,
 			InstantiationException {
@@ -161,11 +163,11 @@ public class HykSerializer implements Serializer {
 		if (type.isInterface()) {
 			throw new InstantiationException(type.getName());
 		}
-		BufferedInputStream is = new BufferedInputStream(data.input);
-		HykObjectInput in = new HykObjectInput(is, this);
-		// return null;
-		T ret =  in.readObject(type);
-		in.close();
+//		BufferedInputStream is = new BufferedInputStream(data.input);
+//		HykObjectInput in = new HykObjectInput(is, this);		
+//		T ret = in.readObject(type);
+		T ret = (T)SerializerImplFactory.getSerializer(type).deserialize(type, data);
+		data.rewind();
 		return ret;
 	}
 
@@ -174,7 +176,7 @@ public class HykSerializer implements Serializer {
 	 * 
 	 * @see com.hyk.serializer.Serializer#serialize(java.lang.Object)
 	 */
-	//@Override
+	// @Override
 	public byte[] serialize_(Object obj) throws NotSerializableException,
 			IOException {
 		ByteArrayOutputStream bos = new ByteArrayOutputStream(32);
@@ -186,12 +188,15 @@ public class HykSerializer implements Serializer {
 
 	public ByteArray serialize(Object obj) throws NotSerializableException,
 			IOException {
-		ByteArray array = pool.apply(32);
-		HykObjectOutput out = new HykObjectOutput(array.output);
-		out.writeObject(obj);
-		out.close();
-		return array;
+		return serialize(obj, ByteArray.allocate(32));
 	}
 
+	public ByteArray serialize(Object obj, ByteArray input)
+			throws NotSerializableException, IOException {
+		AbstractSerailizerImpl serializer = SerializerImplFactory.getSerializer(obj.getClass());
+		serializer.init(input);
+		serializer.serialize(obj, input);
+		return input.flip();
+	}
 
 }

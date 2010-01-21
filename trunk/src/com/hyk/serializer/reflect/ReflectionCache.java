@@ -24,11 +24,11 @@ import com.hyk.serializer.io.Type;
 public class ReflectionCache
 {
 
-	private static Map<Class, List<Type>>			typeListCacheTable				= new ConcurrentHashMap<Class, List<Type>>();
-	private static Map<Class, Field[]>				fieldCacheTable					= new ConcurrentHashMap<Class, Field[]>();
-	private static Map<Class, Method[]>				methodCacheTable				= new ConcurrentHashMap<Class, Method[]>();
-	private static Map<Class, DefaultConstructor>	defaultConstructorCacheTable	= new ConcurrentHashMap<Class, DefaultConstructor>();
-	private static Map<Class, Type>					reservedClassTable				= new HashMap<Class, Type>();
+	private static Map<Class, List<Type>>	typeListCacheTable				= new ConcurrentHashMap<Class, List<Type>>();
+	private static Map<Class, Field[]>		fieldCacheTable					= new ConcurrentHashMap<Class, Field[]>();
+	private static Map<Class, Method[]>		methodCacheTable				= new ConcurrentHashMap<Class, Method[]>();
+	private static Map<Class, Constructor>	defaultConstructorCacheTable	= new ConcurrentHashMap<Class, Constructor>();
+	private static Map<Class, Type>			reservedClassTable				= new HashMap<Class, Type>();
 	static
 	{
 		reservedClassTable.put(byte.class, Type.BYTE);
@@ -61,18 +61,15 @@ public class ReflectionCache
 		reservedClassTable.put(double[].class, Type.ARRAY);
 	}
 
-	public static DefaultConstructor getDefaultConstructor(Class clazz, HykSerializer serializer) throws SecurityException, NoSuchMethodException
+	public static Constructor getDefaultConstructor(Class clazz) throws SecurityException, NoSuchMethodException
 	{
-		DefaultConstructor cons = defaultConstructorCacheTable.get(clazz);
+		Constructor cons = defaultConstructorCacheTable.get(clazz);
 		if(null == cons)
 		{
-			//cons = serializer.getDefaultConstructor(clazz);
-			//if(null == cons)
-			{
-				Constructor jcons = clazz.getDeclaredConstructor(null);
-				jcons.setAccessible(true);
-				cons = new DefaultConstructor(jcons, null);		
-			}
+
+				cons = clazz.getDeclaredConstructor(null);
+				cons.setAccessible(true);
+
 			defaultConstructorCacheTable.put(clazz, cons);
 		}
 		return cons;
@@ -149,7 +146,16 @@ public class ReflectionCache
 		}
 		else
 		{
-			ret = Type.OBJECT;
+
+			try
+			{
+				clazz.getDeclaredConstructor(null);
+				ret = Type.POJO;
+			}
+			catch(Exception e)
+			{
+				ret = Type.OTHER;
+			}
 		}
 		reservedClassTable.put(clazz, ret);
 		return ret;
@@ -161,7 +167,7 @@ public class ReflectionCache
 		typeList.add(type);
 		switch(type)
 		{
-			case OBJECT:
+			case POJO:
 			case PROXY:
 			{
 				Field[] fs = getSerializableFields(clazz);
