@@ -11,41 +11,46 @@ import java.util.zip.GZIPOutputStream;
 
 import com.hyk.compress.AbstractCompressor;
 import com.hyk.compress.Compressor;
+import com.hyk.util.buffer.ByteArray;
 
 /**
  * @author Administrator
  *
  */
-public class GZipCompressor {
+public class GZipCompressor extends AbstractCompressor {
 
-
-	public byte[] compress(byte[] data, int offset, int length)
+	/* (non-Javadoc)
+	 * @see com.hyk.serializer.compress.Compressor#compress(byte[], int, int)
+	 */
+	@Override
+	public ByteArray compress(ByteArray data)
 			throws IOException {
-		ByteArrayOutputStream bos = new ByteArrayOutputStream(length / 3);
-		GZIPOutputStream gos = new GZIPOutputStream(bos);
-		gos.write(data, offset, length);
+		ByteArray ret = ByteArray.allocate(data.size() / 3);
+		GZIPOutputStream gos = new GZIPOutputStream(ret.output);
+		byte[] raw = data.rawbuffer();
+		int offset = data.position();
+		int len = data.size();
+		gos.write(raw, offset, len);
 		gos.finish();
 		gos.flush();
 		gos.close();
-		byte[] ret =  bos.toByteArray();
-		System.out.println("???1 " + ret.length);
+		//System.out.println("###1 " + ret.size());
 		return ret;
 	}
 
-
-	
-	public byte[] decompress(byte[] data, int offset, int length)
+	@Override
+	public ByteArray decompress(ByteArray data)
 			throws IOException {
-		System.out.println("???2 " + data[offset]);
-		ByteArrayInputStream bis = new ByteArrayInputStream(data, offset, length);
-		ByteArrayOutputStream bos = new ByteArrayOutputStream(length * 3);
-		GZIPInputStream gis = new GZIPInputStream(bis);
+		ByteArray ret = ByteArray.allocate(data.size() * 3);
+		GZIPInputStream gis = new GZIPInputStream(data.input);
 		byte b;
 		while((b = (byte) gis.read()) != -1)
 		{
-			bos.write(b);
+			ret.output.write(b);
 		}
-		return bos.toByteArray();
+		gis.close();
+		ret.flip();
+		return ret;
 	}
 
 }
