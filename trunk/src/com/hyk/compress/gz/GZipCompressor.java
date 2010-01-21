@@ -16,12 +16,9 @@ import com.hyk.compress.Compressor;
  * @author Administrator
  *
  */
-public class GZipCompressor extends AbstractCompressor {
+public class GZipCompressor {
 
-	/* (non-Javadoc)
-	 * @see com.hyk.serializer.compress.Compressor#compress(byte[], int, int)
-	 */
-	@Override
+
 	public byte[] compress(byte[] data, int offset, int length)
 			throws IOException {
 		ByteArrayOutputStream bos = new ByteArrayOutputStream(length / 3);
@@ -30,16 +27,16 @@ public class GZipCompressor extends AbstractCompressor {
 		gos.finish();
 		gos.flush();
 		gos.close();
-		return bos.toByteArray();
+		byte[] ret =  bos.toByteArray();
+		System.out.println("???1 " + ret.length);
+		return ret;
 	}
 
 
-	/* (non-Javadoc)
-	 * @see com.hyk.serializer.compress.Compressor#decompress(byte[], int, int)
-	 */
-	@Override
+	
 	public byte[] decompress(byte[] data, int offset, int length)
 			throws IOException {
+		System.out.println("???2 " + data[offset]);
 		ByteArrayInputStream bis = new ByteArrayInputStream(data, offset, length);
 		ByteArrayOutputStream bos = new ByteArrayOutputStream(length * 3);
 		GZIPInputStream gis = new GZIPInputStream(bis);
