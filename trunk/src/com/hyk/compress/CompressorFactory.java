@@ -7,7 +7,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 //import com.hyk.compress.bz2.BZip2Compressor;
-import com.hyk.compress.gz.GZipCompressor;
+import com.hyk.compress.gz.GZipCompressor2;
 import com.hyk.compress.sevenzip.SevenZipCompressor;
 import com.hyk.compress.zip.ZipCompressor;
 
@@ -22,7 +22,7 @@ public class CompressorFactory {
 	static
 	{
 		compressorClassTable.put(Compressor.SEVEN_ZIP, SevenZipCompressor.class);
-		compressorClassTable.put(Compressor.GZIP, GZipCompressor.class);
+		compressorClassTable.put(Compressor.GZIP, GZipCompressor2.class);
 		compressorClassTable.put(Compressor.ZIP, ZipCompressor.class);
 		//compressorClassTable.put(Compressor.BZIP2, BZip2Compressor.class);
 	}
@@ -32,7 +32,7 @@ public class CompressorFactory {
 		Class clazz = compressorClassTable.get(name);
 		if(null == clazz)
 		{
-			clazz = GZipCompressor.class;
+			clazz = GZipCompressor2.class;
 		}
 		return (Compressor) clazz.newInstance();
 	}
