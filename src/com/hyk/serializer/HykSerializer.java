@@ -179,7 +179,7 @@ public class HykSerializer implements Serializer {
 	// @Override
 	public byte[] serialize_(Object obj) throws NotSerializableException,
 			IOException {
-		ByteArrayOutputStream bos = new ByteArrayOutputStream(32);
+		ByteArrayOutputStream bos = new ByteArrayOutputStream(256);
 		HykObjectOutput out = new HykObjectOutput(bos);
 		out.writeObject(obj);
 		out.flush();
@@ -188,7 +188,7 @@ public class HykSerializer implements Serializer {
 
 	public ByteArray serialize(Object obj) throws NotSerializableException,
 			IOException {
-		return serialize(obj, ByteArray.allocate(32));
+		return serialize(obj, ByteArray.allocate(256));
 	}
 
 	public ByteArray serialize(Object obj, ByteArray input)
