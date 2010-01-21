@@ -117,7 +117,7 @@ public class HykObjectOutput<T> implements ObjectOutput {
 				writeObject(handler);
 				break;
 			}
-			case OBJECT: {
+			case POJO: {
 				
 				if (!(obj instanceof Serializable)) {
 					throw new NotSerializableException(clazz.getName());

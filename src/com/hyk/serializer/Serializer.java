@@ -14,10 +14,9 @@ import com.hyk.util.buffer.ByteArrayPool;
  *
  */
 public interface Serializer {
-
-	public static final ByteArrayPool pool = new ByteArrayPool();
 	
-	ByteArray serialize(Object obj) throws NotSerializableException, IOException ;
+	ByteArray serialize(Object value) throws NotSerializableException, IOException ;
+	ByteArray serialize(Object value, ByteArray data) throws NotSerializableException, IOException ;
 	
 	<T> T deserialize(Class<T> type,ByteArray data) throws NotSerializableException, IOException,InstantiationException ;
 }
