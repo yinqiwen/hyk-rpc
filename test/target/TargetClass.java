@@ -38,7 +38,10 @@ public class TargetClass implements Serializable
 	public void setTag(long tag) {
 		this.tag = tag;
 	}
-	private String name = "hello";
+	private String name = "helloaksldjsklafjksdakjlfgjsdkalgjkdsfjklgjklsdjgksdk" +
+			"gklsdakgfsdjkgjkdsklgjksdkgjksdagjksdkagjklasfgsdaggdfagsdgasdgtfwetfgw" +
+			"etgwegtwertgrwegregreagaergregraegert34543654754765856865846586544=84=36" +
+			"53245346534643643546y45xzcsadfsafsadfsdafsdfdsfdsfsdgfsdgdfgfdgfdhfdjhfdjfgh";
 	private int number;
 	private long tag;
 	private Boolean isOK = true;
