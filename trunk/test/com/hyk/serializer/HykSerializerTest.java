@@ -136,17 +136,17 @@ public class HykSerializerTest extends TestCase {
 		long start = System.currentTimeMillis();
 		for (int i = 0; i < 999999; i++) {
 			//byte[] buf = new byte[100];
-			//serializer.serialize_(test);
+			//byte[] data = serializer.serialize_(test);
 			ByteArray array = serializer.serialize(test);
-			array.free();
+			//array.free();
 		}
-		byte[] data = serializer.serialize_(test);
+		//byte[] data = serializer.serialize_(test);
 		ByteArray array = serializer.serialize(test);
 		long end = System.currentTimeMillis();
 		System.out.println("####Serialize time:" + (end - start));
 
-		//System.out.println("####Serialize size:" + array.size());
-		System.out.println("####Serialize size:" + data.length);
+		System.out.println("####Serialize size:" + array.size());
+		//System.out.println("####Serialize size:" + data.length);
 		
 		start = System.currentTimeMillis();
 		for (int i = 0; i < 999999; i++) {
