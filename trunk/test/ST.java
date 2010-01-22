@@ -14,10 +14,6 @@ import java.util.List;
 import target.TargetClass;
 import target.TargetClassTop;
 
-import com.google.protobuf.DescriptorProtos.FieldDescriptorProto;
-import com.google.protobuf.DescriptorProtos.FileDescriptorProto;
-import com.google.protobuf.DescriptorProtos.FieldDescriptorProto.Label;
-import com.google.protobuf.DescriptorProtos.FieldDescriptorProto.Type;
 
 /**
  * 

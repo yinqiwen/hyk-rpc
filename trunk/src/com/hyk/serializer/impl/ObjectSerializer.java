@@ -8,7 +8,9 @@ import java.io.NotSerializableException;
 import java.io.Serializable;
 import java.lang.reflect.Field;
 
+
 import com.hyk.serializer.AbstractSerailizerImpl;
+import com.hyk.serializer.Externalizable;
 import com.hyk.serializer.Serializer;
 import com.hyk.serializer.io.Type;
 import com.hyk.serializer.reflect.ReflectionCache;
@@ -44,6 +46,11 @@ public class ObjectSerializer<T> extends AbstractSerailizerImpl<T>
 			{
 				throw new NotSerializableException(type.getName());
 			}
+			if (ret instanceof Externalizable) {
+				Externalizable externalizable = (Externalizable) ret;
+				externalizable.readExternal(new Input(data));
+				return ret;
+			}
 			Field[] fs = ReflectionCache.getSerializableFields(type);
 			while(true)
 			{
@@ -59,6 +66,7 @@ public class ObjectSerializer<T> extends AbstractSerailizerImpl<T>
 		}
 		catch(Exception e)
 		{
+			e.printStackTrace();
 			throw new IOException(e);
 		}
 	}
@@ -71,7 +79,11 @@ public class ObjectSerializer<T> extends AbstractSerailizerImpl<T>
 		{
 			throw new NotSerializableException(clazz.getName());
 		}
-
+		if (value instanceof Externalizable) {
+			Externalizable externalizable = (Externalizable) value;
+			externalizable.writeExternal(new Output(data));
+			return data;
+		}
 		try
 		{
 			//writeInt(data, 0);
