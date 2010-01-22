@@ -32,10 +32,10 @@ public class JavaSerializer {
 		StandardSerializer ser = new StandardSerializer();
 		long start = System.currentTimeMillis();
 		for (int i = 0; i < 99999; i++) {
-			ByteArray array = ser.serialize_(test);
+			ByteArray array = ser.serialize(test);
 			array.free();
 		}
-		ByteArray array = ser.serialize_(test);
+		ByteArray array = ser.serialize(test);
 		long end = System.currentTimeMillis();
 		System.out.println("####Serialize time:" + (end - start));
 		
@@ -45,9 +45,9 @@ public class JavaSerializer {
 		
 		start = System.currentTimeMillis();
 		for (int i = 0; i < 99999; i++) {
-			ser.deserialize_(TargetClassTop.class, array);
+			ser.deserialize(TargetClassTop.class, array);
 		}
-		ser.deserialize_(TargetClassTop.class, array);
+		ser.deserialize(TargetClassTop.class, array);
 		end = System.currentTimeMillis();
 		System.out.println("####Deserialize time:" + (end - start));
 	}

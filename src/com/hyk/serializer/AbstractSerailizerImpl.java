@@ -6,6 +6,7 @@ package com.hyk.serializer;
 import java.io.IOException;
 import java.io.NotSerializableException;
 
+import com.hyk.serializer.impl.SerializerImplFactory;
 import com.hyk.util.buffer.ByteArray;
 
 /**
@@ -16,6 +17,134 @@ import com.hyk.util.buffer.ByteArray;
 public abstract class AbstractSerailizerImpl<T> implements Serializer
 {
 
+	protected static class Input implements SerializerInput
+	{
+		private ByteArray data;
+		public Input(ByteArray data)
+		{
+			this.data = data;
+		}
+		@Override
+		public boolean readBoolean() throws IOException
+		{
+			return readBool(data);
+		}
+		@Override
+		public byte readByte()throws IOException
+		{
+			return AbstractSerailizerImpl.readByte(data);
+		}
+		@Override
+		public char readChar()throws IOException
+		{
+			return AbstractSerailizerImpl.readChar(data);
+		}
+		@Override
+		public double readDouble()throws IOException
+		{
+			return AbstractSerailizerImpl.readDouble(data);
+		}
+		@Override
+		public float readFloat()throws IOException
+		{
+			return AbstractSerailizerImpl.readFloat(data);
+		}
+		@Override
+		public int readInt()throws IOException
+		{
+			return AbstractSerailizerImpl.readInt(data);
+		}
+		@Override
+		public long readLong()throws IOException
+		{
+			return AbstractSerailizerImpl.readLong(data);
+		}
+		@Override
+		public short readShort()throws IOException
+		{
+			return AbstractSerailizerImpl.readShort(data);
+		}
+		@Override
+		public String readString() throws IOException
+		{
+			return AbstractSerailizerImpl.readString(data);
+		}
+		@Override
+		public <T> T readObject(Class<T> type) throws IOException
+		{
+			try
+			{
+				return (T)SerializerImplFactory.getSerializer(type).deserialize(type, data);
+			}
+			catch(InstantiationException e)
+			{
+				throw new IOException(e);
+			}
+		}
+	}
+	
+	protected static class Output implements SerializerOutput
+	{
+		private ByteArray data;
+		public Output(ByteArray data)
+		{
+			this.data = data;
+		}
+		@Override
+		public void writeBoolean(boolean value) throws IOException
+		{
+			AbstractSerailizerImpl.writeBoolean(data, value);
+		}
+		@Override
+		public void writeByte(byte value) throws IOException
+		{
+			AbstractSerailizerImpl.writeByte(data, value);	
+		}
+		@Override
+		public void writeChar(char value) throws IOException
+		{
+			AbstractSerailizerImpl.writeChar(data, value);
+		}
+		@Override
+		public void writeDouble(double value) throws IOException
+		{
+			AbstractSerailizerImpl.writeDouble(data, value);
+		}
+		@Override
+		public void writeFloat(float value) throws IOException
+		{
+			AbstractSerailizerImpl.writeFloat(data, value);		
+		}
+		@Override
+		public void writeInt(int value) throws IOException
+		{
+			AbstractSerailizerImpl.writeInt(data, value);		
+		}
+		@Override
+		public void writeLong(long value) throws IOException
+		{
+			AbstractSerailizerImpl.writeLong(data, value);		
+		}
+		@Override
+		public void writeShort(short value) throws IOException
+		{
+			AbstractSerailizerImpl.writeShort(data, value);
+		}
+		@Override
+		public void writeString(String value) throws IOException
+		{
+			AbstractSerailizerImpl.writeString(data, value);
+		}
+		@Override
+		public void writeObject(Object value) throws IOException
+		{
+			if(null != value)
+			{
+				SerializerImplFactory.getSerializer(value.getClass()).serialize(value, data);
+			}
+		}
+	}
+	
 	protected static int readRawLittleEndian32(ByteArray data) throws IOException
 	{
 		final byte b1 = readByte(data);
@@ -44,7 +173,7 @@ public abstract class AbstractSerailizerImpl<T> implements Serializer
 		return (byte)data.input.read();
 	}
 
-	public long readLong(ByteArray data) throws IOException
+	protected static long readLong(ByteArray data) throws IOException
 	{
 		int shift = 0;
 		long result = 0;
@@ -95,6 +224,20 @@ public abstract class AbstractSerailizerImpl<T> implements Serializer
 		throw new IOException("encountered a malformed varint");
 	}
 
+//	protected static long readLong(ByteArray data) throws IOException {
+//		int shift = 0;
+//		long result = 0;
+//		while (shift < 64) {
+//			final byte b = readByte(data);
+//			result |= (long) (b & 0x7F) << shift;
+//			if ((b & 0x80) == 0) {
+//				return result;
+//			}
+//			shift += 7;
+//		}
+//		throw new IOException("encountered a malformed varint");
+//	}
+	
 	protected static int readInt(ByteArray data) throws IOException
 	{
 		byte tmp = readByte(data);
