@@ -22,7 +22,8 @@ public class MessageFactory {
 		req.objID = objID;
 		req.operationID = opertionID;
 		Message message = new Message();
-		message.sessionID = ID.generateSessionID();
+		message.setSessionID(ID.generateSessionID());
+		//message.sessionID = ID.generateSessionID();
 		message.type = MessageType.Request;
 		message.value = req;
 		return message;
@@ -34,7 +35,8 @@ public class MessageFactory {
 		res.reply = returnValue;
 		Message message = new Message();
 		message.type = MessageType.Response;
-		message.sessionID = request.sessionID;
+		message.setSessionID(request.getSessionID());
+		//message.sessionID = request.sessionID;
 		message.value = res;
 		return message;
 	}

@@ -9,6 +9,7 @@ import java.util.concurrent.Executor;
 
 import com.hyk.rpc.core.address.Address;
 import com.hyk.rpc.core.message.MessageFragment;
+import com.hyk.rpc.core.message.MessageID;
 
 /**
  * @author Administrator
@@ -16,7 +17,7 @@ import com.hyk.rpc.core.message.MessageFragment;
  */
 public abstract class AbstractDefaultRpcChannel extends RpcChannel {
 
-	protected Map<Long, MessageFragment[]> fragmentTable = new ConcurrentHashMap<Long, MessageFragment[]>();
+	protected Map<MessageID, MessageFragment[]> fragmentTable = new ConcurrentHashMap<MessageID, MessageFragment[]>();
 	
 	public AbstractDefaultRpcChannel(Executor threadPool) {
 		super(threadPool);
@@ -27,23 +28,23 @@ public abstract class AbstractDefaultRpcChannel extends RpcChannel {
 	 * @see com.hyk.rpc.core.transport.RpcChannel#deleteMessageFragments(long)
 	 */
 	@Override
-	protected void deleteMessageFragments(long sessionID) {
-		fragmentTable.remove(sessionID);
+	protected void deleteMessageFragments(MessageID id) {
+		fragmentTable.remove(id);
 	}
 
 
 	@Override
-	protected MessageFragment[] loadMessageFragments(long sessionID) {
-		return fragmentTable.get(sessionID);
+	protected MessageFragment[] loadMessageFragments(MessageID id) {
+		return fragmentTable.get(id);
 	}
 
 	@Override
 	protected void saveMessageFragment(MessageFragment fragment) {
-		MessageFragment[] fragments = fragmentTable.get(fragment.getSessionID());
+		MessageFragment[] fragments = fragmentTable.get(fragment.getId());
 		if(null == fragments)
 		{
 			fragments = new MessageFragment[fragment.getTotalFragmentCount()];
-			fragmentTable.put(fragment.getSessionID(), fragments);
+			fragmentTable.put(fragment.getId(), fragments);
 		}
 		fragments[fragment.getSequence()] = fragment;
 

@@ -18,6 +18,7 @@ import org.slf4j.LoggerFactory;
 import com.hyk.rpc.core.address.Address;
 import com.hyk.rpc.core.message.Message;
 import com.hyk.rpc.core.message.MessageFragment;
+import com.hyk.rpc.core.message.MessageID;
 import com.hyk.serializer.HykSerializer;
 import com.hyk.serializer.Serializer;
 import com.hyk.util.buffer.ByteArray;
@@ -62,9 +63,9 @@ public abstract class RpcChannel {
 
 	protected abstract void saveMessageFragment(MessageFragment fragment);
 
-	protected abstract MessageFragment[] loadMessageFragments(long sessionID);
+	protected abstract MessageFragment[] loadMessageFragments(MessageID id);
 
-	protected abstract void deleteMessageFragments(long sessionID);
+	protected abstract void deleteMessageFragments(MessageID id);
 
 	protected abstract RpcChannelData read() throws IOException;
 
@@ -127,8 +128,7 @@ public abstract class RpcChannel {
 						dispatch(msg);
 					} else {
 						saveMessageFragment(fragment);
-						MessageFragment[] fragments = loadMessageFragments(fragment
-								.getSessionID());
+						MessageFragment[] fragments = loadMessageFragments(fragment.getId());
 						if (fragments.length != fragment
 								.getTotalFragmentCount()) {
 							throw new Exception("Error!");
@@ -150,7 +150,7 @@ public abstract class RpcChannel {
 						msg.setAddress(data.address);
 						msgBuffer.free();
 						data.content.free();
-						deleteMessageFragments(fragment.getSessionID());
+						deleteMessageFragments(fragment.getId());
 						dispatch(msg);
 					}
 				} catch (Exception e) {
