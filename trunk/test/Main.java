@@ -9,6 +9,7 @@ import java.io.ObjectOutputStream;
 import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.Method;
 import java.lang.reflect.Proxy;
+import java.net.InetAddress;
 
 //import net.sf.cglib.proxy.Callback;
 //import net.sf.cglib.proxy.Enhancer;
@@ -77,8 +78,10 @@ public class Main {
 //		en.setCallback(new net.sf.cglib.proxy.NoOp(){	
 //		});
 //		Main obj = (Main) en.create();
-//		System.out.println(obj.getClass().getConstructor(null));
-//		obj.sayHello();
+		Object obj = Proxy.newProxyInstance(ClassLoader.getSystemClassLoader(), new Class[]{A.class}, new TestHandlers());
+		System.out.println(obj.getClass());
+		System.out.println(obj.getClass().getInterfaces().length);
+		//System.out.println(Proxy.getProxyClass(loader, interfaces));
 	}
 
 }
