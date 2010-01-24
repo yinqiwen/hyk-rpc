@@ -28,16 +28,16 @@ import com.hyk.util.buffer.ByteArray;
  */
 public abstract class RpcChannel {
 	
-	private static Logger logger = LoggerFactory.getLogger(RpcChannel.class);
+	protected static Logger logger = LoggerFactory.getLogger(RpcChannel.class);
 
-	private int maxMessageSize = 4096;
-	private List<MessageFragment> sendList = new LinkedList<MessageFragment>();
-	private Serializer serializer = new HykSerializer();
+	protected int maxMessageSize = 4096;
+	protected List<MessageFragment> sendList = new LinkedList<MessageFragment>();
+	protected Serializer serializer = new HykSerializer();
 	protected Executor threadPool;
-	private List<MessageListener> msgListeners = new LinkedList<MessageListener>();
+	protected List<MessageListener> msgListeners = new LinkedList<MessageListener>();
 
-	private OutputTask outTask = new OutputTask();
-	private InputTask inTask = new InputTask();
+	protected OutputTask outTask = new OutputTask();
+	protected InputTask inTask = new InputTask();
 
 	public RpcChannel(Executor threadPool) {
 		this.threadPool = threadPool;
@@ -66,19 +66,14 @@ public abstract class RpcChannel {
 
 	protected abstract void deleteMessageFragments(long sessionID);
 
-	protected abstract RpcChannelData read();
+	protected abstract RpcChannelData read() throws IOException;
 
-	protected abstract void send(RpcChannelData data);
+	protected abstract void send(RpcChannelData data) throws IOException;
 
 	public final void sendMessage(Message message)
 			throws NotSerializableException, IOException {
 		ByteArray data = serializer.serialize(message);
-//		try {
-//			serializer.deserialize(Message.class, data);
-//		} catch (InstantiationException e) {
-//			// TODO Auto-generated catch block
-//			e.printStackTrace();
-//		}
+
 		int size = data.size();
 		//System.out.println("msg size"+ size);
 		int msgFragsount = size / maxMessageSize;
@@ -88,12 +83,7 @@ public abstract class RpcChannel {
 		for (int i = 0; i < msgFragsount; i++) {
 			ByteArray sent = data.subArray(0, Math.min(maxMessageSize, data
 					.limit()));
-//			try {
-//				serializer.deserialize(Message.class, sent);
-//			} catch (InstantiationException e) {
-//				// TODO Auto-generated catch block
-//				e.printStackTrace();
-//			}
+
 			MessageFragment fragment = new MessageFragment();
 			fragment.setAddress(message.getAddress());
 			fragment.setSessionID(message.getSessionID());
@@ -120,7 +110,6 @@ public abstract class RpcChannel {
 	}
 
 	class InputTask implements Runnable {
-		// private ByteArrayInputStream bis;
 		@Override
 		public void run() {
 			__start: while (true) {
