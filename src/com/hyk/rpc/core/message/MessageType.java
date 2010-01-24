@@ -9,7 +9,7 @@ package com.hyk.rpc.core.message;
  */
 public enum MessageType {
 
-	Unknown(-1),Request(0), Response(1), Exception(2);
+	Request(0), Response(1), Exception(2), Unknown(100);
 	
 	private final int value;
 	private MessageType(int value)

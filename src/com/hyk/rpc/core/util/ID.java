@@ -14,6 +14,12 @@ import java.util.concurrent.atomic.AtomicLong;
  *
  */
 public class ID {
+	
+	/**
+	 * Reserved object ID
+	 */
+	public static final int NAMING_ID = -1;
+	
 	private static AtomicLong objIdSeed = new AtomicLong(1);
 	private static AtomicLong sessionIdSeed = new AtomicLong(1);
 	private static AtomicInteger rpcIdSeed = new AtomicInteger(1);
@@ -32,6 +38,25 @@ public class ID {
 	public static long generateSessionID()
 	{
 		return sessionIdSeed.getAndAdd(1);
+	}
+	
+	public static int getMethodID(Method method)
+	{
+		if(methodIDCache.containsKey(method))
+		{
+			return methodIDCache.get(method);
+		}
+		
+		Class clazz = method.getDeclaringClass();
+		Method[] ms = clazz.getMethods();
+		for (int i = 0; i < ms.length; i++) {
+			if(ms[i].equals(method))
+			{
+				methodIDCache.put(method, i);
+				return i;
+			}
+		}
+		return -1;
 	}
 
 }

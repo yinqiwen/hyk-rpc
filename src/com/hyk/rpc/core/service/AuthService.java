@@ -1,7 +1,7 @@
 /**
  * 
  */
-package com.hyk.rpc.service;
+package com.hyk.rpc.core.service;
 
 /**
  * @author qiying.wang

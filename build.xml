@@ -7,6 +7,7 @@
 	<property name="classes" value="${root}/build" />
 	<property name="distroot" value="${root}/dist" />
 	<property name="docdir" value="${root}/doc" />
+	<property name="lib" value="${root}/lib" />
 	<property name="srcroot" value="${root}/src" />
 	<property name="src3rd-compress" value="${root}/3rd/compress" />
 	<property name="testroot" value="${root}/test" />
@@ -15,13 +16,17 @@
 	<property name="release" value="release" />
 	<property name="project_name" value="hyk-rpc" />
 
+	 <path id="classpath">
+	 	<pathelement location="${lib}/hyk-util.jar"/>
+	 	<pathelement location="${lib}/slf4j-api-1.5.10.jar"/>
+	 </path>
 	<target name="prepare">
 	    <mkdir dir="${classes}"/>
 	    <mkdir dir="${distroot}"/>
 	</target>
 	
 	<target name="compile" depends="prepare">
-	    <javac debug="on" target="1.5" source="1.5" srcdir="${srcroot}" destdir="${classes}" >
+	    <javac debug="on" target="1.5" source="1.5" srcdir="${srcroot}" destdir="${classes}" classpathref="classpath">
 	    </javac>
 	</target>
 	

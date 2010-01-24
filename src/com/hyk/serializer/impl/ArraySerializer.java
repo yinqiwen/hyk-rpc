@@ -7,7 +7,6 @@ import java.io.IOException;
 import java.io.NotSerializableException;
 import java.lang.reflect.Array;
 
-import com.hyk.serializer.AbstractSerailizerImpl;
 import com.hyk.serializer.Serializer;
 import com.hyk.util.buffer.ByteArray;
 
@@ -19,17 +18,17 @@ public class ArraySerializer<T> extends AbstractSerailizerImpl<T>
 {
 
 	@Override
-	protected T unmarshal(Class<T> type, ByteArray data) throws NotSerializableException, IOException
+	public T unmarshal(Class<T> type, ByteArray data) throws NotSerializableException, IOException
 	{
 		try
 		{
 			int len = readInt(data);
 			int index = 0;
 			Object array = Array.newInstance(type.getComponentType(), len);
-			Serializer serializer = SerializerImplFactory.getSerializer(type.getComponentType());
 			while(index < len)
 			{
-				Array.set(array, index, serializer.deserialize(type.getComponentType(), data));
+				Object element = readObject(data, type.getComponentType());
+				Array.set(array, index, element);
 				index++;
 			}
 			return (T)array;
@@ -43,15 +42,20 @@ public class ArraySerializer<T> extends AbstractSerailizerImpl<T>
 	}
 
 	@Override
-	public ByteArray marshal(Object value, ByteArray data) throws NotSerializableException, IOException
+	public ByteArray marshal(Object value,ByteArray data) throws NotSerializableException, IOException
 	{
 		int len = Array.getLength(value);
 		writeInt(data, len);
-		Serializer serializer = SerializerImplFactory.getSerializer(value.getClass().getComponentType());
+		
 		int index = 0;
 		while(index < len)
 		{
-			serializer.serialize(Array.get(value, index), data);
+			Object element = Array.get(value, index);      
+//			if(value.getClass().getComponentType().equals(Object.class))
+//			{
+//				System.out.println("####" + element.getClass());
+//			}
+			writeObject(data, element, value.getClass().getComponentType());
 			index++;
 		}
 		return data;

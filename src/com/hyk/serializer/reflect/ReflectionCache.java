@@ -61,17 +61,21 @@ public class ReflectionCache
 		reservedClassTable.put(double[].class, Type.ARRAY);
 	}
 
-	public static Constructor getDefaultConstructor(Class clazz) throws SecurityException, NoSuchMethodException
+	public static Constructor getDefaultConstructor(Class clazz)
 	{
-		Constructor cons = defaultConstructorCacheTable.get(clazz);
-		if(null == cons)
+		if(defaultConstructorCacheTable.containsKey(clazz))
 		{
-
-				cons = clazz.getDeclaredConstructor(null);
-				cons.setAccessible(true);
-
-			defaultConstructorCacheTable.put(clazz, cons);
+			return defaultConstructorCacheTable.get(clazz);
 		}
+		Constructor cons = null;
+		try {
+			cons = clazz.getDeclaredConstructor(null);
+			cons.setAccessible(true);
+			defaultConstructorCacheTable.put(clazz, cons);
+		} catch (Exception e) {
+			//System.out.println("%%%%%" + clazz.getName());
+		}
+		
 		return cons;
 	}
 
@@ -146,13 +150,11 @@ public class ReflectionCache
 		}
 		else
 		{
-
-			try
+			if(null != ReflectionCache.getDefaultConstructor(clazz))
 			{
-				clazz.getDeclaredConstructor(null);
 				ret = Type.POJO;
 			}
-			catch(Exception e)
+			else
 			{
 				ret = Type.OTHER;
 			}
