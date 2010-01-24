@@ -17,25 +17,34 @@ import com.hyk.serializer.SerializerOutput;
  * 
  */
 public class Message implements Externalizable {
-	protected transient Address address;
-	protected transient long sessionID;
+//	protected transient Address address;
+//	protected transient long sessionID;
+	protected transient MessageID id = new MessageID();
+	public MessageID getId() {
+		return id;
+	}
+
+	public void setId(MessageID id) {
+		this.id = id;
+	}
+
 	protected MessageType type;
 	protected AbstractMessageObject value;
 
 	public Address getAddress() {
-		return address;
+		return id.address;
 	}
 
 	public void setAddress(Address address) {
-		this.address = address;
+		id.address = address;
 	}
 
 	public long getSessionID() {
-		return sessionID;
+		return id.sessionID;
 	}
 
 	public void setSessionID(long sessionID) {
-		this.sessionID = sessionID;
+		id.sessionID = sessionID;
 	}
 
 	public MessageType getType() {

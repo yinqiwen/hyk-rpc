@@ -16,21 +16,21 @@ import com.hyk.util.buffer.ByteArray;
  *
  */
 public class MessageFragment implements Externalizable{
-	Address address;
+	
 	public Address getAddress() {
-		return address;
+		return id.address;
 	}
 
 	public void setAddress(Address address) {
-		this.address = address;
+		id.address = address;
 	}
 
 	public long getSessionID() {
-		return sessionID;
+		return id.sessionID;
 	}
 
 	public void setSessionID(long sessionID) {
-		this.sessionID = sessionID;
+		id.sessionID = sessionID;
 	}
 
 	public int getSequence() {
@@ -56,15 +56,20 @@ public class MessageFragment implements Externalizable{
 	public void setContent(ByteArray content) {
 		this.content = content;
 	}
-
-	long sessionID;
+	//Address address;
+	//long sessionID;
+	MessageID id= new MessageID();
+	public MessageID getId() {
+		return id;
+	}
 	int sequence;
 	int totalFragmentCount;
 	ByteArray content;
 	
 	@Override
 	public void readExternal(SerializerInput in) throws IOException {
-		sessionID = in.readLong();
+		//sessionID = in.readLong();
+		id = in.readObject(MessageID.class);
 		sequence = in.readInt();
 		totalFragmentCount = in.readInt();
 		byte[] rawContent = in.readBytes();
@@ -73,7 +78,8 @@ public class MessageFragment implements Externalizable{
 
 	@Override
 	public void writeExternal(SerializerOutput out) throws IOException {
-		out.writeLong(sessionID);
+		//out.writeLong(sessionID);
+		out.writeObject(id);
 		out.writeInt(sequence);
 		out.writeInt(totalFragmentCount);
 		out.writeBytes(content.rawbuffer(), content.position(), content.size());
