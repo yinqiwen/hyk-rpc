@@ -25,6 +25,9 @@ public interface SerializerOutput
 	public void writeFloat(float value)throws IOException;
 	public void writeDouble(double value)throws IOException;
 	public void writeString(String value)throws IOException;
+	public void writeBytes(byte[] value)throws IOException;
+	public void writeBytes(byte[] value, int off, int len)throws IOException;
 	//public void writeBytes(byte[] value)throws IOException;
 	public void writeObject(Object value)throws IOException;
+	public void writeObject(Object value, Class declType)throws IOException;
 }

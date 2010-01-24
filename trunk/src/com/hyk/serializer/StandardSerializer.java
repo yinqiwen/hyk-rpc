@@ -7,6 +7,7 @@ import java.io.NotSerializableException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 
+import com.hyk.serializer.impl.AbstractSerailizerImpl;
 import com.hyk.serializer.impl.SerializerImplFactory;
 import com.hyk.util.buffer.ByteArray;
 
@@ -47,7 +48,7 @@ public class StandardSerializer implements Serializer
 		// ByteArray array = ByteArray.allocate(1024);
 		// ObjectOutputStream oos = new ObjectOutputStream(input.output);
 		// oos.writeObject(obj);
-		SerializerImplFactory.otherSerializer.serialize(obj, input);
+		SerializerImplFactory.otherSerializer.marshal(obj, input);
 		return input.flip();
 	}
 
@@ -56,8 +57,8 @@ public class StandardSerializer implements Serializer
 		// ByteArrayInputStream bis = new ByteArrayInputStream(data);
 
 		// ObjectInputStream ois = new ObjectInputStream(data.input);
-		// T ret = (T) ois.readObject();
-		T ret = SerializerImplFactory.otherSerializer.deserialize(type, data);
+		AbstractSerailizerImpl<T> other = (AbstractSerailizerImpl<T>) SerializerImplFactory.otherSerializer;
+		T ret = other.unmarshal(type, data);
 		data.rewind();
 		return ret;
 

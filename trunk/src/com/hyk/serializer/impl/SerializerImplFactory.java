@@ -8,8 +8,6 @@
  *
  */
 package com.hyk.serializer.impl;
-
-import com.hyk.serializer.AbstractSerailizerImpl;
 import com.hyk.serializer.Serializer;
 import com.hyk.serializer.StandardSerializer;
 import com.hyk.serializer.io.Type;
@@ -38,6 +36,12 @@ public class SerializerImplFactory
 	public static  AbstractSerailizerImpl getSerializer(Class clazz)
 	{
 		Type type = ReflectionCache.getType(clazz);
+		return getSerializer(type);
+	}
+	
+	public static  AbstractSerailizerImpl getSerializer(Type type)
+	{
+		//Type type = ReflectionCache.getType(clazz);
 		switch(type)
 		{
 			case BYTE:

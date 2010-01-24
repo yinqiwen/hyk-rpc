@@ -3,7 +3,9 @@
  */
 package com.hyk.rpc.core.message;
 
-import java.io.Externalizable;
+import com.hyk.serializer.Externalizable;
+
+
 
 
 

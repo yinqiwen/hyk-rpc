@@ -35,6 +35,7 @@ public class GZipCompressor extends AbstractCompressor {
 		gos.flush();
 		gos.close();
 		//System.out.println("###1 " + ret.size());
+		//data.rewind();
 		return ret;
 	}
 

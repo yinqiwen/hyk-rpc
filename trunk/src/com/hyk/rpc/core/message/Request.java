@@ -7,16 +7,36 @@ import java.io.IOException;
 import java.io.ObjectInput;
 import java.io.ObjectOutput;
 
+import com.hyk.serializer.SerializerInput;
+import com.hyk.serializer.SerializerOutput;
+
 /**
  * @author qiying.wang
  *
  */
 public class Request extends AbstractMessageObject{
 
-	protected long objID;
-	protected int operationID;
+	public long getObjID() {
+		return objID;
+	}
 
-	protected TypeValue[] args;
+
+
+	public int getOperationID() {
+		return operationID;
+	}
+
+
+
+	public Object[] getArgs() {
+		return args;
+	}
+
+
+
+	long objID;
+	int operationID;
+	Object[] args;
 	
 	
 
@@ -28,19 +48,22 @@ public class Request extends AbstractMessageObject{
 
 
 	@Override
-	public void readExternal(ObjectInput in) throws IOException,
-			ClassNotFoundException {
-		// TODO Auto-generated method stub
-		
+	public void readExternal(SerializerInput in) throws IOException {
+		objID = in.readLong();
+		operationID = in.readInt();
+		args = in.readObject(Object[].class);
 	}
 
 
 
 	@Override
-	public void writeExternal(ObjectOutput out) throws IOException {
-		// TODO Auto-generated method stub
+	public void writeExternal(SerializerOutput out) throws IOException {
+		out.writeLong(objID);
+		out.writeInt(operationID);
 		
+		out.writeObject(args);
 	}
+
 	
 	
 }

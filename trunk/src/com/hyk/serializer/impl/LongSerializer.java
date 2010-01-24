@@ -6,7 +6,6 @@ package com.hyk.serializer.impl;
 import java.io.IOException;
 import java.io.NotSerializableException;
 
-import com.hyk.serializer.AbstractSerailizerImpl;
 import com.hyk.util.buffer.ByteArray;
 
 /**
@@ -16,7 +15,7 @@ import com.hyk.util.buffer.ByteArray;
 public class LongSerializer extends AbstractSerailizerImpl<Long> {
 
 	@Override
-	protected Long unmarshal(Class<Long> type, ByteArray data)
+	public Long unmarshal(Class<Long> type, ByteArray data)
 			throws NotSerializableException, IOException,
 			InstantiationException {
 
@@ -24,7 +23,7 @@ public class LongSerializer extends AbstractSerailizerImpl<Long> {
 	}
 
 	@Override
-	protected ByteArray marshal(Long value, ByteArray data)
+	public ByteArray marshal(Long value, ByteArray data)
 			throws NotSerializableException, IOException {
 		writeLong(data, value);
 		return data;

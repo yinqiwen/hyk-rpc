@@ -12,7 +12,6 @@ package com.hyk.serializer.impl;
 import java.io.IOException;
 import java.io.NotSerializableException;
 
-import com.hyk.serializer.AbstractSerailizerImpl;
 import com.hyk.util.buffer.ByteArray;
 
 /**
@@ -22,13 +21,13 @@ public class BooleanSerializer extends AbstractSerailizerImpl<Boolean>
 {
 
 	@Override
-	protected Boolean unmarshal(Class<Boolean> type, ByteArray data) throws NotSerializableException, IOException, InstantiationException
+	public Boolean unmarshal(Class<Boolean> type, ByteArray data) throws NotSerializableException, IOException, InstantiationException
 	{
 		return readBool(data);
 	}
 
 	@Override
-	protected ByteArray marshal(Boolean value, ByteArray data) throws NotSerializableException, IOException
+	public ByteArray marshal(Boolean value, ByteArray data) throws NotSerializableException, IOException
 	{
 		writeBoolean(data, value);
 		return data;

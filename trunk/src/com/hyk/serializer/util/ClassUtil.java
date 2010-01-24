@@ -49,6 +49,20 @@ public class ClassUtil
 		forward.put(key, value);
 		backward.put(value, key);
 	}
+	
+	public static boolean equals(Class a, Class b)
+	{
+		boolean ret = a.equals(b);
+		if(!ret)
+		{
+			if(a.isPrimitive() || b.isPrimitive())
+			{
+				Class wrapper = PRIMITIVE_TO_WRAPPER_TYPE.get(a.isPrimitive()?a:b);
+				return wrapper.equals(a.isPrimitive()?b:a);
+			}
+		}
+		return ret;
+	}
 
 	public static Constructor getConstructor(Class clazz, Object... paras) throws NoSuchMethodException
 	{

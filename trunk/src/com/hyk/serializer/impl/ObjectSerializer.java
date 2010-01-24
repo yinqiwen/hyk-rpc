@@ -9,7 +9,6 @@ import java.io.Serializable;
 import java.lang.reflect.Field;
 
 
-import com.hyk.serializer.AbstractSerailizerImpl;
 import com.hyk.serializer.Externalizable;
 import com.hyk.serializer.Serializer;
 import com.hyk.serializer.io.Type;
@@ -23,24 +22,16 @@ import com.hyk.util.buffer.ByteArray;
 public class ObjectSerializer<T> extends AbstractSerailizerImpl<T>
 {
 
-	public void init(ByteArray array) throws IOException
-	{
-		writeInt(array, 0);
-	}
+//	public void init(ByteArray array) throws IOException
+//	{
+//		writeInt(array, 0);
+//	}
 	
 	@Override
-	protected T unmarshal(Class<T> type, ByteArray data) throws NotSerializableException, IOException, InstantiationException
+	public T unmarshal(Class<T> type, ByteArray data) throws NotSerializableException, IOException, InstantiationException
 	{
 		try
 		{
-			int indicator = readInt(data);
-			if(indicator == 1)
-			{
-				String className = readString(data);
-				Class realType = (Class<T>)Class.forName(className);
-				Serializer serializer = SerializerImplFactory.getSerializer(realType);
-				return (T)serializer.deserialize(realType, data);
-			}
 			T ret = (T)ReflectionCache.getDefaultConstructor(type).newInstance(null);
 			if(!(ret instanceof Serializable))
 			{
@@ -59,8 +50,9 @@ public class ObjectSerializer<T> extends AbstractSerailizerImpl<T>
 					break;
 				Field f = fs[tag - 1];
 				Class fieldType = f.getType();
-				Serializer serializer = SerializerImplFactory.getSerializer(fieldType);
-				f.set(ret, serializer.deserialize(fieldType, data));
+				//AbstractSerailizerImpl serializer = SerializerImplFactory.getSerializer(fieldType);
+				//f.set(ret, serializer.unmarshal(fieldType, data));
+				f.set(ret, readObject(data, fieldType));
 			}
 			return ret;
 		}
@@ -72,8 +64,19 @@ public class ObjectSerializer<T> extends AbstractSerailizerImpl<T>
 	}
 
 	@Override
-	protected ByteArray marshal(T value, ByteArray data) throws NotSerializableException, IOException
+	public ByteArray marshal(T value, ByteArray data) throws NotSerializableException, IOException
 	{
+//		Class clazz = value.getClass();
+//		if(clazz.equals(declType))
+//		{
+//			writeTag(data,0);
+//		}
+//		else
+//		{
+//			writeTag(data,1);
+//			//System.out.println("####" + clazz.getName());
+//			writeString(data,clazz.getName());
+//		}	
 		Class clazz = value.getClass();
 		if(!(value instanceof Serializable))
 		{
@@ -84,6 +87,7 @@ public class ObjectSerializer<T> extends AbstractSerailizerImpl<T>
 			externalizable.writeExternal(new Output(data));
 			return data;
 		}
+	
 		try
 		{
 			//writeInt(data, 0);
@@ -94,24 +98,11 @@ public class ObjectSerializer<T> extends AbstractSerailizerImpl<T>
 				Object fieldValue = f.get(value);
 				if(null != fieldValue)
 				{
+					
 					writeTag(data, i + 1);
-					Class realType = fieldValue.getClass();
-					if(ReflectionCache.getType(realType).equals(Type.POJO))
-					{
-						Class declType = f.getType();
-						if(declType.equals(realType))
-						{
-							writeInt(data, 0);
-						}
-						else
-						{
-							writeInt(data, 1);
-							writeString(data, realType.getName());
-						}
-					}
-
-					Serializer serializer = SerializerImplFactory.getSerializer(fieldValue.getClass());
-					serializer.serialize(fieldValue, data);
+					//AbstractSerailizerImpl serializer = SerializerImplFactory.getSerializer(f.getType());
+					//serializer.marshal(fieldValue, f.getType(), data);
+					writeObject(data, fieldValue, f.getType());
 				}
 			}
 			writeTag(data, 0);
