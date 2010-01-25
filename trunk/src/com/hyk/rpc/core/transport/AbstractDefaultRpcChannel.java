@@ -7,6 +7,9 @@ import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.Executor;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import com.hyk.rpc.core.address.Address;
 import com.hyk.rpc.core.message.MessageFragment;
 import com.hyk.rpc.core.message.MessageID;
@@ -17,6 +20,8 @@ import com.hyk.rpc.core.message.MessageID;
  */
 public abstract class AbstractDefaultRpcChannel extends RpcChannel {
 
+	protected  Logger			logger			= LoggerFactory.getLogger(getClass());
+	
 	protected Map<MessageID, MessageFragment[]> fragmentTable = new ConcurrentHashMap<MessageID, MessageFragment[]>();
 	
 	public AbstractDefaultRpcChannel(Executor threadPool) {
@@ -46,7 +51,18 @@ public abstract class AbstractDefaultRpcChannel extends RpcChannel {
 			fragments = new MessageFragment[fragment.getTotalFragmentCount()];
 			fragmentTable.put(fragment.getId(), fragments);
 		}
-		fragments[fragment.getSequence()] = fragment;
+		if(null == fragments[fragment.getSequence()])
+		{
+			fragments[fragment.getSequence()] = fragment;
+		}
+		else
+		{
+			if(logger.isDebugEnabled())
+			{
+				logger.debug("Discard duplicate message fragment!");
+			}
+		}
+		
 
 	}
 
