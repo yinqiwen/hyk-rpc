@@ -13,6 +13,11 @@ import com.hyk.rpc.core.address.Address;
  *
  */
 public class MessageID implements Serializable{
+	@Override
+	public String toString() {
+		return "" + sessionID;
+	}
+
 	transient Address address;
 	long sessionID;
 
