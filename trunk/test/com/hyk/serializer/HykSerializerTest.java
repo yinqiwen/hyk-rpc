@@ -111,7 +111,7 @@ public class HykSerializerTest extends TestCase {
 		//paras[0].setTypeName("java.lang.String");
 		//paras[0].setValue("safasgas");
 		Object[] paras = new Object[]{"safasgas"};
-		Message msg = MessageFactory.instance.createRequest(-1, 1, paras);
+		Message msg = MessageFactory.instance.createRequest(-1, "hello", paras);
 		ByteArray data = serializer.serialize(msg);
 		//byte[] data = serializer.serialize_(msg);
 		//System.out.println(new String(data.toByteArray()));
