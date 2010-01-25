@@ -180,7 +180,12 @@ public abstract class RpcChannel
 				@Override
 				public void run()
 				{
-					messageListener.onMessage(msg);
+					try {
+						messageListener.onMessage(msg);
+					} catch (Exception e) {
+						logger.error("Failed to process message.", e);
+					}
+					
 				}
 			});
 		}
@@ -200,7 +205,7 @@ public abstract class RpcChannel
 		fragment.setAddress(data.address);
 		if(logger.isDebugEnabled())
 		{
-			logger.debug("Recv mesage fragment from " + data.address.toPrintableString() + " with size:" + data.content.size() + ", and sequence:" + fragment.getSequence() + ", totoalsize:" + fragment.getTotalFragmentCount());
+			logger.debug("Recv " + fragment + " with size:" + data.content.size());
 		}
 		if(fragment.getTotalFragmentCount() == 1 && fragment.getSequence() == 0)
 		{

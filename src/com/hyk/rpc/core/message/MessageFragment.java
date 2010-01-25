@@ -59,6 +59,12 @@ public class MessageFragment implements Externalizable{
 	//Address address;
 	//long sessionID;
 	MessageID id= new MessageID();
+	@Override
+	public String toString() {
+		return "MessageFragment [id=" + id + ", sequence=" + sequence
+				+ ", totalFragmentCount=" + totalFragmentCount + "]";
+	}
+
 	public MessageID getId() {
 		return id;
 	}

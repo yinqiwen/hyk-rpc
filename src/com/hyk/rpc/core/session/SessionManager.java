@@ -114,8 +114,17 @@ public class SessionManager implements MessageListener
 			{
 				// Response res = (Response) msg.getValue();
 				Session session = removeClientSession(msg.getSessionID());
-				// System.out.println("####get " + msg.getSessionID());
-				session.processResponse(msg);
+				if(null != session)
+				{
+					session.processResponse(msg);
+				}
+				else
+				{
+					if(logger.isDebugEnabled())
+					{
+						logger.debug("Duplicate message!");
+					}
+				}
 				break;
 			}
 			default:
