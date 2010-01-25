@@ -10,6 +10,9 @@ import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.Method;
 import java.lang.reflect.Proxy;
 import java.net.InetAddress;
+import java.net.InetSocketAddress;
+import java.nio.channels.ServerSocketChannel;
+import java.nio.channels.SocketChannel;
 
 //import net.sf.cglib.proxy.Callback;
 //import net.sf.cglib.proxy.Enhancer;
@@ -73,15 +76,8 @@ public class Main {
 	 * @throws SecurityException 
 	 */
 	public static void main(String[] args) throws IOException, ClassNotFoundException, SecurityException, NoSuchMethodException {
-//		Enhancer en = new Enhancer();
-//		en.setSuperclass(Main.class);
-//		en.setCallback(new net.sf.cglib.proxy.NoOp(){	
-//		});
-//		Main obj = (Main) en.create();
-		Object obj = Proxy.newProxyInstance(ClassLoader.getSystemClassLoader(), new Class[]{A.class}, new TestHandlers());
-		System.out.println(obj.getClass());
-		System.out.println(obj.getClass().getInterfaces().length);
-		//System.out.println(Proxy.getProxyClass(loader, interfaces));
+		ServerSocketChannel.open().socket().bind(new InetSocketAddress(48100), 50);
+		SocketChannel.open().socket().bind(new InetSocketAddress(48100));
 	}
 
 }

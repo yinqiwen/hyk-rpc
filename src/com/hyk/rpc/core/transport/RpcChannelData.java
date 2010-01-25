@@ -16,6 +16,6 @@ public class RpcChannelData {
 		this.content = data;
 		this.address = address;
 	}
-	public ByteArray content;
-	public Address address;
+	public final ByteArray content;
+	public final Address address;
 }

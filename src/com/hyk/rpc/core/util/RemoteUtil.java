@@ -33,18 +33,21 @@ public class RemoteUtil {
 	    return collect.toArray(ret);
 	}
 	
-	public static Method getMethod(int methodID, Object obj)
+	public static Method getMethod(String methodID, Object obj)
 	{
 		Class[] inters = getRemoteInterfaces(obj.getClass());
 		List<Method> methods = new ArrayList<Method>();
 		for (int i = 0; i < inters.length; i++) {
 			methods.addAll(Arrays.asList(inters[i].getMethods()));
 		}
-		if(methodID >= methods.size())
-		{		
-			return null;
+		for(Method m:methods)
+		{
+			if(m.getName().equals(methodID))
+			{
+				return m;
+			}
 		}
-		return methods.get(methodID);
+		return null;
 	}
 	public static int getMethodID(Method method, Object obj)
 	{
@@ -55,9 +58,12 @@ public class RemoteUtil {
 		
 		Class[] inters = getRemoteInterfaces(obj.getClass());
 		List<Method> methods = new ArrayList<Method>();
+		
 		for (int i = 0; i < inters.length; i++) {
 			methods.addAll(Arrays.asList(inters[i].getMethods()));
 		}
+		System.out.println("####" + methods);
+		System.out.println("####" + Arrays.toString(inters[0].getMethods()));
 		
 		for (int i = 0; i < methods.size(); i++) {
 			if(methods.get(i).equals(method))

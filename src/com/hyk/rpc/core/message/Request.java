@@ -22,8 +22,8 @@ public class Request extends AbstractMessageObject{
 
 
 
-	public int getOperationID() {
-		return operationID;
+	public String getOperation() {
+		return operation;
 	}
 
 
@@ -35,7 +35,7 @@ public class Request extends AbstractMessageObject{
 
 
 	long objID;
-	int operationID;
+	String operation;
 	Object[] args;
 	
 	
@@ -50,7 +50,7 @@ public class Request extends AbstractMessageObject{
 	@Override
 	public void readExternal(SerializerInput in) throws IOException {
 		objID = in.readLong();
-		operationID = in.readInt();
+		operation = in.readString();
 		args = in.readObject(Object[].class);
 	}
 
@@ -59,7 +59,7 @@ public class Request extends AbstractMessageObject{
 	@Override
 	public void writeExternal(SerializerOutput out) throws IOException {
 		out.writeLong(objID);
-		out.writeInt(operationID);
+		out.writeString(operation);
 		
 		out.writeObject(args);
 	}

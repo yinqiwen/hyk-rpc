@@ -9,6 +9,9 @@ import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.Method;
 import java.lang.reflect.Proxy;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import com.hyk.rpc.core.address.Address;
 import com.hyk.rpc.core.message.Message;
 import com.hyk.rpc.core.message.MessageFactory;
@@ -26,7 +29,8 @@ import com.hyk.serializer.SerializerOutput;
  *
  */
 public class RemoteObjectProxy implements InvocationHandler, Serializable {
-
+	
+	protected transient Logger			logger			= LoggerFactory.getLogger(getClass());
 	private long objID = -2;
 	private Address hostAddress;
 	private transient SessionManager sessionManager;
@@ -63,10 +67,16 @@ public class RemoteObjectProxy implements InvocationHandler, Serializable {
 	@Override
 	public Object invoke(Object proxy, Method method, Object[] args)
 			throws Throwable {
-		int methodID = RemoteUtil.getMethodID(method, proxy);
-		//System.out.println("method is is" +methodID );
-		//TypeValue[] paras = CommonUtil.buildTypeValues(args);
-		Message msg = MessageFactory.instance.createRequest(objID, methodID, args);
+		//int methodID = RemoteUtil.getMethodID(method, proxy);
+		if(method.getDeclaringClass().equals(Object.class))
+		{
+			return method.invoke(this, args);
+		}
+		if(logger.isDebugEnabled())
+		{
+			logger.debug("Invoke method:" + method.getName());
+		}
+		Message msg = MessageFactory.instance.createRequest(objID, method.getName(), args);
 		msg.setAddress(hostAddress);
 		Session session = sessionManager.createClientSession(msg);
 		session.sendRequest();

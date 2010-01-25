@@ -12,4 +12,5 @@ import java.io.Serializable;
 public interface Address extends Serializable {
 	 public boolean equals(Object obj);
 	 public int hashCode();
+	 public String toPrintableString();
 }
