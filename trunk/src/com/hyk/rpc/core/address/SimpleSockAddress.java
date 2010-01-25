@@ -53,4 +53,10 @@ public class SimpleSockAddress implements Address {
 	public int hashCode() {
 		return port + host.hashCode();
 	}
+
+	@Override
+	public String toPrintableString()
+	{
+		return "[" + host + ":" + port + "]";
+	}
 }

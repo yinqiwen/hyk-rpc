@@ -15,12 +15,12 @@ public class MessageFactory {
 	
 	
 	
-	public Message createRequest(long objID, int opertionID, Object[] paras)
+	public Message createRequest(long objID, String opertionID, Object[] paras)
 	{
 		Request req = new Request();
 		req.args = paras;
 		req.objID = objID;
-		req.operationID = opertionID;
+		req.operation = opertionID;
 		Message message = new Message();
 		message.setSessionID(ID.generateSessionID());
 		//message.sessionID = ID.generateSessionID();

@@ -22,39 +22,35 @@ import com.hyk.util.buffer.ByteArray;
  * @author Administrator
  * 
  */
-public class UDPRpcChannel extends AbstractDefaultRpcChannel {
+public class UDPRpcChannel extends AbstractDefaultRpcChannel
+{
+	private ByteBuffer			recvBuffer	= ByteBuffer.allocate(65536);
+	private DatagramChannel		channel;
+	private SimpleSockAddress	localAddr;
 
-	private ByteBuffer recvBuffer = ByteBuffer.allocate(65536);
-	private ByteBuffer sendBuffer = ByteBuffer.allocate(65536);
-	private DatagramChannel channel;
-	private SimpleSockAddress localAddr;
-
-	// private Map<Long, MessageFragment[]> fragmentTable = new
-	// ConcurrentHashMap<Long, MessageFragment[]>();
-
-	public UDPRpcChannel(Executor threadPool, int port) throws IOException {
+	public UDPRpcChannel(Executor threadPool, int port) throws IOException
+	{
 		super(threadPool);
 		channel = DatagramChannel.open();
 		channel.socket().bind(new InetSocketAddress(port));
-		localAddr = new SimpleSockAddress(InetAddress.getLocalHost()
-				.getHostAddress(), port);
+		localAddr = new SimpleSockAddress(InetAddress.getLocalHost().getHostAddress(), port);
 		start();
 	}
 
 	@Override
-	public Address getRpcChannelAddress() {
+	public Address getRpcChannelAddress()
+	{
 		return localAddr;
 	}
 
 	@Override
-	protected RpcChannelData read() throws IOException {
+	protected RpcChannelData read() throws IOException
+	{
 
 		recvBuffer.clear();
-		InetSocketAddress target = (InetSocketAddress) channel
-				.receive(recvBuffer);
+		InetSocketAddress target = (InetSocketAddress)channel.receive(recvBuffer);
 		recvBuffer.flip();
-		SimpleSockAddress address = new SimpleSockAddress(target.getAddress()
-				.getHostAddress(), target.getPort());
+		SimpleSockAddress address = new SimpleSockAddress(target.getAddress().getHostAddress(), target.getPort());
 		// System.out.println("###recv len:" + recvBuffer.limit());
 		ByteArray data = ByteArray.allocate(recvBuffer.limit());
 		data.put(recvBuffer);
@@ -70,16 +66,11 @@ public class UDPRpcChannel extends AbstractDefaultRpcChannel {
 	 * com.hyk.rpc.core.transport.RpcChannel#send(com.hyk.util.buffer.ByteArray)
 	 */
 	@Override
-	protected void send(RpcChannelData data) throws IOException {
-		sendBuffer.clear();
-		sendBuffer.put(data.content.buffer());
-		sendBuffer.flip();
-
-		SimpleSockAddress address = (SimpleSockAddress) data.address;
-		InetSocketAddress addr = new InetSocketAddress(address.getHost(),
-				address.getPort());
-		channel.send(sendBuffer, addr);
-
+	protected void send(RpcChannelData data) throws IOException
+	{
+		SimpleSockAddress address = (SimpleSockAddress)data.address;
+		InetSocketAddress addr = new InetSocketAddress(address.getHost(), address.getPort());
+		channel.send(data.content.buffer(), addr);
 	}
 
 }
