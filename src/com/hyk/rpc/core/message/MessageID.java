@@ -13,7 +13,7 @@ import com.hyk.rpc.core.address.Address;
  *
  */
 public class MessageID implements Serializable{
-	Address address;
+	transient Address address;
 	long sessionID;
 
 	public MessageID(){}

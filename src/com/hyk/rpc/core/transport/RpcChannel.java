@@ -29,7 +29,7 @@ public abstract class RpcChannel
 
 	protected static Logger			logger			= LoggerFactory.getLogger(RpcChannel.class);
 
-	protected int					maxMessageSize	= 2048;
+	protected int					maxMessageSize	= 4096;
 	protected List<MessageFragment>	sendList		= new LinkedList<MessageFragment>();
 	protected Serializer			serializer		= new HykSerializer();
 	protected Executor				threadPool;
@@ -94,21 +94,31 @@ public abstract class RpcChannel
 			msgFragsount++;
 		}
 		
-		byte[] buffer = data.toByteArray();
 		int off = 0;
 		int len = 0;
 		for(int i = 0; i < msgFragsount; i++)
 		{
-			if(buffer.length - off >= maxMessageSize)
+			ByteArray sent = null;
+			if(msgFragsount == 1)
 			{
-				len = maxMessageSize;
+				sent = data;
 			}
 			else
 			{
-				len = buffer.length - off;
+				if(size - off >= maxMessageSize)
+				{
+					len = maxMessageSize;
+				}
+				else
+				{
+					len = size - off;
+				}
+				off += len;
+				sent = ByteArray.allocate(len);
+				data.get(sent);
+				sent.flip();
 			}
-			ByteArray sent = ByteArray.wrap(buffer, off, len);
-			off += len;
+			
 			MessageFragment fragment = new MessageFragment();
 			fragment.setAddress(message.getAddress());
 			fragment.setSessionID(message.getSessionID());
@@ -131,6 +141,10 @@ public abstract class RpcChannel
 			{
 				sendMessageFragment(fragment);
 			}	
+		}
+		if(msgFragsount > 1)
+		{
+			data.free();
 		}
 	}
 	
@@ -177,12 +191,13 @@ public abstract class RpcChannel
 		ByteArray data = serializer.serialize(msg);
 		RpcChannelData send = new RpcChannelData(data, msg.getAddress());
 		send(send);
+		data.free();
 	}
 	
 	protected Message processRpcChannelData(RpcChannelData data) throws Exception
 	{
-		
 		MessageFragment fragment = serializer.deserialize(MessageFragment.class, data.content);
+		fragment.setAddress(data.address);
 		if(logger.isDebugEnabled())
 		{
 			logger.debug("Recv mesage fragment from " + data.address.toPrintableString() + " with size:" + data.content.size() + ", and sequence:" + fragment.getSequence() + ", totoalsize:" + fragment.getTotalFragmentCount());
