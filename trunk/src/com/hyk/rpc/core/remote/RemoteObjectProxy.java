@@ -82,7 +82,7 @@ public class RemoteObjectProxy implements InvocationHandler, Serializable {
 		session.sendRequest();
 		//session.waitInvokeResult();
 		Object ret =  session.waitInvokeResult();
-		if(Proxy.isProxyClass(ret.getClass()))
+		if(null != ret && Proxy.isProxyClass(ret.getClass()))
 		{
 			Object handler = Proxy.getInvocationHandler(ret);
 			if(handler instanceof RemoteObjectProxy)

@@ -16,7 +16,7 @@ public class Response extends AbstractMessageObject
 {
 
 	// protected TypeValue reply;
-	protected Object	reply;
+	protected Object reply;
 
 	public Object getReply()
 	{
@@ -32,16 +32,18 @@ public class Response extends AbstractMessageObject
 	@Override
 	public void readExternal(SerializerInput in) throws IOException
 	{
-		reply = in.readObject(Object.class);
+		if(in.readBoolean())
+		{
+			reply = in.readObject(Object.class);
+		}
+		
 	}
 
 	@Override
 	public void writeExternal(SerializerOutput out) throws IOException
 	{
-		if(null != reply)
-		{
-			out.writeObject(reply, Object.class);
-		}
+		out.writeBoolean(null != reply);
+		out.writeObject(reply, Object.class);
 	}
 
 }

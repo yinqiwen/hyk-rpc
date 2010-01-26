@@ -32,8 +32,8 @@ public class Message implements Externalizable
 		this.id = id;
 	}
 
-	protected MessageType			type;
-	protected AbstractMessageObject	value;
+	protected MessageType			 type;
+	protected AbstractMessageObject	 value;
 
 	public Address getAddress()
 	{
@@ -80,7 +80,7 @@ public class Message implements Externalizable
 			}
 			case Response:
 			{
-				value = in.readObject(Response.class);
+				value = in.readObject(Response.class);			
 				break;
 			}
 			default:
@@ -98,6 +98,7 @@ public class Message implements Externalizable
 	{
 		out.writeInt(type.getValue());
 		out.writeObject(value);
+		//System.out.println("####" + value);
 	}
 
 }

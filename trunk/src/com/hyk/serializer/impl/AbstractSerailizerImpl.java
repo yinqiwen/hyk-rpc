@@ -519,7 +519,10 @@ public abstract class AbstractSerailizerImpl<T> {
 
 	protected static void writeObject(ByteArray data, Object value, Class type)
 			throws IOException {
-		//Class queryType = type;
+		if(null == value)
+		{
+			return;
+		}
 		Class clazz = value.getClass();
 		Type dataType = ReflectionCache.getType(clazz);
 		switch (dataType) {
@@ -532,10 +535,14 @@ public abstract class AbstractSerailizerImpl<T> {
 			writeTag(data,INDICATOR_OTHER);
 			break;
 		}
-		default: {
-			if (ClassUtil.equals(clazz, type)) {
+		default: 
+		{
+			if (ClassUtil.equals(clazz, type)) 
+			{
 				writeTag(data, INDICATOR_DEFAULT);
-			} else {
+			} 
+			else 
+			{
 				writeTag(data, INDICATOR_TYPE);
 				writeString(data, clazz.getName());
 			}
@@ -543,6 +550,7 @@ public abstract class AbstractSerailizerImpl<T> {
 			break;
 		}
 		}
+		//System.out.println("####" + clazz + " " + type);
 		SerializerImplFactory.getSerializer(dataType).marshal(value, data);
 	}
 
@@ -551,8 +559,7 @@ public abstract class AbstractSerailizerImpl<T> {
 		if(null != value)
 		{
 			writeObject(data, value, value.getClass());
-		}
-		
+		}	
 	}
 
 
