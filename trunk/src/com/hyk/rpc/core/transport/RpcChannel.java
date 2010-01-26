@@ -29,7 +29,7 @@ public abstract class RpcChannel
 
 	protected static Logger			logger			= LoggerFactory.getLogger(RpcChannel.class);
 
-	protected int					maxMessageSize	= 4096;
+	protected int					maxMessageSize	= 2048;
 	protected List<MessageFragment>	sendList		= new LinkedList<MessageFragment>();
 	protected Serializer			serializer		= new HykSerializer();
 	protected Executor				threadPool;
