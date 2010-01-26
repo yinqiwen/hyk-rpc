@@ -20,4 +20,11 @@ public class HelloImpl implements HelloIntf {
 		return "Hello," + name;
 	}
 
+	@Override
+	public void noop()
+	{
+		// TODO Auto-generated method stub
+		
+	}
+
 }

@@ -33,6 +33,7 @@ public class ObjectSerializer<T> extends AbstractSerailizerImpl<T>
 		try
 		{
 			T ret = (T)ReflectionCache.getDefaultConstructor(type).newInstance(null);
+			
 			if(!(ret instanceof Serializable))
 			{
 				throw new NotSerializableException(type.getName());

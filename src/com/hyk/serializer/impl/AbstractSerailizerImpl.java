@@ -502,6 +502,10 @@ public abstract class AbstractSerailizerImpl<T> {
 			default:
 				break;
 			}
+			if(!data.hasRemaining())
+			{
+				return null;
+			}
 			return (T) SerializerImplFactory.getSerializer(dataType).unmarshal(
 					type, data);
 		} catch (IOException e) {
@@ -544,7 +548,11 @@ public abstract class AbstractSerailizerImpl<T> {
 
 	protected static void writeObject(ByteArray data, Object value)
 			throws IOException {
-		writeObject(data, value, value.getClass());
+		if(null != value)
+		{
+			writeObject(data, value, value.getClass());
+		}
+		
 	}
 
 

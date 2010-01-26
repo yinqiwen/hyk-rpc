@@ -62,8 +62,6 @@ public class RemoteUtil {
 		for (int i = 0; i < inters.length; i++) {
 			methods.addAll(Arrays.asList(inters[i].getMethods()));
 		}
-		System.out.println("####" + methods);
-		System.out.println("####" + Arrays.toString(inters[0].getMethods()));
 		
 		for (int i = 0; i < methods.size(); i++) {
 			if(methods.get(i).equals(method))

@@ -56,7 +56,7 @@ public class RPC {
 	public <T> T getRemoteService(Class<T> clazz, String name, Address address)
 	{
 		NameService remoteNaming = getRemoteNaming(address);
-		return (T) remoteNaming.getObject(name);
+		return (T) remoteNaming.lookup(name);
 	}
 	
 }
