@@ -36,7 +36,7 @@ public class MessageFactory {
 		Message message = new Message();
 		message.type = MessageType.Response;
 		message.setSessionID(request.getSessionID());
-		//message.sessionID = request.sessionID;
+		message.setAddress(request.getAddress());
 		message.value = res;
 		return message;
 	}

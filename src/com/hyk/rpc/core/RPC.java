@@ -21,10 +21,6 @@ import com.hyk.rpc.core.util.ID;
  */
 public class RPC {
 
-	private int id;
-
-	private Map memebers;
-
 	private RpcChannel channel;
 	private RemoteObjectFactory remoteObjectFactory;
 	private SessionManager sessionManager;
@@ -45,11 +41,6 @@ public class RPC {
 	public NameService getLocalNaming()
 	{
 		return nameService;
-	}
-	
-	public <T> T exposeObject(T obj)
-	{
-		return null;
 	}
 	
 	public NameService getRemoteNaming(Address address)

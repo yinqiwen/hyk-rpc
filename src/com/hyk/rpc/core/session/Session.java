@@ -114,9 +114,9 @@ public class Session
 			
 			Object target = remoteObjectFactory.getRawObject(objid);
 			Method method = RemoteUtil.getMethod(req.getOperation(), target);
-			if(logger.isInfoEnabled())
+			if(logger.isDebugEnabled())
 			{
-				logger.info("execute invocation:" +method.getName() + ", paras:" + Arrays.toString(paras));
+				logger.debug("execute invocation:" +method.getName() + ", paras:" + Arrays.toString(paras));
 			}
 			Object result = method.invoke(target, paras);
 			if(logger.isDebugEnabled())
@@ -124,7 +124,6 @@ public class Session
 				logger.debug("Invoked finish with result:" + result);
 			}
 			response = MessageFactory.instance.createResponse(request, result);
-			response.setAddress(request.getAddress());
 			sendResponse(response);
 			sessionManager.removeServerSession(this);
 		}
