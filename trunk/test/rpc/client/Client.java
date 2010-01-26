@@ -36,8 +36,9 @@ public class Client {
 		//Object hello =  serv.getObject("hello");
 		//CommonUtil.setSessionManager(rpc.getSessionManager());
 		//System.out.println(Arrays.toString(hello.getClass().getInterfaces()));
-		HelloIntf hello = (HelloIntf) serv.getObject("hello");
+		HelloIntf hello = (HelloIntf) serv.lookup("hello");
 		System.out.println(hello.sayHello("hyk-rpc! This is first invoking!"));
+		hello.noop();
 		System.exit(1);
 	}
 

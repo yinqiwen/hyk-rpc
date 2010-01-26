@@ -16,73 +16,86 @@ import com.hyk.serializer.SerializerOutput;
  * @author qiying.wang
  * 
  */
-public class Message implements Externalizable {
-//	protected transient Address address;
-//	protected transient long sessionID;
-	protected transient MessageID id = new MessageID();
-	public MessageID getId() {
+public class Message implements Externalizable
+{
+	// protected transient Address address;
+	// protected transient long sessionID;
+	protected transient MessageID	id	= new MessageID();
+
+	public MessageID getId()
+	{
 		return id;
 	}
 
-	public void setId(MessageID id) {
+	public void setId(MessageID id)
+	{
 		this.id = id;
 	}
 
-	protected MessageType type;
-	protected AbstractMessageObject value;
+	protected MessageType			type;
+	protected AbstractMessageObject	value;
 
-	public Address getAddress() {
+	public Address getAddress()
+	{
 		return id.address;
 	}
 
-	public void setAddress(Address address) {
+	public void setAddress(Address address)
+	{
 		id.address = address;
 	}
 
-	public long getSessionID() {
+	public long getSessionID()
+	{
 		return id.sessionID;
 	}
 
-	public void setSessionID(long sessionID) {
+	public void setSessionID(long sessionID)
+	{
 		id.sessionID = sessionID;
 	}
 
-	public MessageType getType() {
+	public MessageType getType()
+	{
 		return type;
 	}
 
-	public AbstractMessageObject getValue() {
+	public AbstractMessageObject getValue()
+	{
 		return value;
 	}
 
 	@Override
-	public void readExternal(SerializerInput in) throws IOException {
+	public void readExternal(SerializerInput in) throws IOException
+	{
 		int v = in.readInt();
 		type = MessageType.valueOf(v);
 
-		 switch (type) {
-		 case Request:
-		 {
-		 value = in.readObject(Request.class);
-		 break;
-		 }
-		 case Response:
-		 {
-		 value = in.readObject(Response.class);
-		 break;
-		 }
-		 default:
-		 {
-		 //System.out.println("####" + v);
-		 break;
-		 }
-					
-		 }
+		switch(type)
+		{
+			case Request:
+			{
+				value = in.readObject(Request.class);
+				break;
+			}
+			case Response:
+			{
+				value = in.readObject(Response.class);
+				break;
+			}
+			default:
+			{
+				// System.out.println("####" + v);
+				break;
+			}
+
+		}
 
 	}
 
 	@Override
-	public void writeExternal(SerializerOutput out) throws IOException {
+	public void writeExternal(SerializerOutput out) throws IOException
+	{
 		out.writeInt(type.getValue());
 		out.writeObject(value);
 	}

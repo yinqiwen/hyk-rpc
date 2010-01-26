@@ -5,6 +5,7 @@ package com.hyk.rpc.core.transport;
 
 import java.io.IOException;
 import java.io.NotSerializableException;
+import java.util.Arrays;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.concurrent.Executor;
@@ -12,6 +13,7 @@ import java.util.concurrent.Executor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.hyk.rpc.core.RpcException;
 import com.hyk.rpc.core.address.Address;
 import com.hyk.rpc.core.message.Message;
 import com.hyk.rpc.core.message.MessageFragment;
@@ -26,23 +28,27 @@ import com.hyk.util.buffer.ByteArray;
  */
 public abstract class RpcChannel
 {
+	protected static Logger				logger			= LoggerFactory.getLogger(RpcChannel.class);
+	
+	protected static final byte[] MAGIC_HEADER = "@hyk-rpc@".getBytes();
+	protected static final int GAP = 32;
 
-	protected static Logger			logger			= LoggerFactory.getLogger(RpcChannel.class);
+	protected byte[] magicHeader = new byte[MAGIC_HEADER.length];
+	
+	protected int						maxMessageSize	= 2048;
+	protected List<MessageFragment>		sendList		= new LinkedList<MessageFragment>();
+	protected Serializer				serializer		= new HykSerializer();
+	protected Executor					threadPool;
+	protected List<MessageListener>		msgListeners	= new LinkedList<MessageListener>();
 
-	protected int					maxMessageSize	= 2048;
-	protected List<MessageFragment>	sendList		= new LinkedList<MessageFragment>();
-	protected Serializer			serializer		= new HykSerializer();
-	protected Executor				threadPool;
-	protected List<MessageListener>	msgListeners	= new LinkedList<MessageListener>();
-
-	protected OutputTask			outTask			= new OutputTask();
-	protected InputTask				inTask			= new InputTask();
+	protected OutputTask				outTask			= new OutputTask();
+	protected InputTask					inTask			= new InputTask();
 
 	public RpcChannel()
 	{
 		this(null);
 	}
-	
+
 	public RpcChannel(Executor threadPool)
 	{
 		this.threadPool = threadPool;
@@ -78,6 +84,11 @@ public abstract class RpcChannel
 	protected abstract RpcChannelData read() throws IOException;
 
 	protected abstract void send(RpcChannelData data) throws IOException;
+	
+	protected void processException()
+	{
+		
+	}
 
 	public final void sendMessage(Message message) throws NotSerializableException, IOException
 	{
@@ -93,7 +104,7 @@ public abstract class RpcChannel
 		{
 			msgFragsount++;
 		}
-		
+
 		int off = 0;
 		int len = 0;
 		for(int i = 0; i < msgFragsount; i++)
@@ -118,7 +129,7 @@ public abstract class RpcChannel
 				data.get(sent);
 				sent.flip();
 			}
-			
+
 			MessageFragment fragment = new MessageFragment();
 			fragment.setAddress(message.getAddress());
 			fragment.setSessionID(message.getSessionID());
@@ -127,7 +138,7 @@ public abstract class RpcChannel
 			fragment.setContent(sent);
 			if(logger.isDebugEnabled())
 			{
-				logger.debug("Send message with size:" + sent.size() +", fragments count:" + msgFragsount);
+				logger.debug("Send message with size:" + sent.size() + ", fragments count:" + msgFragsount);
 			}
 			if(null != threadPool)
 			{
@@ -140,22 +151,19 @@ public abstract class RpcChannel
 			else
 			{
 				sendMessageFragment(fragment);
-			}	
+			}
 		}
 		if(msgFragsount > 1)
 		{
 			data.free();
 		}
 	}
-	
 
-
-	
-	public final void processIncomingData(RpcChannelData data) throws Exception
+	public final  void processIncomingData(RpcChannelData data) throws RpcChannelException
 	{
-		if(logger.isInfoEnabled())
+		if(logger.isDebugEnabled())
 		{
-			logger.info("Process message from " + data.address.toPrintableString());
+			logger.debug("Process message from " + data.address.toPrintableString());
 		}
 		Message msg = processRpcChannelData(data);
 		if(msg != null)
@@ -166,7 +174,7 @@ public abstract class RpcChannel
 			}
 		}
 	}
-	
+
 	private void dispatch(final Message msg)
 	{
 		if(logger.isDebugEnabled())
@@ -180,76 +188,98 @@ public abstract class RpcChannel
 				@Override
 				public void run()
 				{
-					try {
+					try
+					{
 						messageListener.onMessage(msg);
-					} catch (Exception e) {
+					}
+					catch(Exception e)
+					{
 						logger.error("Failed to process message.", e);
 					}
-					
+
 				}
 			});
 		}
 	}
-	
+
 	protected void sendMessageFragment(MessageFragment msg) throws IOException
 	{
-		ByteArray data = serializer.serialize(msg);
+		ByteArray data = ByteArray.allocate(maxMessageSize + GAP);
+		data.put(MAGIC_HEADER);
+		data = serializer.serialize(msg, data);
 		RpcChannelData send = new RpcChannelData(data, msg.getAddress());
 		send(send);
 		data.free();
 	}
-	
-	protected Message processRpcChannelData(RpcChannelData data) throws Exception
+
+	protected synchronized Message processRpcChannelData(RpcChannelData data) throws RpcChannelException
 	{
-		MessageFragment fragment = serializer.deserialize(MessageFragment.class, data.content);
-		fragment.setAddress(data.address);
-		if(logger.isDebugEnabled())
+		data.content.get(magicHeader);
+		if(!Arrays.equals(magicHeader, MAGIC_HEADER))
 		{
-			logger.debug("Recv " + fragment + " with size:" + data.content.size());
+			throw new RpcChannelException("Unexpected rpc message!");
 		}
-		if(fragment.getTotalFragmentCount() == 1 && fragment.getSequence() == 0)
+		try
 		{
-			Message msg = serializer.deserialize(Message.class, fragment.getContent());
-			data.content.free();
-			msg.setAddress(data.address);
+			MessageFragment fragment = serializer.deserialize(MessageFragment.class, data.content);
+			fragment.setAddress(data.address);
+			if(logger.isDebugEnabled())
+			{
+				logger.debug("Recv " + fragment + " with size:" + data.content.size());
+			}
+			if(fragment.getTotalFragmentCount() == 1 && fragment.getSequence() == 0)
+			{
+				Message msg = serializer.deserialize(Message.class, fragment.getContent());
+				data.content.free();
+				msg.setAddress(data.address);
+				msg.setSessionID(fragment.getSessionID());
+				return msg;
+			}
+
+			saveMessageFragment(fragment);
+			MessageFragment[] fragments = loadMessageFragments(fragment.getId());
+			if(fragments.length != fragment.getTotalFragmentCount())
+			{
+				throw new RpcChannelException("Error!");
+			}
+			for(int i = 0; i < fragments.length; i++)
+			{
+				if(null == fragments[i])
+				{
+					if(logger.isDebugEnabled())
+					{
+						logger.debug("Message is not ready to process since element:" + i + " is null.");
+					}
+					return null;
+				}
+			}
+			if(logger.isDebugEnabled())
+			{
+				logger.debug("Message is ready to process!");
+			}
+			ByteArray msgBuffer = ByteArray.allocate(maxMessageSize * fragments.length);
+			for(int i = 0; i < fragments.length; i++)
+			{
+				msgBuffer.put(fragments[i].getContent());
+			}
+			msgBuffer.flip();
+			Message msg = serializer.deserialize(Message.class, msgBuffer);
 			msg.setSessionID(fragment.getSessionID());
+			msg.setAddress(data.address);
+			msgBuffer.free();
+			data.content.free();
+			deleteMessageFragments(fragment.getId());
 			return msg;
 		}
+		catch(RpcChannelException e)
+		{
+			throw e;
+		}
+		catch(Exception e)
+		{
+			throw new RpcChannelException("Failed to process message!", e);
+		}
 		
-		saveMessageFragment(fragment);
-		MessageFragment[] fragments = loadMessageFragments(fragment.getId());
-		if(fragments.length != fragment.getTotalFragmentCount())
-		{
-			throw new Exception("Error!");
-		}
-		for(int i = 0; i < fragments.length; i++)
-		{
-			if(null == fragments[i])
-			{
-				if(logger.isDebugEnabled())
-				{
-					logger.debug("Message is not ready to process since element:" + i + " is null.");
-				}
-				return null;
-			}
-		}
-		if(logger.isDebugEnabled())
-		{
-			logger.debug("Message is ready to process!");
-		}
-		ByteArray msgBuffer = ByteArray.allocate(maxMessageSize * fragments.length);
-		for(int i = 0; i < fragments.length; i++)
-		{
-			msgBuffer.put(fragments[i].getContent());
-		}
-		msgBuffer.flip();
-		Message msg = serializer.deserialize(Message.class, msgBuffer);
-		msg.setSessionID(fragment.getSessionID());
-		msg.setAddress(data.address);
-		msgBuffer.free();
-		data.content.free();
-		deleteMessageFragments(fragment.getId());
-		return msg;
 	}
 
 	class InputTask implements Runnable
@@ -266,11 +296,11 @@ public abstract class RpcChannel
 					if(null != msg)
 					{
 						dispatch(msg);
-					}			
+					}
 				}
-				catch(Exception e)
+				catch(Throwable e)
 				{
-					e.printStackTrace();
+					logger.error("Failed to process received message", e);
 				}
 			}
 		}
@@ -301,7 +331,7 @@ public abstract class RpcChannel
 				}
 				catch(Throwable e)
 				{
-					e.printStackTrace();
+					logger.error("Failed to send message", e);
 				}
 			}
 		}

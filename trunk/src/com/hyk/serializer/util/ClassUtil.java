@@ -10,6 +10,7 @@
 package com.hyk.serializer.util;
 
 import java.lang.reflect.Constructor;
+import java.lang.reflect.Method;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
@@ -49,7 +50,7 @@ public class ClassUtil
 		forward.put(key, value);
 		backward.put(value, key);
 	}
-	
+
 	public static boolean equals(Class a, Class b)
 	{
 		boolean ret = a.equals(b);
@@ -57,20 +58,28 @@ public class ClassUtil
 		{
 			if(a.isPrimitive() || b.isPrimitive())
 			{
-				Class wrapper = PRIMITIVE_TO_WRAPPER_TYPE.get(a.isPrimitive()?a:b);
-				return wrapper.equals(a.isPrimitive()?b:a);
+				Class wrapper = PRIMITIVE_TO_WRAPPER_TYPE.get(a.isPrimitive() ? a : b);
+				return wrapper.equals(a.isPrimitive() ? b : a);
 			}
 		}
 		return ret;
 	}
 
-	public static Constructor getConstructor(Class clazz, Object... paras) throws NoSuchMethodException
+	public static Method getMethod(Class clazz, String methodName, Object... paras) throws NoSuchMethodException
 	{
-		Constructor ret = null;
-		Constructor[] allCons = clazz.getDeclaredConstructors();
-		for(Constructor cons : allCons)
+		Method ret = null;
+		if(null == paras)
 		{
-			Class[] types = cons.getParameterTypes();
+			paras = new Object[0];
+		}
+		Method[] allMethods = clazz.getMethods();
+		for(Method method : allMethods)
+		{
+			if(!method.getName().equals(methodName))
+			{
+				continue;
+			}
+			Class[] types = method.getParameterTypes();
 			if(types.length != paras.length)
 				continue;
 			boolean matched = true;
@@ -89,13 +98,10 @@ public class ClassUtil
 				{
 					convertType = WRAPPER_TO_PRIMITIVE_TYPE.get(declType);
 				}
-				
 				if(null != convertType)
 				{
-					
 					if(convertType.equals(realType))
 					{
-						
 						continue;
 					}
 				}
@@ -103,8 +109,8 @@ public class ClassUtil
 				break;
 			}
 			if(matched)
-			{		
-				ret = cons;
+			{
+				ret = method;
 			}
 		}
 		if(null == ret)

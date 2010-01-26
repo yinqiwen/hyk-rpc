@@ -22,6 +22,7 @@ import com.hyk.rpc.core.transport.RpcChannel;
 import com.hyk.rpc.core.util.CommonUtil;
 import com.hyk.rpc.core.util.ID;
 import com.hyk.rpc.core.util.RemoteUtil;
+import com.hyk.serializer.util.ClassUtil;
 
 /**
  * @author Administrator
@@ -101,7 +102,6 @@ public class Session
 		{
 			waitResLock.notify();
 		}
-
 	}
 
 	public void processRequest()
@@ -113,7 +113,7 @@ public class Session
 		{
 			
 			Object target = remoteObjectFactory.getRawObject(objid);
-			Method method = RemoteUtil.getMethod(req.getOperation(), target);
+			Method method = ClassUtil.getMethod(target.getClass(), req.getOperation(), paras);
 			if(logger.isDebugEnabled())
 			{
 				logger.debug("execute invocation:" +method.getName() + ", paras:" + Arrays.toString(paras));
