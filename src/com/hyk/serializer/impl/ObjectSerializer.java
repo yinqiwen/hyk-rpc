@@ -20,13 +20,7 @@ import com.hyk.util.buffer.ByteArray;
  * 
  */
 public class ObjectSerializer<T> extends AbstractSerailizerImpl<T>
-{
-
-//	public void init(ByteArray array) throws IOException
-//	{
-//		writeInt(array, 0);
-//	}
-	
+{	
 	@Override
 	public T unmarshal(Class<T> type, ByteArray data) throws NotSerializableException, IOException, InstantiationException
 	{
@@ -51,8 +45,6 @@ public class ObjectSerializer<T> extends AbstractSerailizerImpl<T>
 					break;
 				Field f = fs[tag - 1];
 				Class fieldType = f.getType();
-				//AbstractSerailizerImpl serializer = SerializerImplFactory.getSerializer(fieldType);
-				//f.set(ret, serializer.unmarshal(fieldType, data));
 				f.set(ret, readObject(data, fieldType));
 			}
 			return ret;
@@ -66,18 +58,7 @@ public class ObjectSerializer<T> extends AbstractSerailizerImpl<T>
 
 	@Override
 	public ByteArray marshal(T value, ByteArray data) throws NotSerializableException, IOException
-	{
-//		Class clazz = value.getClass();
-//		if(clazz.equals(declType))
-//		{
-//			writeTag(data,0);
-//		}
-//		else
-//		{
-//			writeTag(data,1);
-//			//System.out.println("####" + clazz.getName());
-//			writeString(data,clazz.getName());
-//		}	
+	{	
 		Class clazz = value.getClass();
 		if(!(value instanceof Serializable))
 		{
@@ -97,13 +78,12 @@ public class ObjectSerializer<T> extends AbstractSerailizerImpl<T>
 			{
 				Field f = fs[i];
 				Object fieldValue = f.get(value);
-				if(null != fieldValue)
+				if(null != fieldValue && fieldValue != value)
 				{
-					
 					writeTag(data, i + 1);
-					//AbstractSerailizerImpl serializer = SerializerImplFactory.getSerializer(f.getType());
-					//serializer.marshal(fieldValue, f.getType(), data);
+					//writeBoolean(data, fieldValue != value);
 					writeObject(data, fieldValue, f.getType());
+					
 				}
 			}
 			writeTag(data, 0);

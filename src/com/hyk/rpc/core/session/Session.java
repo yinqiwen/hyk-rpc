@@ -5,6 +5,7 @@ package com.hyk.rpc.core.session;
 
 import java.io.IOException;
 import java.io.NotSerializableException;
+import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.Arrays;
 
@@ -71,7 +72,7 @@ public class Session
 		channel.sendMessage(response);
 	}
 
-	public Object waitInvokeResult() throws RpcException
+	public Object waitInvokeResult() throws Throwable
 	{
 		if(null == response)
 		{
@@ -92,7 +93,12 @@ public class Session
 			}
 		}
 		Response res = (Response)response.getValue();
-		return res.getReply();
+		Object reply = res.getReply();
+		if(reply != null && reply instanceof Throwable)
+		{
+			throw (Throwable) reply;
+		}
+		return reply;
 	}
 
 	public void processResponse(Message res)
@@ -118,7 +124,22 @@ public class Session
 			{
 				logger.debug("execute invocation:" +method.getName() + ", paras:" + Arrays.toString(paras));
 			}
-			Object result = method.invoke(target, paras);
+			Object result = null;
+			try 
+			{
+				 result = method.invoke(target, paras);
+			}
+			catch(InvocationTargetException e)
+			{
+				e.getCause().getStackTrace();
+				result = e.getCause();		
+			}
+			catch (Throwable e) 
+			{
+				e.getCause().getStackTrace();
+				result = e;
+			}
+			
 			if(logger.isDebugEnabled())
 			{
 				logger.debug("Invoked finish with result:" + result);

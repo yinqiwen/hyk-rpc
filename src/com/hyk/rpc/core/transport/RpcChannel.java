@@ -43,6 +43,7 @@ public abstract class RpcChannel
 
 	protected OutputTask				outTask			= new OutputTask();
 	protected InputTask					inTask			= new InputTask();
+	protected boolean isStarted = false;
 
 	public RpcChannel()
 	{
@@ -54,12 +55,17 @@ public abstract class RpcChannel
 		this.threadPool = threadPool;
 	}
 
-	public void start()
+	public synchronized void start()
 	{
 		if(logger.isInfoEnabled())
 		{
 			logger.info("RpcChannel start.");
 		}
+		if(isStarted)
+		{
+			return;
+		}
+		isStarted = true;
 		if(null != threadPool)
 		{
 			threadPool.execute(inTask);
