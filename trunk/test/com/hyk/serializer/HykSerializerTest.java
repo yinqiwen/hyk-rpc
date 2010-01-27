@@ -10,6 +10,7 @@ import java.util.Arrays;
 
 import com.hyk.rpc.core.message.Message;
 import com.hyk.rpc.core.message.MessageFactory;
+import com.hyk.rpc.core.message.Response;
 import com.hyk.util.buffer.ByteArray;
 
 import target.TargetClassTop;
@@ -111,12 +112,20 @@ public class HykSerializerTest extends TestCase {
 		//paras[0].setTypeName("java.lang.String");
 		//paras[0].setValue("safasgas");
 		Object[] paras = new Object[]{"safasgas"};
-		Message msg = MessageFactory.instance.createRequest(-1, "hello", paras);
-		ByteArray data = serializer.serialize(msg);
+		Message request = MessageFactory.instance.createRequest(-1, "hello", paras);
+		ByteArray data = serializer.serialize(request);
 		//byte[] data = serializer.serialize_(msg);
 		//System.out.println(new String(data.toByteArray()));
 		serializer.deserialize(Message.class, data);
 		
+		Message response = MessageFactory.instance.createResponse(request, null);
+		assertNotNull(response.getValue());
+		data = serializer.serialize(response);
+		response = serializer.deserialize(Message.class, data);
+		data = serializer.serialize(request);
+		assertNotNull(response.getValue());
+		Response res = (Response) response.getValue();
+		assertNull(res.getReply());
 	}
 	
 	public void testArray() throws NotSerializableException, IOException, InstantiationException
@@ -170,6 +179,14 @@ public class HykSerializerTest extends TestCase {
 		ByteArray data = serializer.serialize("hello,world");
 		String result = serializer.deserialize(String.class, data);
 		assertEquals(result, "hello,world");
+	}
+	
+	public void testException() throws NotSerializableException, IOException, InstantiationException
+	{
+		NullPointerException exception = new NullPointerException("asdasfas");
+		ByteArray data = serializer.serialize(exception);
+		NullPointerException result = serializer.deserialize(NullPointerException.class, data);
+		assertEquals(result.getMessage(), exception.getMessage());
 	}
 	
 	public void testProxy() throws NotSerializableException, IOException, IllegalArgumentException, InstantiationException

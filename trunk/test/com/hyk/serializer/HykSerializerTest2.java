@@ -1,20 +1,22 @@
 package com.hyk.serializer;
 
 import java.io.IOException;
+import java.lang.reflect.Field;
+import java.util.Arrays;
 
 import junit.framework.TestCase;
 
+import com.hyk.rpc.core.message.Message;
+import com.hyk.rpc.core.message.MessageFactory;
+import com.hyk.rpc.core.message.Response;
+import com.hyk.serializer.reflect.ReflectionCache;
 import com.hyk.util.buffer.ByteArray;
 
 public class HykSerializerTest2 extends TestCase {
 	
 	public static void main(String[] args) throws IOException, ClassNotFoundException, InstantiationException {
-		HykSerializer serializer = new HykSerializer();
-		Object[] oa = new Object[]{100,2};
-		ByteArray data = serializer.serialize(oa);
-		Object[] oa2 = serializer.deserialize(Object[].class, data);
-		System.out.println("#####" + oa2[0]);
-		//assertEquals(true, Arrays.equals(oa, oa2));	
+		Field[] fs = ReflectionCache.getSerializableFields(NullPointerException.class);
+		System.out.println(Arrays.toString(fs));
 	}
 
 	
