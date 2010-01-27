@@ -23,7 +23,7 @@ public class HelloImpl implements HelloIntf {
 	@Override
 	public void noop()
 	{
-		// TODO Auto-generated method stub
+		throw new NullPointerException("sdasd");
 		
 	}
 
