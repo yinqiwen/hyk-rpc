@@ -28,16 +28,13 @@ public class Client {
 	 * @throws IOException 
 	 */
 	public static void main(String[] args) throws IOException {
-		UDPRpcChannel transport = new UDPRpcChannel(Executors.newFixedThreadPool(10), 48100);
-		//TCPRpcChannel transport = new TCPRpcChannel(Executors.newFixedThreadPool(10), 48100);
+		//UDPRpcChannel transport = new UDPRpcChannel(Executors.newFixedThreadPool(10), 48100);
+		TCPRpcChannel transport = new TCPRpcChannel(Executors.newFixedThreadPool(10), 48100);
 		RPC rpc = new RPC(transport);
 		
 		NameService serv = rpc.getRemoteNaming(new SimpleSockAddress(InetAddress.getLocalHost().getHostAddress(), 48101));
-		//Object hello =  serv.getObject("hello");
-		//CommonUtil.setSessionManager(rpc.getSessionManager());
-		//System.out.println(Arrays.toString(hello.getClass().getInterfaces()));
 		HelloIntf hello = (HelloIntf) serv.lookup("hello");
-		System.out.println(hello.sayHello("hyk-rpc! This is first invoking!"));
+		System.out.println(hello.sayHello("hyk-rpc!"));
 		hello.noop();
 		System.exit(1);
 	}
