@@ -28,6 +28,8 @@ import com.hyk.rpc.core.address.SimpleSockAddress;
 import com.hyk.util.buffer.ByteArray;
 
 /**
+ * Since TCP transmit is not atomic, this implementation is not correct exactly
+ * 
  * @author Administrator
  * 
  */
@@ -42,7 +44,7 @@ public class TCPRpcChannel extends AbstractDefaultRpcChannel
 	private Selector								selector;
 	private List<SelectionKey>						selectionKeys	= new ArrayList<SelectionKey>();
 	private Map<SimpleSockAddress, SocketChannel>	socketTable		= new ConcurrentHashMap<SimpleSockAddress, SocketChannel>();
-
+	
 	public TCPRpcChannel(Executor threadPool, int port) throws IOException
 	{
 		super(threadPool);
@@ -56,12 +58,30 @@ public class TCPRpcChannel extends AbstractDefaultRpcChannel
 		start();
 	}
 
+	private void closeSocketChannel(SocketChannel channel) throws IOException
+	{
+		channel.keyFor(selector).cancel();
+		InetSocketAddress remoteAddr = (InetSocketAddress)channel.socket().getRemoteSocketAddress();
+		SimpleSockAddress address = new SimpleSockAddress(remoteAddr.getAddress().getHostAddress(), remoteAddr.getPort());
+		socketTable.remove(address);
+		channel.close();
+	}
+	
+	private void registerSocketChannel(SocketChannel channel) throws IOException 
+	{
+		channel.configureBlocking(false);
+		channel.register(selector.wakeup(), SelectionKey.OP_READ);
+		InetSocketAddress remoteAddr = (InetSocketAddress)channel.socket().getRemoteSocketAddress();
+		SimpleSockAddress address = new SimpleSockAddress(remoteAddr.getAddress().getHostAddress(), remoteAddr.getPort());
+		socketTable.put(address, channel);
+	}
+	
 	@Override
 	public void start()
 	{
+		
 		threadPool.execute(new Runnable()
 		{
-
 			@Override
 			public void run()
 			{
@@ -81,17 +101,13 @@ public class TCPRpcChannel extends AbstractDefaultRpcChannel
 								if(key.isAcceptable())
 								{			
 									ServerSocketChannel ssc = (ServerSocketChannel)key.channel();
-									//ssc.
 									SocketChannel csc = ssc.accept();
 									InetSocketAddress target = (InetSocketAddress)csc.socket().getRemoteSocketAddress();
 									if(logger.isDebugEnabled())
 									{
 										logger.debug("Accept a client from " + target);
 									}
-									SimpleSockAddress address = new SimpleSockAddress(target.getAddress().getHostAddress(), target.getPort());
-									socketTable.put(address, csc);
-									csc.configureBlocking(false);
-									csc.register(selector, SelectionKey.OP_READ);
+									registerSocketChannel(csc);
 								}
 								else if(key.isReadable())
 								{
@@ -102,7 +118,16 @@ public class TCPRpcChannel extends AbstractDefaultRpcChannel
 									SocketChannel csc = (SocketChannel)key.channel();
 									//csc.configureBlocking(false);
 									recvBuffer.clear();
-									csc.read(recvBuffer);
+									try 
+									{
+										csc.read(recvBuffer);
+									} 
+									catch (IOException e) 
+									{	
+										closeSocketChannel(csc);
+										continue;
+									}
+								
 									recvBuffer.flip();
 									InetSocketAddress target = (InetSocketAddress)csc.socket().getRemoteSocketAddress();
 									if(logger.isDebugEnabled())
@@ -123,9 +148,13 @@ public class TCPRpcChannel extends AbstractDefaultRpcChannel
 								}
 							}
 						}
+						else
+						{
+						    Thread.sleep(100);
+						}
 
 					}
-					catch(IOException e)
+					catch(Exception e)
 					{
 						// TODO Auto-generated catch block
 						e.printStackTrace();
@@ -185,23 +214,13 @@ public class TCPRpcChannel extends AbstractDefaultRpcChannel
 			InetSocketAddress target = new InetSocketAddress(address.getHost(), address.getPort());
 			if(csc.connect(target))
 			{
-				csc.write(data.content.buffer());
-				csc.configureBlocking(false);
+				registerSocketChannel(csc);
 				if(logger.isDebugEnabled())
 				{
-					logger.debug("Create socket to connect " + target);
+					logger.debug("Create socket to connect " + target + " " + csc.socket().getRemoteSocketAddress());
 				}
-				socketTable.put(address, csc);
-				csc.register(selector, SelectionKey.OP_READ);	
-//				try
-//				{
-//					Thread.sleep(1000);
-//				}
-//				catch(InterruptedException e)
-//				{
-//					// TODO Auto-generated catch block
-//					e.printStackTrace();
-//				}
+				
+				int len = csc.write(data.content.buffer());
 				
 			}
 		}
