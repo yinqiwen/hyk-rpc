@@ -21,7 +21,7 @@ import com.hyk.util.common.CommonUtil;
 /**
  *
  */
-public class OtherSerializer extends AbstractSerailizerImpl<Object>
+public class OtherSerializerStream extends SerailizerStream<Object>
 {
 
 	@Override
@@ -29,7 +29,7 @@ public class OtherSerializer extends AbstractSerailizerImpl<Object>
 			throws NotSerializableException, IOException {
 		ObjectOutputStream oos = new ObjectOutputStream(data.output);
 		oos.writeObject(obj);
-		//oos.close();
+		// don't close the stream
 		return data;
 	}
 
@@ -42,6 +42,7 @@ public class OtherSerializer extends AbstractSerailizerImpl<Object>
 			ObjectInputStream ois = new ObjectInputStream(data.input);
 			Object ret = ois.readObject();
 			ObjectReferenceUtil.addDeserializeThreadLocalObject(ret);
+			// don't close the stream
 			return ret;
 		}
 		catch(Exception e)

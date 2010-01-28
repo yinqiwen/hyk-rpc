@@ -118,14 +118,15 @@ public class HykSerializerTest extends TestCase {
 		//System.out.println(new String(data.toByteArray()));
 		serializer.deserialize(Message.class, data);
 		
-		Message response = MessageFactory.instance.createResponse(request, null);
+		Message response = MessageFactory.instance.createResponse(request, new NullPointerException("waht!"));
 		assertNotNull(response.getValue());
 		data = serializer.serialize(response);
+		System.out.println(data.size());
 		response = serializer.deserialize(Message.class, data);
 		data = serializer.serialize(request);
 		assertNotNull(response.getValue());
 		Response res = (Response) response.getValue();
-		assertNull(res.getReply());
+		assertNotNull(res.getReply());
 	}
 	
 	public void testArray() throws NotSerializableException, IOException, InstantiationException

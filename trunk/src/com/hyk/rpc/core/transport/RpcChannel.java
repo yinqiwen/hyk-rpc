@@ -13,7 +13,6 @@ import java.util.concurrent.Executor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.hyk.rpc.core.RpcException;
 import com.hyk.rpc.core.address.Address;
 import com.hyk.rpc.core.message.Message;
 import com.hyk.rpc.core.message.MessageFragment;
@@ -91,20 +90,16 @@ public abstract class RpcChannel
 
 	protected abstract void send(RpcChannelData data) throws IOException;
 	
-	protected void processException()
-	{
-		
-	}
 
 	public final void sendMessage(Message message) throws NotSerializableException, IOException
 	{
+		
+		ByteArray data = serializer.serialize(message);
+		int size = data.size();
 		if(logger.isInfoEnabled())
 		{
-			logger.info("send message to " + message.getAddress().toPrintableString());
+			logger.info("send message " + message.getValue() +  " to " + message.getAddress().toPrintableString() + " with total size:" + size);
 		}
-		ByteArray data = serializer.serialize(message);
-
-		int size = data.size();
 		int msgFragsount = size / maxMessageSize;
 		if(size % maxMessageSize > 0)
 		{

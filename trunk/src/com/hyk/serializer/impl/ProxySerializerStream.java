@@ -23,11 +23,11 @@ import com.hyk.util.common.CommonUtil;
 /**
  *
  */
-public class ProxySerializer<T> extends AbstractSerailizerImpl<T>
+public class ProxySerializerStream<T> extends SerailizerStream<T>
 {
 
 	@Override
-	public T unmarshal(Class<T> type, ByteArray data) throws NotSerializableException, IOException, InstantiationException
+	protected T unmarshal(Class<T> type, ByteArray data) throws NotSerializableException, IOException, InstantiationException
 	{
 		try
 		{	
@@ -50,7 +50,7 @@ public class ProxySerializer<T> extends AbstractSerailizerImpl<T>
 	}
 
 	@Override
-	public ByteArray marshal(T value, ByteArray data) throws NotSerializableException, IOException
+	protected ByteArray marshal(T value, ByteArray data) throws NotSerializableException, IOException
 	{
 		Class[] interfaces = value.getClass().getInterfaces();
 		String[] interfaceNames = new String[interfaces.length];

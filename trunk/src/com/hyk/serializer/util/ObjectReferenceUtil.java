@@ -34,6 +34,7 @@ public class ObjectReferenceUtil
 
 	public static void addSerializeThreadLocalObject(Object obj)
 	{
+		//System.out.println("@@@@ " + serializeRferenceTable.get().size() + " " + obj.getClass());
 		serializeRferenceTable.get().add(obj);
 	}
 
@@ -62,11 +63,13 @@ public class ObjectReferenceUtil
 	
 	public static void addDeserializeThreadLocalObject(Object obj)
 	{
+		//System.out.println("####" + deserializeRferenceTable.get().size() + " " + obj.getClass());
 		deserializeRferenceTable.get().add(obj);
 	}
 
 	public static Object getDeserializeThreadLocalObject(int seq)
 	{
+		//System.out.println("#### query" + seq);
 		return deserializeRferenceTable.get().get(seq);
 	}
 

@@ -15,6 +15,12 @@ import com.hyk.serializer.SerializerOutput;
 public class Response extends AbstractMessageObject
 {
 
+	@Override
+	public String toString()
+	{
+		return "Response [reply=" + reply + "]";
+	}
+
 	// protected TypeValue reply;
 	protected Object reply;
 

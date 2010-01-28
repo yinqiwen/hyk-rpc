@@ -16,30 +16,30 @@ import com.hyk.serializer.reflect.ReflectionCache;
 /**
  *
  */
-public class SerializerImplFactory
+public class SerailizerStreamFactory
 {
-	static IntSerializer intSerializer = new IntSerializer();
-	static ShortSerializer shortSerializer = new ShortSerializer();
-	static ByteSerializer byteSerializer = new ByteSerializer();
-	static CharSerializer charSerializer = new CharSerializer();
-	static BooleanSerializer boolSerializer = new BooleanSerializer();
-	static LongSerializer longSerializer = new LongSerializer();
-	static FloatSerializer floatSerializer = new FloatSerializer();
-	static DoubleSerializer doubleSerializer = new DoubleSerializer();
-	static StringSerializer stringSerializer = new StringSerializer();
-	static EnumSerializer enumSerializer = new EnumSerializer();
-	static ArraySerializer arraySerializer = new ArraySerializer();
-	static ObjectSerializer objectSerializer = new ObjectSerializer();
-	static ProxySerializer proxySerializer = new ProxySerializer();
-	public static OtherSerializer otherSerializer = new OtherSerializer();
+	static IntSerializerStream intSerializer = new IntSerializerStream();
+	static ShortSerializerStream shortSerializer = new ShortSerializerStream();
+	static ByteSerializerStream byteSerializer = new ByteSerializerStream();
+	static CharSerializerStream charSerializer = new CharSerializerStream();
+	static BooleanSerializerStream boolSerializer = new BooleanSerializerStream();
+	static LongSerializerStream longSerializer = new LongSerializerStream();
+	static FloatSerializerStream floatSerializer = new FloatSerializerStream();
+	static DoubleSerializerStream doubleSerializer = new DoubleSerializerStream();
+	static StringSerializerStream stringSerializer = new StringSerializerStream();
+	static EnumSerializerStream enumSerializer = new EnumSerializerStream();
+	static ArraySerializerStream arraySerializer = new ArraySerializerStream();
+	static ObjectSerializerStream objectSerializer = new ObjectSerializerStream();
+	static ProxySerializerStream proxySerializer = new ProxySerializerStream();
+	public static OtherSerializerStream otherSerializer = new OtherSerializerStream();
 	
-	public static  AbstractSerailizerImpl getSerializer(Class clazz)
+	public static  SerailizerStream getSerializer(Class clazz)
 	{
 		Type type = ReflectionCache.getType(clazz);
 		return getSerializer(type);
 	}
 	
-	public static  AbstractSerailizerImpl getSerializer(Type type)
+	public static  SerailizerStream getSerializer(Type type)
 	{
 		//Type type = ReflectionCache.getType(clazz);
 		switch(type)

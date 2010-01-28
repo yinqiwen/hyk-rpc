@@ -12,7 +12,6 @@ import com.hyk.serializer.io.Type;
 import com.hyk.serializer.reflect.ReflectionCache;
 import com.hyk.serializer.util.ObjectReferenceUtil;
 import com.hyk.util.buffer.ByteArray;
-import com.hyk.util.common.CommonUtil;
 import com.hyk.util.reflect.ClassUtil;
 
 /**
@@ -20,7 +19,7 @@ import com.hyk.util.reflect.ClassUtil;
  * @param <T>
  * 
  */
-public abstract class AbstractSerailizerImpl<T>
+public abstract class SerailizerStream<T>
 {
 
 	private static final int	INDICATOR_DEFAULT	= 0;
@@ -47,60 +46,60 @@ public abstract class AbstractSerailizerImpl<T>
 		@Override
 		public byte readByte() throws IOException
 		{
-			return AbstractSerailizerImpl.readByte(data);
+			return SerailizerStream.readByte(data);
 		}
 
 		@Override
 		public char readChar() throws IOException
 		{
-			return AbstractSerailizerImpl.readChar(data);
+			return SerailizerStream.readChar(data);
 		}
 
 		@Override
 		public double readDouble() throws IOException
 		{
-			return AbstractSerailizerImpl.readDouble(data);
+			return SerailizerStream.readDouble(data);
 		}
 
 		@Override
 		public float readFloat() throws IOException
 		{
-			return AbstractSerailizerImpl.readFloat(data);
+			return SerailizerStream.readFloat(data);
 		}
 
 		@Override
 		public int readInt() throws IOException
 		{
-			return AbstractSerailizerImpl.readInt(data);
+			return SerailizerStream.readInt(data);
 		}
 
 		@Override
 		public long readLong() throws IOException
 		{
-			return AbstractSerailizerImpl.readLong(data);
+			return SerailizerStream.readLong(data);
 		}
 
 		@Override
 		public short readShort() throws IOException
 		{
-			return AbstractSerailizerImpl.readShort(data);
+			return SerailizerStream.readShort(data);
 		}
 
 		@Override
 		public String readString() throws IOException
 		{
-			return AbstractSerailizerImpl.readString(data);
+			return SerailizerStream.readString(data);
 		}
 
 		public byte[] readBytes() throws IOException
 		{
-			return AbstractSerailizerImpl.readBytes(data);
+			return SerailizerStream.readBytes(data);
 		}
 
 		@Override
 		public <T> T readObject(Class<T> type) throws IOException
 		{
-			return AbstractSerailizerImpl.readObject(data, type);
+			return SerailizerStream.readObject(data, type);
 		}
 	}
 
@@ -116,67 +115,67 @@ public abstract class AbstractSerailizerImpl<T>
 		@Override
 		public void writeBoolean(boolean value) throws IOException
 		{
-			AbstractSerailizerImpl.writeBoolean(data, value);
+			SerailizerStream.writeBoolean(data, value);
 		}
 
 		@Override
 		public void writeByte(byte value) throws IOException
 		{
-			AbstractSerailizerImpl.writeByte(data, value);
+			SerailizerStream.writeByte(data, value);
 		}
 
 		@Override
 		public void writeChar(char value) throws IOException
 		{
-			AbstractSerailizerImpl.writeChar(data, value);
+			SerailizerStream.writeChar(data, value);
 		}
 
 		@Override
 		public void writeDouble(double value) throws IOException
 		{
-			AbstractSerailizerImpl.writeDouble(data, value);
+			SerailizerStream.writeDouble(data, value);
 		}
 
 		@Override
 		public void writeFloat(float value) throws IOException
 		{
-			AbstractSerailizerImpl.writeFloat(data, value);
+			SerailizerStream.writeFloat(data, value);
 		}
 
 		@Override
 		public void writeInt(int value) throws IOException
 		{
-			AbstractSerailizerImpl.writeInt(data, value);
+			SerailizerStream.writeInt(data, value);
 		}
 
 		@Override
 		public void writeLong(long value) throws IOException
 		{
-			AbstractSerailizerImpl.writeLong(data, value);
+			SerailizerStream.writeLong(data, value);
 		}
 
 		@Override
 		public void writeShort(short value) throws IOException
 		{
-			AbstractSerailizerImpl.writeShort(data, value);
+			SerailizerStream.writeShort(data, value);
 		}
 
 		@Override
 		public void writeString(String value) throws IOException
 		{
-			AbstractSerailizerImpl.writeString(data, value);
+			SerailizerStream.writeString(data, value);
 		}
 
 		@Override
 		public void writeObject(Object value) throws IOException
 		{
-			AbstractSerailizerImpl.writeObject(data, value);
+			SerailizerStream.writeObject(data, value);
 		}
 
 		@Override
 		public void writeObject(Object value, Class declType) throws IOException
 		{
-			AbstractSerailizerImpl.writeObject(data, value, declType);
+			SerailizerStream.writeObject(data, value, declType);
 		}
 
 		public void writeBytes(byte[] value) throws IOException
@@ -191,8 +190,8 @@ public abstract class AbstractSerailizerImpl<T>
 		{
 			if(null != value)
 			{
-				AbstractSerailizerImpl.writeInt(data, len);
-				AbstractSerailizerImpl.writeBytes(data, value, off, len);
+				SerailizerStream.writeInt(data, len);
+				SerailizerStream.writeBytes(data, value, off, len);
 			}
 		}
 	}
@@ -276,19 +275,6 @@ public abstract class AbstractSerailizerImpl<T>
 		throw new IOException("encountered a malformed varint");
 	}
 
-	// protected static long readLong(ByteArray data) throws IOException {
-	// int shift = 0;
-	// long result = 0;
-	// while (shift < 64) {
-	// final byte b = readByte(data);
-	// result |= (long) (b & 0x7F) << shift;
-	// if ((b & 0x80) == 0) {
-	// return result;
-	// }
-	// shift += 7;
-	// }
-	// throw new IOException("encountered a malformed varint");
-	// }
 
 	protected static int readInt(ByteArray data) throws IOException
 	{
@@ -379,10 +365,6 @@ public abstract class AbstractSerailizerImpl<T>
 		return tag >>> 3;
 	}
 
-	// protected static void read(ByteArray data, byte[] bytes) throws
-	// IOException {
-	// //return Float.intBitsToFloat(readRawLittleEndian32(data));
-	// }
 
 	protected static String readString(ByteArray data) throws IOException
 	{
@@ -396,7 +378,7 @@ public abstract class AbstractSerailizerImpl<T>
 		}
 		else
 		{
-			throw new IOException("No enoght data in stream!");
+			throw new IOException("No enought data in stream!");
 		}
 	}
 
@@ -572,9 +554,7 @@ public abstract class AbstractSerailizerImpl<T>
 			{
 				case INDICATOR_TYPE:
 				{
-
 					type = (Class<T>)Class.forName(readString(data));
-
 					dataType = ReflectionCache.getType(type);
 					break;
 				}
@@ -600,7 +580,7 @@ public abstract class AbstractSerailizerImpl<T>
 			{
 				return null;
 			}
-			return (T)SerializerImplFactory.getSerializer(dataType).unmarshal(type, data);
+			return (T)SerailizerStreamFactory.getSerializer(dataType).unmarshal(type, data);
 		}
 		catch(IOException e)
 		{
@@ -620,6 +600,7 @@ public abstract class AbstractSerailizerImpl<T>
 			return;
 		}
 
+		
 		// loop reference
 		int refSeq = ObjectReferenceUtil.querySerializeThreadLocalObjectIndex(value);
 		if(refSeq != -1)
@@ -668,7 +649,8 @@ public abstract class AbstractSerailizerImpl<T>
 				break;
 			}
 		}
-		SerializerImplFactory.getSerializer(dataType).marshal(value, data);
+		SerailizerStream stream = SerailizerStreamFactory.getSerializer(dataType);
+		stream.marshal(value, data);
 	}
 
 	protected static void writeObject(ByteArray data, Object value) throws IOException
@@ -678,9 +660,20 @@ public abstract class AbstractSerailizerImpl<T>
 			writeObject(data, value, value.getClass());
 		}
 	}
+	
+	public static ByteArray serialize(Object obj, ByteArray data) throws NotSerializableException, IOException
+	{
+		writeObject(data, obj);
+		return data;
+	}
+	
+	public static <T> T deserialize(Class<T> type, ByteArray data) throws NotSerializableException, IOException,InstantiationException
+	{
+		return readObject(data, type);
+	}
+	
+	protected abstract ByteArray marshal(T obj, ByteArray data) throws NotSerializableException, IOException;
 
-	public abstract ByteArray marshal(T obj, ByteArray data) throws NotSerializableException, IOException;
-
-	public abstract T unmarshal(Class<T> type, ByteArray data) throws NotSerializableException, IOException, InstantiationException;
-
+	protected abstract T unmarshal(Class<T> type, ByteArray data) throws NotSerializableException, IOException, InstantiationException;
+	
 }
