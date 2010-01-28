@@ -10,21 +10,21 @@ import com.hyk.util.buffer.ByteArray;
 
 /**
  * @author qiying.wang
- * 
+ *
  */
-public class StringSerializer extends AbstractSerailizerImpl<String> {
+public class ByteSerializerStream extends SerailizerStream<Byte> {
 
 	@Override
-	public String unmarshal(Class<String> type, ByteArray data)
+	protected Byte unmarshal(Class<Byte> type, ByteArray data)
 			throws NotSerializableException, IOException,
 			InstantiationException {
-		return readString(data);
+		return readByte(data);
 	}
 
 	@Override
-	public ByteArray marshal(String value, ByteArray data)
+	protected ByteArray marshal(Byte value,ByteArray data)
 			throws NotSerializableException, IOException {
-		writeString(data, value);
+		writeByte(data, value);
 		return data;
 	}
 

@@ -12,17 +12,17 @@ import com.hyk.util.buffer.ByteArray;
  * @author qiying.wang
  *
  */
-public class CharSerializer extends AbstractSerailizerImpl<Character> {
+public class CharSerializerStream extends SerailizerStream<Character> {
 
 	@Override
-	public Character unmarshal(Class<Character> type, ByteArray data)
+	protected Character unmarshal(Class<Character> type, ByteArray data)
 			throws NotSerializableException, IOException,
 			InstantiationException {
 		return readChar(data);
 	}
 
 	@Override
-	public ByteArray marshal(Character value, ByteArray data)
+	protected ByteArray marshal(Character value, ByteArray data)
 			throws NotSerializableException, IOException {
 		writeChar(data, value);
 		return data;

@@ -7,6 +7,7 @@ import java.io.IOException;
 import java.io.NotSerializableException;
 import java.io.Serializable;
 import java.lang.reflect.Field;
+import java.lang.reflect.InvocationTargetException;
 
 
 import com.hyk.serializer.Externalizable;
@@ -21,10 +22,10 @@ import com.hyk.util.common.CommonUtil;
  * @author qiying.wang
  * 
  */
-public class ObjectSerializer<T> extends AbstractSerailizerImpl<T>
+public class ObjectSerializerStream<T> extends SerailizerStream<T>
 {	
 	@Override
-	public T unmarshal(Class<T> type, ByteArray data) throws NotSerializableException, IOException, InstantiationException
+	protected T unmarshal(Class<T> type, ByteArray data) throws NotSerializableException, IOException, InstantiationException
 	{
 		try
 		{
@@ -52,15 +53,18 @@ public class ObjectSerializer<T> extends AbstractSerailizerImpl<T>
 			}
 			return ret;
 		}
-		catch(Exception e)
+		catch(IllegalAccessException e)
 		{
-			e.printStackTrace();
 			throw new IOException(e);
+		}
+		catch(InvocationTargetException e)
+		{
+			throw new IOException(e.getCause());
 		}
 	}
 
 	@Override
-	public ByteArray marshal(T value, ByteArray data) throws NotSerializableException, IOException
+	protected ByteArray marshal(T value, ByteArray data) throws NotSerializableException, IOException
 	{	
 		Class clazz = value.getClass();
 		if(!(value instanceof Serializable))
@@ -84,14 +88,13 @@ public class ObjectSerializer<T> extends AbstractSerailizerImpl<T>
 				if(null != fieldValue)
 				{
 					writeTag(data, i + 1);
-					//writeBoolean(data, fieldValue != value);
 					writeObject(data, fieldValue, f.getType());
 					
 				}
 			}
 			writeTag(data, 0);
 		}
-		catch(Exception e)
+		catch(IllegalAccessException e)
 		{
 			throw new IOException(e);
 		}

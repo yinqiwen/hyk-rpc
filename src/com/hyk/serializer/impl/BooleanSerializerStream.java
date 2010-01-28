@@ -17,17 +17,17 @@ import com.hyk.util.buffer.ByteArray;
 /**
  *
  */
-public class BooleanSerializer extends AbstractSerailizerImpl<Boolean>
+public class BooleanSerializerStream extends SerailizerStream<Boolean>
 {
 
 	@Override
-	public Boolean unmarshal(Class<Boolean> type, ByteArray data) throws NotSerializableException, IOException, InstantiationException
+	protected Boolean unmarshal(Class<Boolean> type, ByteArray data) throws NotSerializableException, IOException, InstantiationException
 	{
 		return readBool(data);
 	}
 
 	@Override
-	public ByteArray marshal(Boolean value, ByteArray data) throws NotSerializableException, IOException
+	protected ByteArray marshal(Boolean value, ByteArray data) throws NotSerializableException, IOException
 	{
 		writeBoolean(data, value);
 		return data;

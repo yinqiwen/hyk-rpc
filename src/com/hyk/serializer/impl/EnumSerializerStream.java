@@ -12,20 +12,21 @@ import com.hyk.util.buffer.ByteArray;
  * @author qiying.wang
  *
  */
-public class ShortSerializer extends AbstractSerailizerImpl<Short> {
+public class EnumSerializerStream extends SerailizerStream<Enum> {
 
 
 	@Override
-	public Short unmarshal(Class<Short> type, ByteArray data)
+	protected Enum unmarshal(Class<Enum> type, ByteArray data)
 			throws NotSerializableException, IOException,
 			InstantiationException {
-		return readShort(data);
+		String name = readString(data);
+		return Enum.valueOf(type, name);
 	}
 
 	@Override
-	public ByteArray marshal(Short value, ByteArray data)
+	protected ByteArray marshal(Enum value,ByteArray data)
 			throws NotSerializableException, IOException {
-		writeInt(data, value);
+		writeString(data, value.name());
 		return data;
 	}
 

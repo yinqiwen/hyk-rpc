@@ -7,20 +7,18 @@ import java.io.IOException;
 import java.io.NotSerializableException;
 import java.lang.reflect.Array;
 
-import com.hyk.serializer.Serializer;
 import com.hyk.serializer.util.ObjectReferenceUtil;
 import com.hyk.util.buffer.ByteArray;
-import com.hyk.util.common.CommonUtil;
 
 /**
  * @author qiying.wang
  * 
  */
-public class ArraySerializer<T> extends AbstractSerailizerImpl<T>
+public class ArraySerializerStream<T> extends SerailizerStream<T>
 {
 
 	@Override
-	public T unmarshal(Class<T> type, ByteArray data) throws NotSerializableException, IOException
+	protected T unmarshal(Class<T> type, ByteArray data) throws NotSerializableException, IOException
 	{
 		try
 		{
@@ -45,7 +43,7 @@ public class ArraySerializer<T> extends AbstractSerailizerImpl<T>
 	}
 
 	@Override
-	public ByteArray marshal(Object value,ByteArray data) throws NotSerializableException, IOException
+	protected ByteArray marshal(Object value,ByteArray data) throws NotSerializableException, IOException
 	{
 		int len = Array.getLength(value);
 		writeInt(data, len);
@@ -54,10 +52,6 @@ public class ArraySerializer<T> extends AbstractSerailizerImpl<T>
 		while(index < len)
 		{
 			Object element = Array.get(value, index);      
-//			if(value.getClass().getComponentType().equals(Object.class))
-//			{
-//				System.out.println("####" + element.getClass());
-//			}
 			writeObject(data, element, value.getClass().getComponentType());
 			index++;
 		}

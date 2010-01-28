@@ -88,9 +88,7 @@ public class Message implements Externalizable
 				// System.out.println("####" + v);
 				break;
 			}
-
 		}
-
 	}
 
 	@Override
@@ -98,7 +96,6 @@ public class Message implements Externalizable
 	{
 		out.writeInt(type.getValue());
 		out.writeObject(value);
-		//System.out.println("####" + value);
 	}
 
 }

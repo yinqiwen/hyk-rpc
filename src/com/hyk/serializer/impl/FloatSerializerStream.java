@@ -12,22 +12,19 @@ import com.hyk.util.buffer.ByteArray;
  * @author qiying.wang
  *
  */
-public class ByteSerializer extends AbstractSerailizerImpl<Byte> {
+public class FloatSerializerStream extends SerailizerStream<Float> {
 
 	@Override
-	public Byte unmarshal(Class<Byte> type, ByteArray data)
+	protected Float unmarshal(Class<Float> type, ByteArray data)
 			throws NotSerializableException, IOException,
 			InstantiationException {
-		return readByte(data);
+		return readFloat(data);
 	}
 
-	/* (non-Javadoc)
-	 * @see com.hyk.serializer.Serializer#serialize(java.lang.Object, com.hyk.util.buffer.ByteArray)
-	 */
 	@Override
-	public ByteArray marshal(Byte value,ByteArray data)
+	protected ByteArray marshal(Float value,ByteArray data)
 			throws NotSerializableException, IOException {
-		writeByte(data, value);
+		writeFloat(data, value);
 		return data;
 	}
 

@@ -7,8 +7,8 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.NotSerializableException;
 
-import com.hyk.serializer.impl.AbstractSerailizerImpl;
-import com.hyk.serializer.impl.SerializerImplFactory;
+import com.hyk.serializer.impl.SerailizerStream;
+import com.hyk.serializer.impl.SerailizerStreamFactory;
 import com.hyk.serializer.io.BufferedInputStream;
 import com.hyk.serializer.io.HykObjectInput;
 import com.hyk.serializer.io.HykObjectOutput;
@@ -135,12 +135,6 @@ public class HykSerializer implements Serializer {
 		}
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see com.hyk.serializer.Serializer#deserialize(java.lang.Class, byte[])
-	 */
-	// @Override
 	public <T> T deserialize_(Class<T> type, byte[] data)
 			throws NotSerializableException, IOException,
 			InstantiationException {
@@ -156,21 +150,13 @@ public class HykSerializer implements Serializer {
 	public <T> T deserialize(Class<T> type, ByteArray data)
 			throws NotSerializableException, IOException,
 			InstantiationException {
-		if (type.isInterface()) {
-			throw new InstantiationException(type.getName());
-		}
 		ObjectReferenceUtil.cleanDeserializeThreadLocalObjects();
-		T ret = (T)SerializerImplFactory.getSerializer(type).unmarshal(type, data);
+		//T ret = (T)SerializerImplFactory.getSerializer(type).unmarshal(type, data);
+		T ret = SerailizerStream.deserialize(type, data);
 		data.rewind();
 		return ret;
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see com.hyk.serializer.Serializer#serialize(java.lang.Object)
-	 */
-	// @Override
 	public byte[] serialize_(Object obj) throws NotSerializableException,
 			IOException {
 		ByteArrayOutputStream bos = new ByteArrayOutputStream(256);
@@ -188,8 +174,7 @@ public class HykSerializer implements Serializer {
 	public ByteArray serialize(Object obj, ByteArray input)
 			throws NotSerializableException, IOException {
 		ObjectReferenceUtil.cleanSerializeThreadLocalObjects();
-		AbstractSerailizerImpl serializer = SerializerImplFactory.getSerializer(obj.getClass());
-		serializer.marshal(obj, input);
+		SerailizerStream.serialize(obj, input);
 		return input.flip();
 	}
 
