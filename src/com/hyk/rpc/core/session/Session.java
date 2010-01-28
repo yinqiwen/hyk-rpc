@@ -23,7 +23,7 @@ import com.hyk.rpc.core.transport.RpcChannel;
 import com.hyk.rpc.core.util.CommonUtil;
 import com.hyk.rpc.core.util.ID;
 import com.hyk.rpc.core.util.RemoteUtil;
-import com.hyk.serializer.util.ClassUtil;
+import com.hyk.util.reflect.ClassUtil;
 
 /**
  * @author Administrator
