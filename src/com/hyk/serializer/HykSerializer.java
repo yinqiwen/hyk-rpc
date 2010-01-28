@@ -6,18 +6,13 @@ package com.hyk.serializer;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.NotSerializableException;
-import java.lang.reflect.Constructor;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
 
 import com.hyk.serializer.impl.AbstractSerailizerImpl;
 import com.hyk.serializer.impl.SerializerImplFactory;
-import com.hyk.serializer.io.HykObjectInput;
 import com.hyk.serializer.io.BufferedInputStream;
+import com.hyk.serializer.io.HykObjectInput;
 import com.hyk.serializer.io.HykObjectOutput;
-import com.hyk.serializer.reflect.DefaultConstructor;
-import com.hyk.serializer.util.ClassUtil;
+import com.hyk.serializer.util.ObjectReferenceUtil;
 import com.hyk.util.buffer.ByteArray;
 
 /**
@@ -164,9 +159,7 @@ public class HykSerializer implements Serializer {
 		if (type.isInterface()) {
 			throw new InstantiationException(type.getName());
 		}
-//		BufferedInputStream is = new BufferedInputStream(data.input);
-//		HykObjectInput in = new HykObjectInput(is, this);		
-//		T ret = in.readObject(type);
+		ObjectReferenceUtil.cleanDeserializeThreadLocalObjects();
 		T ret = (T)SerializerImplFactory.getSerializer(type).unmarshal(type, data);
 		data.rewind();
 		return ret;
@@ -194,6 +187,7 @@ public class HykSerializer implements Serializer {
 
 	public ByteArray serialize(Object obj, ByteArray input)
 			throws NotSerializableException, IOException {
+		ObjectReferenceUtil.cleanSerializeThreadLocalObjects();
 		AbstractSerailizerImpl serializer = SerializerImplFactory.getSerializer(obj.getClass());
 		serializer.marshal(obj, input);
 		return input.flip();

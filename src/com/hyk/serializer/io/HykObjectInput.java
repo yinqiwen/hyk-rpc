@@ -15,7 +15,6 @@ import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.Proxy;
 
 import com.hyk.serializer.HykSerializer;
-import com.hyk.serializer.reflect.DefaultConstructor;
 import com.hyk.serializer.reflect.ReflectionCache;
 
 

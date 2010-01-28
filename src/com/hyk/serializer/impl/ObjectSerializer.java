@@ -13,7 +13,9 @@ import com.hyk.serializer.Externalizable;
 import com.hyk.serializer.Serializer;
 import com.hyk.serializer.io.Type;
 import com.hyk.serializer.reflect.ReflectionCache;
+import com.hyk.serializer.util.ObjectReferenceUtil;
 import com.hyk.util.buffer.ByteArray;
+import com.hyk.util.common.CommonUtil;
 
 /**
  * @author qiying.wang
@@ -32,6 +34,7 @@ public class ObjectSerializer<T> extends AbstractSerailizerImpl<T>
 			{
 				throw new NotSerializableException(type.getName());
 			}
+			ObjectReferenceUtil.addDeserializeThreadLocalObject(ret);
 			if (ret instanceof Externalizable) {
 				Externalizable externalizable = (Externalizable) ret;
 				externalizable.readExternal(new Input(data));
@@ -78,7 +81,7 @@ public class ObjectSerializer<T> extends AbstractSerailizerImpl<T>
 			{
 				Field f = fs[i];
 				Object fieldValue = f.get(value);
-				if(null != fieldValue && fieldValue != value)
+				if(null != fieldValue)
 				{
 					writeTag(data, i + 1);
 					//writeBoolean(data, fieldValue != value);
