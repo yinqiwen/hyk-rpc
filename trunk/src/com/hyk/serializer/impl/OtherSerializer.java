@@ -14,7 +14,9 @@ import java.io.NotSerializableException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 
+import com.hyk.serializer.util.ObjectReferenceUtil;
 import com.hyk.util.buffer.ByteArray;
+import com.hyk.util.common.CommonUtil;
 
 /**
  *
@@ -39,6 +41,7 @@ public class OtherSerializer extends AbstractSerailizerImpl<Object>
 		{
 			ObjectInputStream ois = new ObjectInputStream(data.input);
 			Object ret = ois.readObject();
+			ObjectReferenceUtil.addDeserializeThreadLocalObject(ret);
 			return ret;
 		}
 		catch(Exception e)

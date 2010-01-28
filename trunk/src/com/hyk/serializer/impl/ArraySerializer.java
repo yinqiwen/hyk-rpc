@@ -8,7 +8,9 @@ import java.io.NotSerializableException;
 import java.lang.reflect.Array;
 
 import com.hyk.serializer.Serializer;
+import com.hyk.serializer.util.ObjectReferenceUtil;
 import com.hyk.util.buffer.ByteArray;
+import com.hyk.util.common.CommonUtil;
 
 /**
  * @author qiying.wang
@@ -25,6 +27,7 @@ public class ArraySerializer<T> extends AbstractSerailizerImpl<T>
 			int len = readInt(data);
 			int index = 0;
 			Object array = Array.newInstance(type.getComponentType(), len);
+			ObjectReferenceUtil.addDeserializeThreadLocalObject(array);
 			while(index < len)
 			{
 				Object element = readObject(data, type.getComponentType());

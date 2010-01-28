@@ -16,7 +16,9 @@ import java.lang.reflect.Proxy;
 import java.util.Arrays;
 
 import com.hyk.serializer.Serializer;
+import com.hyk.serializer.util.ObjectReferenceUtil;
 import com.hyk.util.buffer.ByteArray;
+import com.hyk.util.common.CommonUtil;
 
 /**
  *
@@ -29,8 +31,6 @@ public class ProxySerializer<T> extends AbstractSerailizerImpl<T>
 	{
 		try
 		{	
-			//AbstractSerailizerImpl<String[]> serializer = SerializerImplFactory.getSerializer(String[].class);
-			//String[] interfaceNames = serializer.unmarshal(String[].class, data);
 			String[] interfaceNames = readObject(data, String[].class);
 			Class[] interfaces = new Class[interfaceNames.length];
 			ClassLoader loader = ClassLoader.getSystemClassLoader();
@@ -39,15 +39,14 @@ public class ProxySerializer<T> extends AbstractSerailizerImpl<T>
 			}
 			Class proxyHandlerClass = Class.forName(readString(data), true, loader);
 			InvocationHandler handler  = (InvocationHandler) readObject(data, proxyHandlerClass);
-			//AbstractSerailizerImpl serializer2 = SerializerImplFactory.getSerializer(proxyHandlerClass);
-			//InvocationHandler handler = (InvocationHandler) serializer2.unmarshal(proxyHandlerClass, data);
-			return (T) Proxy.newProxyInstance(loader, interfaces, handler);
+			T ret =  (T) Proxy.newProxyInstance(loader, interfaces, handler);
+			ObjectReferenceUtil.addDeserializeThreadLocalObject(ret);
+			return ret;
 		}
 		catch(Exception e)
 		{
 			throw new IOException(e);
 		}
-		
 	}
 
 	@Override
