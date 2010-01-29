@@ -226,4 +226,10 @@ public class TCPRpcChannel extends AbstractDefaultRpcChannel
 		}
 	}
 
+	@Override
+	public boolean isReliable()
+	{
+		return true;
+	}
+
 }
