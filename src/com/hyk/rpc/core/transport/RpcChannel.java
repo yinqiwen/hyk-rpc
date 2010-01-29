@@ -79,6 +79,7 @@ public abstract class RpcChannel
 	}
 
 	public abstract Address getRpcChannelAddress();
+	public abstract boolean isReliable();
 
 	protected abstract void saveMessageFragment(MessageFragment fragment);
 

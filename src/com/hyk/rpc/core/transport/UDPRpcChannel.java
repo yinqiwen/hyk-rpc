@@ -59,18 +59,18 @@ public class UDPRpcChannel extends AbstractDefaultRpcChannel
 
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see
-	 * com.hyk.rpc.core.transport.RpcChannel#send(com.hyk.util.buffer.ByteArray)
-	 */
 	@Override
 	protected void send(RpcChannelData data) throws IOException
 	{
 		SimpleSockAddress address = (SimpleSockAddress)data.address;
 		InetSocketAddress addr = new InetSocketAddress(address.getHost(), address.getPort());
 		channel.send(data.content.buffer(), addr);
+	}
+
+	@Override
+	public boolean isReliable()
+	{
+		return false;
 	}
 
 }
