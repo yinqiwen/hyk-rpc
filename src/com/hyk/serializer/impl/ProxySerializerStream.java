@@ -13,12 +13,9 @@ import java.io.IOException;
 import java.io.NotSerializableException;
 import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.Proxy;
-import java.util.Arrays;
 
-import com.hyk.serializer.Serializer;
 import com.hyk.serializer.util.ObjectReferenceUtil;
 import com.hyk.util.buffer.ByteArray;
-import com.hyk.util.common.CommonUtil;
 
 /**
  *
