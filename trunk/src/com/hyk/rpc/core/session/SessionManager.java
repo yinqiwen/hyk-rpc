@@ -6,6 +6,7 @@ package com.hyk.rpc.core.session;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import java.util.Timer;
 import java.util.concurrent.ConcurrentHashMap;
 
 import org.slf4j.Logger;
@@ -35,12 +36,18 @@ public class SessionManager implements MessageListener
 	private List<Message>			processingMessages	= new LinkedList<Message>();
 	private RpcChannel				channel;
 	private RemoteObjectFactory		remoteObjectFactory;
+	
+	Timer timer = null;
 
 	public SessionManager(RpcChannel channel, RemoteObjectFactory remoteObjectFactory)
 	{
 		this.channel = channel;
 		this.remoteObjectFactory = remoteObjectFactory;
-		channel.registerMessageListener(this);
+		channel.setSessionManager(this);
+		if(!channel.isReliable())
+		{
+			timer = new Timer(SessionManager.class.getName(), true);
+		}
 	}
 
 	public void dispatch(Message msg)
@@ -77,6 +84,16 @@ public class SessionManager implements MessageListener
 	{
 		return clientSessionMap.remove(sessionID);
 	}
+	
+	public Session getClientSession(long sessionID)
+	{
+		return clientSessionMap.get(sessionID);
+	}
+	
+	public Session getServerSession(MessageID id)
+	{
+		return serverSessionMap.get(id);
+	}
 
 	public void removeServerSession(Session session)
 	{
@@ -105,8 +122,20 @@ public class SessionManager implements MessageListener
 		{
 			case Request:
 			{
-				// Request req = (Request) msg.getValue();
-				Session session = createServerSession(msg);
+				Session session = null;
+				if(!serverSessionMap.containsKey(msg.getId()))
+				{
+					session = createServerSession(msg);
+					
+				}
+				else
+				{
+					session = getServerSession(msg.getId());
+					if(logger.isDebugEnabled())
+					{
+						logger.debug("Duplicate request!");
+					}
+				}
 				session.processRequest();
 				break;
 			}
@@ -122,7 +151,7 @@ public class SessionManager implements MessageListener
 				{
 					if(logger.isDebugEnabled())
 					{
-						logger.debug("Duplicate message!");
+						logger.debug("Duplicate response!");
 					}
 				}
 				break;

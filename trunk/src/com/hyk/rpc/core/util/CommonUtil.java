@@ -11,15 +11,15 @@ import com.hyk.rpc.core.session.SessionManager;
  */
 public class CommonUtil {
 
-//	private static ThreadLocal<SessionManager> rpcInstanceTable = new ThreadLocal<SessionManager>();
-//
-//	public static SessionManager getSessionManager() {
-//		return rpcInstanceTable.get();
-//	}
-//
-//	public static void setSessionManager(SessionManager rpc) {
-//		rpcInstanceTable.set(rpc);
-//	}
+	private static ThreadLocal<SessionManager> rpcInstanceTable = new ThreadLocal<SessionManager>();
+
+	public static SessionManager getSessionManager() {
+		return rpcInstanceTable.get();
+	}
+
+	public static void setSessionManager(SessionManager rpc) {
+		rpcInstanceTable.set(rpc);
+	}
 
 //	public static TypeValue[] buildTypeValues(Object[] args) {
 //		if (null != args) {

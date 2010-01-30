@@ -16,7 +16,6 @@ import com.hyk.serializer.io.Type;
 import com.hyk.serializer.reflect.ReflectionCache;
 import com.hyk.serializer.util.ObjectReferenceUtil;
 import com.hyk.util.buffer.ByteArray;
-import com.hyk.util.common.CommonUtil;
 
 /**
  * @author qiying.wang

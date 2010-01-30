@@ -17,18 +17,16 @@ import com.hyk.rpc.core.message.Message;
 import com.hyk.rpc.core.message.MessageFactory;
 import com.hyk.rpc.core.session.Session;
 import com.hyk.rpc.core.session.SessionManager;
-import com.hyk.rpc.core.util.CommonUtil;
-import com.hyk.rpc.core.util.ID;
-import com.hyk.rpc.core.util.RemoteUtil;
 import com.hyk.serializer.Externalizable;
 import com.hyk.serializer.SerializerInput;
 import com.hyk.serializer.SerializerOutput;
+import com.hyk.util.thread.ThreadLocalUtil;
 
 /**
  * @author qiying.wang
  *
  */
-public class RemoteObjectProxy implements InvocationHandler, Serializable {
+public class RemoteObjectProxy implements InvocationHandler,Externalizable {
 	
 	protected transient Logger			logger			= LoggerFactory.getLogger(getClass());
 	private long objID = -2;
@@ -60,10 +58,7 @@ public class RemoteObjectProxy implements InvocationHandler, Serializable {
 	{
 		
 	}
-	
-	/* (non-Javadoc)
-	 * @see java.lang.reflect.InvocationHandler#invoke(java.lang.Object, java.lang.reflect.Method, java.lang.Object[])
-	 */
+
 	@Override
 	public Object invoke(Object proxy, Method method, Object[] args)
 			throws Throwable {
@@ -82,15 +77,23 @@ public class RemoteObjectProxy implements InvocationHandler, Serializable {
 		session.sendRequest();
 		//session.waitInvokeResult();
 		Object ret =  session.waitInvokeResult();
-		if(null != ret && Proxy.isProxyClass(ret.getClass()))
-		{
-			Object handler = Proxy.getInvocationHandler(ret);
-			if(handler instanceof RemoteObjectProxy)
-			{
-				((RemoteObjectProxy)handler).sessionManager = sessionManager;
-			}
-		}
 		return ret;
+	}
+
+	@Override
+	public void readExternal(SerializerInput in) throws IOException
+	{
+		objID = in.readLong();
+		hostAddress = in.readObject(Address.class);
+		sessionManager = ThreadLocalUtil.getThreadLocalUtil(SessionManager.class).getThreadLocalObject();
+		
+	}
+
+	@Override
+	public void writeExternal(SerializerOutput out) throws IOException
+	{
+		out.writeLong(objID);
+		out.writeObject(hostAddress, Address.class);
 	}
 
 

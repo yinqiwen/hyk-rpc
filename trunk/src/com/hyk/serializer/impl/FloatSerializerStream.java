@@ -21,7 +21,7 @@ public class FloatSerializerStream extends SerailizerStream<Float> {
 		return readFloat(data);
 	}
 
-	@Override
+	//@Override
 	protected ByteArray marshal(Float value,ByteArray data)
 			throws NotSerializableException, IOException {
 		writeFloat(data, value);

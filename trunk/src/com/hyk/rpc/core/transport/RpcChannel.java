@@ -17,9 +17,11 @@ import com.hyk.rpc.core.address.Address;
 import com.hyk.rpc.core.message.Message;
 import com.hyk.rpc.core.message.MessageFragment;
 import com.hyk.rpc.core.message.MessageID;
+import com.hyk.rpc.core.session.SessionManager;
 import com.hyk.serializer.HykSerializer;
 import com.hyk.serializer.Serializer;
 import com.hyk.util.buffer.ByteArray;
+import com.hyk.util.thread.ThreadLocalUtil;
 
 /**
  * @author qiying.wang
@@ -27,22 +29,26 @@ import com.hyk.util.buffer.ByteArray;
  */
 public abstract class RpcChannel
 {
-	protected static Logger				logger			= LoggerFactory.getLogger(RpcChannel.class);
-	
-	protected static final byte[] MAGIC_HEADER = "@hyk-rpc@".getBytes();
-	protected static final int GAP = 32;
+	protected static Logger			logger			= LoggerFactory.getLogger(RpcChannel.class);
 
-	protected byte[] magicHeader = new byte[MAGIC_HEADER.length];
-	
-	protected int						maxMessageSize	= 2048;
-	protected List<MessageFragment>		sendList		= new LinkedList<MessageFragment>();
-	protected Serializer				serializer		= new HykSerializer();
-	protected Executor					threadPool;
-	protected List<MessageListener>		msgListeners	= new LinkedList<MessageListener>();
+	protected static final byte[]	MAGIC_HEADER	= "@hyk-rpc@".getBytes();
+	protected static final int		GAP				= 32;
 
-	protected OutputTask				outTask			= new OutputTask();
-	protected InputTask					inTask			= new InputTask();
-	protected boolean isStarted = false;
+	protected byte[]				magicHeader		= new byte[MAGIC_HEADER.length];
+
+	protected int					maxMessageSize	= 2048;
+
+	
+	protected List<MessageFragment>	sendList		= new LinkedList<MessageFragment>();
+	protected Serializer			serializer		= new HykSerializer();
+	protected Executor				threadPool;
+	protected SessionManager sessionManager;
+
+	protected List<MessageListener>	msgListeners	= new LinkedList<MessageListener>();
+
+	protected OutputTask			outTask			= new OutputTask();
+	protected InputTask				inTask			= new InputTask();
+	protected boolean				isStarted		= false;
 
 	public RpcChannel()
 	{
@@ -73,12 +79,24 @@ public abstract class RpcChannel
 
 	}
 
+	public void setSessionManager(SessionManager sessionManager)
+	{
+		this.sessionManager = sessionManager;
+		registerMessageListener(sessionManager);
+	}
+	
 	public final void registerMessageListener(MessageListener listener)
 	{
 		msgListeners.add(listener);
 	}
+	
+	public void setMaxMessageSize(int maxMessageSize)
+	{
+		this.maxMessageSize = maxMessageSize;
+	}
 
 	public abstract Address getRpcChannelAddress();
+
 	public abstract boolean isReliable();
 
 	protected abstract void saveMessageFragment(MessageFragment fragment);
@@ -90,16 +108,15 @@ public abstract class RpcChannel
 	protected abstract RpcChannelData read() throws IOException;
 
 	protected abstract void send(RpcChannelData data) throws IOException;
-	
 
 	public final void sendMessage(Message message) throws NotSerializableException, IOException
 	{
-		
+
 		ByteArray data = serializer.serialize(message);
 		int size = data.size();
 		if(logger.isInfoEnabled())
 		{
-			logger.info("send message " + message.getValue() +  " to " + message.getAddress().toPrintableString() + " with total size:" + size);
+			logger.info("send message " + message.getValue() + " to " + message.getAddress().toPrintableString() + " with total size:" + size);
 		}
 		int msgFragsount = size / maxMessageSize;
 		if(size % maxMessageSize > 0)
@@ -161,7 +178,7 @@ public abstract class RpcChannel
 		}
 	}
 
-	public final  void processIncomingData(RpcChannelData data) throws RpcChannelException
+	public final void processIncomingData(RpcChannelData data) throws RpcChannelException
 	{
 		if(logger.isDebugEnabled())
 		{
@@ -223,6 +240,7 @@ public abstract class RpcChannel
 		}
 		try
 		{
+			ThreadLocalUtil.getThreadLocalUtil(SessionManager.class).setThreadLocalObject(sessionManager);
 			MessageFragment fragment = serializer.deserialize(MessageFragment.class, data.content);
 			fragment.setAddress(data.address);
 			if(logger.isDebugEnabled())
@@ -265,6 +283,8 @@ public abstract class RpcChannel
 				msgBuffer.put(fragments[i].getContent());
 			}
 			msgBuffer.flip();
+			
+			
 			Message msg = serializer.deserialize(Message.class, msgBuffer);
 			msg.setSessionID(fragment.getSessionID());
 			msg.setAddress(data.address);
@@ -281,7 +301,7 @@ public abstract class RpcChannel
 		{
 			throw new RpcChannelException("Failed to process message!", e);
 		}
-		
+
 	}
 
 	class InputTask implements Runnable
