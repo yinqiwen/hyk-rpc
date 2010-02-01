@@ -36,8 +36,10 @@ public class SessionManager implements MessageListener
 	private List<Message>			processingMessages	= new LinkedList<Message>();
 	private RpcChannel				channel;
 	private RemoteObjectFactory		remoteObjectFactory;
-	
-	Timer timer = null;
+
+	private int						sessionTimeout		= 120000;
+
+	Timer							timer				= null;
 
 	public SessionManager(RpcChannel channel, RemoteObjectFactory remoteObjectFactory)
 	{
@@ -84,12 +86,12 @@ public class SessionManager implements MessageListener
 	{
 		return clientSessionMap.remove(sessionID);
 	}
-	
+
 	public Session getClientSession(long sessionID)
 	{
 		return clientSessionMap.get(sessionID);
 	}
-	
+
 	public Session getServerSession(MessageID id)
 	{
 		return serverSessionMap.get(id);
@@ -111,12 +113,22 @@ public class SessionManager implements MessageListener
 		return createSession(request, Session.SERVER);
 	}
 
+	public int getSessionTimeout()
+	{
+		return sessionTimeout;
+	}
+
+	public void setSessionTimeout(int sessionTimeout)
+	{
+		this.sessionTimeout = sessionTimeout;
+	}
+
 	@Override
 	public void onMessage(Message msg)
 	{
-		if(logger.isInfoEnabled())
+		if(logger.isDebugEnabled())
 		{
-			logger.info("Handle message:" + msg.getType());
+			logger.debug("Handle message:" + msg.getType());
 		}
 		switch(msg.getType())
 		{
@@ -126,7 +138,7 @@ public class SessionManager implements MessageListener
 				if(!serverSessionMap.containsKey(msg.getId()))
 				{
 					session = createServerSession(msg);
-					
+
 				}
 				else
 				{

@@ -37,6 +37,11 @@ public class RPC {
 		sessionManager = new SessionManager(channel, remoteObjectFactory);
 		nameService = new NameServiceImpl(remoteObjectFactory);
 	}
+	
+	public void setSessionTimeout(int sessionTimeout)
+	{
+		sessionManager.setSessionTimeout(sessionTimeout);
+	}
 
 	public NameService getLocalNaming()
 	{

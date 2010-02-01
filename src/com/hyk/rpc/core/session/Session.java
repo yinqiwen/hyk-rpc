@@ -93,7 +93,7 @@ public class Session
 				{
 					synchronized(waitResLock)
 					{
-						waitResLock.wait(DEFAULT_TIMEOUT);
+						waitResLock.wait(sessionManager.getSessionTimeout());
 					}
 				}
 				catch(Exception e)
@@ -153,8 +153,11 @@ public class Session
 		Object[] paras = req.getArgs();
 		try
 		{
-
 			Object target = remoteObjectFactory.getRawObject(objid);
+			if(null == target)
+			{
+				logger.error("Failed to get raw object with ID:" + objid + " messageID:" + request.getId());
+			}
 			Method method = ClassUtil.getMethod(target.getClass(), req.getOperation(), paras);
 			if(logger.isDebugEnabled())
 			{

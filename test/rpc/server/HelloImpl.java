@@ -23,7 +23,7 @@ public class HelloImpl implements HelloIntf {
 	@Override
 	public void noop()
 	{
-		throw new NullPointerException("sdasd");
+		//throw new NullPointerException("sdasd");
 		
 	}
 

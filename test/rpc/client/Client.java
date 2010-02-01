@@ -34,6 +34,14 @@ public class Client {
 		
 		NameService serv = rpc.getRemoteNaming(new SimpleSockAddress(InetAddress.getLocalHost().getHostAddress(), 48101));
 		HelloIntf hello = (HelloIntf) serv.lookup("hello");
+		
+		long start = System.currentTimeMillis();
+		for(int i =0; i< 100; i++)
+		{
+			hello.noop();
+		}
+		long end = System.currentTimeMillis();
+		System.out.println(end - start);
 		System.out.println(hello.sayHello("hyk-rpc!"));
 		hello.noop();
 		System.exit(1);

@@ -17,6 +17,7 @@ import com.hyk.rpc.core.address.Address;
 import com.hyk.rpc.core.message.Message;
 import com.hyk.rpc.core.message.MessageFragment;
 import com.hyk.rpc.core.message.MessageID;
+import com.hyk.rpc.core.message.MessageType;
 import com.hyk.rpc.core.session.SessionManager;
 import com.hyk.serializer.HykSerializer;
 import com.hyk.serializer.Serializer;
@@ -29,7 +30,7 @@ import com.hyk.util.thread.ThreadLocalUtil;
  */
 public abstract class RpcChannel
 {
-	protected static Logger			logger			= LoggerFactory.getLogger(RpcChannel.class);
+	protected Logger				logger			= LoggerFactory.getLogger(getClass());
 
 	protected static final byte[]	MAGIC_HEADER	= "@hyk-rpc@".getBytes();
 	protected static final int		GAP				= 32;
@@ -38,11 +39,10 @@ public abstract class RpcChannel
 
 	protected int					maxMessageSize	= 2048;
 
-	
 	protected List<MessageFragment>	sendList		= new LinkedList<MessageFragment>();
 	protected Serializer			serializer		= new HykSerializer();
 	protected Executor				threadPool;
-	protected SessionManager sessionManager;
+	protected SessionManager		sessionManager;
 
 	protected List<MessageListener>	msgListeners	= new LinkedList<MessageListener>();
 
@@ -62,9 +62,9 @@ public abstract class RpcChannel
 
 	public synchronized void start()
 	{
-		if(logger.isInfoEnabled())
+		if(logger.isDebugEnabled())
 		{
-			logger.info("RpcChannel start.");
+			logger.debug("RpcChannel start.");
 		}
 		if(isStarted)
 		{
@@ -84,12 +84,12 @@ public abstract class RpcChannel
 		this.sessionManager = sessionManager;
 		registerMessageListener(sessionManager);
 	}
-	
+
 	public final void registerMessageListener(MessageListener listener)
 	{
 		msgListeners.add(listener);
 	}
-	
+
 	public void setMaxMessageSize(int maxMessageSize)
 	{
 		this.maxMessageSize = maxMessageSize;
@@ -109,14 +109,19 @@ public abstract class RpcChannel
 
 	protected abstract void send(RpcChannelData data) throws IOException;
 
+	public void close()
+	{
+		//nothing
+	}
+	
 	public final void sendMessage(Message message) throws NotSerializableException, IOException
 	{
 
 		ByteArray data = serializer.serialize(message);
 		int size = data.size();
-		if(logger.isInfoEnabled())
+		if(logger.isDebugEnabled())
 		{
-			logger.info("send message " + message.getValue() + " to " + message.getAddress().toPrintableString() + " with total size:" + size);
+			logger.debug("send message " + message.getValue() + " to " + message.getAddress().toPrintableString() + " with total size:" + size);
 		}
 		int msgFragsount = size / maxMessageSize;
 		if(size % maxMessageSize > 0)
@@ -200,6 +205,7 @@ public abstract class RpcChannel
 		{
 			logger.debug("Dispatch message!");
 		}
+
 		for(final MessageListener messageListener : msgListeners)
 		{
 			threadPool.execute(new Runnable()
@@ -283,8 +289,7 @@ public abstract class RpcChannel
 				msgBuffer.put(fragments[i].getContent());
 			}
 			msgBuffer.flip();
-			
-			
+
 			Message msg = serializer.deserialize(Message.class, msgBuffer);
 			msg.setSessionID(fragment.getSessionID());
 			msg.setAddress(data.address);
