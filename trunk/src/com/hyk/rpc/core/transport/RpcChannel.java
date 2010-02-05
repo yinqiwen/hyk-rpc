@@ -253,6 +253,7 @@ public abstract class RpcChannel
 		
 		ByteArray seriaData = ByteArray.allocate(maxMessageSize);
 		seriaData = serializer.serialize(msg, seriaData);
+		msg.getContent().free();
 		
 		if(seriaData.size() > compressTrigger)
 		{
@@ -319,10 +320,12 @@ public abstract class RpcChannel
 			{
 				logger.debug("Recv " + fragment + " with size:" + content.size());
 			}
+			content.free();
 			if(fragment.getTotalFragmentCount() == 1 && fragment.getSequence() == 0)
 			{
 				Message msg = serializer.deserialize(Message.class, fragment.getContent());
-				content.free();
+				fragment.getContent().free();
+				
 				msg.setAddress(data.address);
 				msg.setSessionID(fragment.getSessionID());
 				return msg;
@@ -353,6 +356,7 @@ public abstract class RpcChannel
 			for(int i = 0; i < fragments.length; i++)
 			{
 				msgBuffer.put(fragments[i].getContent());
+				fragments[i].getContent().free();
 			}
 			msgBuffer.flip();
 
@@ -360,7 +364,6 @@ public abstract class RpcChannel
 			msg.setSessionID(fragment.getSessionID());
 			msg.setAddress(data.address);
 			msgBuffer.free();
-			data.content.free();
 			deleteMessageFragments(fragment.getId());
 			return msg;
 		}
