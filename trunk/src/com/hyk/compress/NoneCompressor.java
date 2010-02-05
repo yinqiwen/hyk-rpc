@@ -11,19 +11,18 @@ import com.hyk.util.buffer.ByteArray;
  * @author Administrator
  *
  */
-public class NonCompressor extends AbstractCompressor {
+public class NoneCompressor extends AbstractCompressor {
 
-	/* (non-Javadoc)
-	 * @see com.hyk.compress.Compressor#compress(com.hyk.util.buffer.ByteArray)
-	 */
+	public CompressorType getType()
+	{
+		return CompressorType.NONE;
+	}
+	
 	@Override
 	public ByteArray compress(ByteArray data) throws IOException {
 		return data;
 	}
 
-	/* (non-Javadoc)
-	 * @see com.hyk.compress.Compressor#decompress(com.hyk.util.buffer.ByteArray)
-	 */
 	@Override
 	public ByteArray decompress(ByteArray data) throws IOException {
 		return data;

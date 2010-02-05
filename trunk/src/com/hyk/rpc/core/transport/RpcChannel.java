@@ -13,6 +13,9 @@ import java.util.concurrent.Executor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.hyk.compress.Compressor;
+import com.hyk.compress.CompressorFactory;
+import com.hyk.compress.CompressorType;
 import com.hyk.rpc.core.address.Address;
 import com.hyk.rpc.core.message.Message;
 import com.hyk.rpc.core.message.MessageFragment;
@@ -21,6 +24,7 @@ import com.hyk.rpc.core.message.MessageType;
 import com.hyk.rpc.core.session.SessionManager;
 import com.hyk.serializer.HykSerializer;
 import com.hyk.serializer.Serializer;
+import com.hyk.serializer.impl.SerailizerStream;
 import com.hyk.util.buffer.ByteArray;
 import com.hyk.util.thread.ThreadLocalUtil;
 
@@ -50,6 +54,9 @@ public abstract class RpcChannel
 	protected InputTask				inTask			= new InputTask();
 	protected boolean				isStarted		= false;
 
+	protected CompressorType		compressorType	= CompressorType.GZ;
+	protected int					compressTrigger	= 256;
+
 	public RpcChannel()
 	{
 		this(null);
@@ -58,6 +65,16 @@ public abstract class RpcChannel
 	public RpcChannel(Executor threadPool)
 	{
 		this.threadPool = threadPool;
+	}
+
+	public final void setCompressorType(CompressorType type)
+	{
+		this.compressorType = type;
+	}
+
+	public final void setCompressTrigger(int trigger)
+	{
+		this.compressTrigger = trigger;
 	}
 
 	public synchronized void start()
@@ -111,9 +128,9 @@ public abstract class RpcChannel
 
 	public void close()
 	{
-		//nothing
+		// nothing
 	}
-	
+
 	public final void sendMessage(Message message) throws NotSerializableException, IOException
 	{
 
@@ -229,34 +246,83 @@ public abstract class RpcChannel
 
 	protected void sendMessageFragment(MessageFragment msg) throws IOException
 	{
+		// ByteArray data = ByteArray.allocate(maxMessageSize + GAP);
+		// data.put(MAGIC_HEADER);
 		ByteArray data = ByteArray.allocate(maxMessageSize + GAP);
 		data.put(MAGIC_HEADER);
-		data = serializer.serialize(msg, data);
+		
+		ByteArray seriaData = ByteArray.allocate(maxMessageSize);
+		seriaData = serializer.serialize(msg, seriaData);
+		
+		if(seriaData.size() > compressTrigger)
+		{
+			if(logger.isDebugEnabled())
+			{
+				logger.debug("Send/Before compressing, data size:" + seriaData.size());
+			}
+			SerailizerStream.writeInt(data, compressorType.getValue());
+			ByteArray newData = CompressorFactory.getCompressor(compressorType).compress(seriaData);
+			if(logger.isDebugEnabled())
+			{
+				logger.debug("Send/After compressing, data size:" + newData.size());
+			}
+			if(newData != seriaData)
+			{
+				seriaData.free();
+			}
+			data.put(newData);
+			newData.free();
+		}
+		else
+		{
+			SerailizerStream.writeInt(data, CompressorType.NONE.getValue());
+			data.put(seriaData);
+			seriaData.free();
+		}
+
+		data.flip();
 		RpcChannelData send = new RpcChannelData(data, msg.getAddress());
 		send(send);
+		
 		data.free();
 	}
 
 	protected synchronized Message processRpcChannelData(RpcChannelData data) throws RpcChannelException
 	{
-		data.content.get(magicHeader);
+		ByteArray oldContent = data.content;
+		oldContent.get(magicHeader);
 		if(!Arrays.equals(magicHeader, MAGIC_HEADER))
 		{
 			throw new RpcChannelException("Unexpected rpc message!");
 		}
 		try
 		{
+			int compressorTypeValue = SerailizerStream.readInt(oldContent);
+			Compressor compressor = CompressorFactory.getCompressor(CompressorType.valueOf(compressorTypeValue));
+			if(logger.isDebugEnabled())
+			{
+				logger.debug("Recv/Before decompressing, data size:" + oldContent.size());
+			}
+			ByteArray content = compressor.decompress(oldContent);
+			if(logger.isDebugEnabled())
+			{
+				logger.debug("Recv/After decompressing, data size:" + content.size());
+			}
+			if(content != oldContent)
+			{
+				oldContent.free();
+			}
 			ThreadLocalUtil.getThreadLocalUtil(SessionManager.class).setThreadLocalObject(sessionManager);
-			MessageFragment fragment = serializer.deserialize(MessageFragment.class, data.content);
+			MessageFragment fragment = serializer.deserialize(MessageFragment.class, content);
 			fragment.setAddress(data.address);
 			if(logger.isDebugEnabled())
 			{
-				logger.debug("Recv " + fragment + " with size:" + data.content.size());
+				logger.debug("Recv " + fragment + " with size:" + content.size());
 			}
 			if(fragment.getTotalFragmentCount() == 1 && fragment.getSequence() == 0)
 			{
 				Message msg = serializer.deserialize(Message.class, fragment.getContent());
-				data.content.free();
+				content.free();
 				msg.setAddress(data.address);
 				msg.setSessionID(fragment.getSessionID());
 				return msg;

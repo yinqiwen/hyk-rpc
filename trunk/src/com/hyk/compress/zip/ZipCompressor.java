@@ -14,6 +14,7 @@ import java.util.zip.ZipOutputStream;
 
 import com.hyk.compress.AbstractCompressor;
 import com.hyk.compress.Compressor;
+import com.hyk.compress.CompressorType;
 import com.hyk.util.buffer.ByteArray;
 
 /**
@@ -22,9 +23,11 @@ import com.hyk.util.buffer.ByteArray;
  */
 public class ZipCompressor extends AbstractCompressor {
 
-	/* (non-Javadoc)
-	 * @see com.hyk.serializer.compress.Compressor#compress(byte[], int, int)
-	 */
+	public CompressorType getType()
+	{
+		return CompressorType.Zip;
+	}
+
 	@Override
 	public ByteArray compress(ByteArray data)
 			throws IOException {
@@ -56,9 +59,9 @@ public class ZipCompressor extends AbstractCompressor {
 		//ByteArrayOutputStream bos = new ByteArrayOutputStream(length * 3);
 		ZipInputStream zis = new ZipInputStream(data.input);
 		zis.getNextEntry();
-		byte b;
+		int b;
 		
-		while((b = (byte) zis.read()) != -1)
+		while((b = zis.read()) != -1)
 		{
 			//System.out.println("###");
 			//bos.write(b);

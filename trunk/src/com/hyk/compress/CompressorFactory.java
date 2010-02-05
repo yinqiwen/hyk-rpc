@@ -3,38 +3,44 @@
  */
 package com.hyk.compress;
 
-import java.util.HashMap;
-import java.util.Map;
-
-//import com.hyk.compress.bz2.BZip2Compressor;
 import com.hyk.compress.gz.GZipCompressor;
 import com.hyk.compress.sevenzip.SevenZipCompressor;
 import com.hyk.compress.zip.ZipCompressor;
 
 /**
  * @author Administrator
- *
+ * 
  */
-public class CompressorFactory {
+public class CompressorFactory
+{
 
-	private static Map<String, Class> compressorClassTable = new HashMap<String, Class>();
-	
-	static
+	public static Compressor getCompressor(CompressorType type)
 	{
-		compressorClassTable.put(Compressor.SEVEN_ZIP, SevenZipCompressor.class);
-		compressorClassTable.put(Compressor.GZIP, GZipCompressor.class);
-		compressorClassTable.put(Compressor.ZIP, ZipCompressor.class);
-		//compressorClassTable.put(Compressor.BZIP2, BZip2Compressor.class);
-	}
-
-	public static Compressor getCompressor(String name) throws InstantiationException, IllegalAccessException, ClassNotFoundException
-	{
-		Class clazz = compressorClassTable.get(name);
-		if(null == clazz)
+		switch(type)
 		{
-			clazz = GZipCompressor.class;
+			case SevenZip:
+			{
+				return new SevenZipCompressor();
+			}
+			case Zip:
+			{
+				return new ZipCompressor();
+			}
+			case GZ:
+			{
+				return new GZipCompressor();
+			}
+			default:
+			{
+				return new NoneCompressor();
+			}
 		}
-		return (Compressor) clazz.newInstance();
 	}
-	
+
+	public static Compressor getCompressor(String name)
+	{
+		CompressorType type = Enum.valueOf(CompressorType.class, name);
+		return getCompressor(type);
+	}
+
 }
