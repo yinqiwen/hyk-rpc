@@ -36,7 +36,7 @@ public class Client {
 		HelloIntf hello = (HelloIntf) serv.lookup("hello");
 		
 		long start = System.currentTimeMillis();
-		for(int i =0; i< 100; i++)
+		for(int i =0; i< 1; i++)
 		{
 			hello.noop();
 		}

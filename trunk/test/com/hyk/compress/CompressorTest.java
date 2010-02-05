@@ -8,6 +8,9 @@ import java.util.Arrays;
 import com.hyk.compress.gz.GZipCompressor;
 import com.hyk.compress.sevenzip.SevenZipCompressor;
 import com.hyk.compress.zip.ZipCompressor;
+import com.hyk.rpc.core.address.SimpleSockAddress;
+import com.hyk.rpc.core.message.MessageFragment;
+import com.hyk.serializer.HykSerializer;
 import com.hyk.util.buffer.ByteArray;
 
 import junit.framework.TestCase;
@@ -33,18 +36,6 @@ public class CompressorTest extends TestCase {
 		compressor = new SevenZipCompressor();
 		ByteArray compressed = compressor.compress(orginal);
 		ByteArray restore = compressor.decompress(compressed);
-		byte[] raw1 = orginal.rawbuffer();
-		byte[] raw2 = restore.rawbuffer();
-		
-//		for (int i = 0; i < restore.size(); i++) {
-//			if(raw1[i] != raw2[i])
-//			{
-//				System.out.println("###" + i);
-//				System.out.println("@@@" + raw1[i]);
-//				System.out.println("???" + raw2[i]);
-//				//break;
-//			}
-//		}
 		assertEquals(orginal, restore);
 		assertTrue(restore.size() > (compressed.size() * 2));
 	}
@@ -65,6 +56,24 @@ public class CompressorTest extends TestCase {
 		ByteArray compressed = compressor.compress(orginal);
 		ByteArray restore = compressor.decompress(compressed);
 		assertEquals(orginal, restore);
+		//assertEquals(orginal.size(), restore.size());
+		//assertTrue(restore.size() > (compressed.size() * 2));
+	}
+	
+	public void testSerai() throws IOException {
+		compressor = new GZipCompressor();
+		HykSerializer  serializer = new HykSerializer();
+		
+		MessageFragment frag = new MessageFragment();
+		frag.setSessionID(1);
+		frag.setAddress(new SimpleSockAddress("127.0.0.1", 48101));
+		frag.setSequence(1);
+		ByteArray content = ByteArray.wrap("asdasfsa12312".getBytes());
+		frag.setContent(content );
+		ByteArray data = serializer.serialize(frag);
+		ByteArray compressed = compressor.compress(data);
+		ByteArray restore = compressor.decompress(compressed);
+		assertEquals(data, restore);
 		//assertEquals(orginal.size(), restore.size());
 		//assertTrue(restore.size() > (compressed.size() * 2));
 	}

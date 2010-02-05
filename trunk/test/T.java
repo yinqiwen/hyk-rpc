@@ -1,5 +1,6 @@
 import java.io.FileNotFoundException;
 import java.io.FileReader;
+import java.net.HttpCookie;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
@@ -39,31 +40,27 @@ public class T {
 	 * @throws FileNotFoundException 
 	 */
 	public static void main(String[] args) throws FileNotFoundException {
-		//StringTemplateGroup stg = new StringTemplateGroup();
-//		String template = "$aMap.keys:{k| $k$ maps to $aMap.(k)$}$.";
-//		String template2 = "int sum = 0;$numbers:{ n | sum += $n$;}$";
-//
-//		StringTemplate st = new StringTemplate(template);
-//		Map m = new HashMap();
-//		m.put(1, "hello");
-//		m.put(2, "world!");
-//		st.setAttribute("aMap",m);
-//		
-//		List list = new LinkedList();
-//		list.add(1);
-//		list.add(102);
-//		st = new StringTemplate(template2);
-//		st.setAttribute("numbers",list);
-//		System.out.println(st);
-//		
-//		StringTemplateGroup group =
-//            new StringTemplateGroup(new FileReader("template/test.stg"),
-//                AngleBracketTemplateLexer.class);
-//		TList tlist = new TList();
-//		tlist.list.add(new Element());
-//		StringTemplate st3 = group.getInstanceOf("test");
-//		st3.setAttribute("value", tlist);
-//		System.out.println(st3.toString());
+		//String value = "SID=EXPIRED;Domain=.google.com;Path=/;Expires=Mon, 01-Jan-1990 00:00:00 GMT, HSID=EXPIRED;Domain=.google.com;Path=/;Expires=Mon, 01-Jan-1990 00:00:00 GMT, SSID=EXPIRED;Domain=.google.com;Path=/;Expires=Mon, 01-Jan-1990 00:00:00 GMT;Secure, LSID=EXPIRED;Domain=www.google.com;Path=/accounts;Expires=Mon, 01-Jan-1990 00:00:00 GMT, LSID=EXPIRED;Path=/accounts;Expires=Mon, 01-Jan-1990 00:00:00 GMT, LSID=EXPIRED;Domain=www.google.com;Path=/accounts;Expires=Mon, 01-Jan-1990 00:00:00 GMT, LSID=EXPIRED;Path=/accounts;Expires=Mon, 01-Jan-1990 00:00:00 GMT, GAUSR=EXPIRED;Path=/accounts;Expires=Mon, 01-Jan-1990 00:00:00 GMT, GAUSR=EXPIRED;Path=/accounts;Expires=Mon, 01-Jan-1990 00:00:00 GMT";
+		String value = "N_T=sess%3D12c7936ba27cf481%26v%3D2%26c%3D6aa3723d%26s%3D4b6831ce%26t%3DA%3A1%3A32050%26sessref%3D%2523code; Expires=Tue, 02-Feb-2010 14:38:15 GMT; Path=/support; HttpOnly";
+		LinkedList<String> save = new LinkedList<String>();
+		String[] headerValues = value.split(",");
+		for(String v:headerValues)
+		{
+			if(v.indexOf("=") == -1
+					|| (v.indexOf("=") > v.indexOf(";")))
+			{
+				save.add(save.removeLast() + "," + v);
+			}
+			else
+			{
+				save.add(v);
+			}
+		}
+		for(String v:save)
+		{
+			System.out.println("####" + v);
+		}
+		
 	}
 
 }
