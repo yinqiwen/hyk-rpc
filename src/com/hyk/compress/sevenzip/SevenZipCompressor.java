@@ -8,6 +8,7 @@ import java.io.IOException;
 
 import com.hyk.compress.AbstractCompressor;
 import com.hyk.compress.Compressor;
+import com.hyk.compress.CompressorType;
 import com.hyk.util.buffer.ByteArray;
 
 /**
@@ -18,6 +19,12 @@ public class SevenZipCompressor extends AbstractCompressor {
 
 	private static com.hyk.compress.sevenzip.Compression.LZMA.Decoder decoder = new com.hyk.compress.sevenzip.Compression.LZMA.Decoder();
 	private static com.hyk.compress.sevenzip.Compression.LZMA.Encoder encoder = new com.hyk.compress.sevenzip.Compression.LZMA.Encoder();
+	
+	public CompressorType getType()
+	{
+		return CompressorType.SevenZip;
+	}
+	
 	@Override
 	public ByteArray compress(ByteArray data) throws IOException {
 		synchronized (encoder) {

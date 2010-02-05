@@ -276,7 +276,7 @@ public abstract class SerailizerStream<T>
 	}
 
 
-	protected static int readInt(ByteArray data) throws IOException
+	public static int readInt(ByteArray data) throws IOException
 	{
 		byte tmp = readByte(data);
 		if(tmp >= 0)
@@ -412,7 +412,7 @@ public abstract class SerailizerStream<T>
 		writeInt(data, value);
 	}
 
-	protected static void writeInt(ByteArray data, int value) throws IOException
+	public static void writeInt(ByteArray data, int value) throws IOException
 	{
 		if(value >= 0)
 		{

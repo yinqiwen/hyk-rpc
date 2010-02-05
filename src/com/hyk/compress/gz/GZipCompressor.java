@@ -11,6 +11,7 @@ import java.util.zip.GZIPOutputStream;
 
 import com.hyk.compress.AbstractCompressor;
 import com.hyk.compress.Compressor;
+import com.hyk.compress.CompressorType;
 import com.hyk.util.buffer.ByteArray;
 
 /**
@@ -19,9 +20,11 @@ import com.hyk.util.buffer.ByteArray;
  */
 public class GZipCompressor extends AbstractCompressor {
 
-	/* (non-Javadoc)
-	 * @see com.hyk.serializer.compress.Compressor#compress(byte[], int, int)
-	 */
+	public CompressorType getType()
+	{
+		return CompressorType.GZ;
+	}
+	
 	@Override
 	public ByteArray compress(ByteArray data)
 			throws IOException {
@@ -32,10 +35,7 @@ public class GZipCompressor extends AbstractCompressor {
 		int len = data.size();
 		gos.write(raw, offset, len);
 		gos.finish();
-		gos.flush();
 		gos.close();
-		//System.out.println("###1 " + ret.size());
-		//data.rewind();
 		return ret;
 	}
 
@@ -44,8 +44,8 @@ public class GZipCompressor extends AbstractCompressor {
 			throws IOException {
 		ByteArray ret = ByteArray.allocate(data.size() * 3);
 		GZIPInputStream gis = new GZIPInputStream(data.input);
-		byte b;
-		while((b = (byte) gis.read()) != -1)
+		int b;
+		while((b = gis.read()) != -1)
 		{
 			ret.output.write(b);
 		}
