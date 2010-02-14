@@ -547,6 +547,54 @@ public abstract class SerailizerStream<T>
 	protected static <T> T readObject(ByteArray data, Class<T> type) throws IOException
 	{
 		Type dataType = ReflectionCache.getType(type);
+		switch (dataType) 
+		{
+		   case BOOL:
+		   {
+			   Boolean value = readBool(data);
+			   return (T) value;
+		   }
+		   case BYTE:
+		   {
+			  Byte value = readByte(data);
+			  return (T) value;
+		   }
+		   case INT:
+		   {
+			  Integer value = readInt(data);
+			  return (T) value;
+		   }
+		   case FLOAT:
+		   {
+			   Float value = readFloat(data);
+			   return (T) value;
+		   }
+		   case LONG:
+		   {
+			   Long value = readLong(data);
+			   return (T) value;
+		   }
+		   case DOUBLE:
+		   {
+			   Double value = readDouble(data);
+			   return (T) value;
+		   }
+		   case STRING:
+		   {
+			   String value = readString(data);
+			   return (T) value;
+		   }
+		   case SHORT:
+		   {
+			   Short value = readShort(data);
+			   return (T) value;
+		   }
+		   case CHAR:
+		   {
+			   Character value = readChar(data);
+			   return (T) value;
+		   }
+		}
 		int indicator = readTag(data);
 		try
 		{
@@ -599,7 +647,57 @@ public abstract class SerailizerStream<T>
 		{
 			return;
 		}
-
+		Type declType = ReflectionCache.getType(type);
+		switch (declType) 
+		{
+		   case BOOL:
+		   {
+			   writeBoolean(data, (Boolean) value);
+			   return ;
+		   }
+		   case BYTE:
+		   {
+			  writeByte(data, (Byte) value);
+			  return ;
+		   }
+		   case INT:
+		   {
+			  writeInt(data, (Integer) value);
+			  return ;
+		   }
+		   case FLOAT:
+		   {
+			   writeFloat(data, (Float) value);
+			   return ;
+		   }
+		   case LONG:
+		   {
+			   writeLong(data, (Long) value);
+			   return;
+		   }
+		   case DOUBLE:
+		   {
+			   writeDouble(data, (Double) value);
+			   return;
+		   }
+		   case STRING:
+		   {
+			   writeString(data, (String) value);
+			   return;
+		   }
+		   case SHORT:
+		   {
+			   writeShort(data, (Short) value);
+			   return;
+		   }
+		   case CHAR:
+		   {
+			   writeChar(data, (Character) value);
+			   return;
+		   }
+		}
+		Class clazz = value.getClass();
+		Type dataType = ReflectionCache.getType(clazz);
 		
 		// loop reference
 		int refSeq = ObjectReferenceUtil.querySerializeThreadLocalObjectIndex(value);
@@ -609,8 +707,7 @@ public abstract class SerailizerStream<T>
 			writeInt(data, refSeq); 
 			return;
 		}
-		Class clazz = value.getClass();
-		Type dataType = ReflectionCache.getType(clazz);
+		
 		switch(dataType)
 		{
 			case PROXY:

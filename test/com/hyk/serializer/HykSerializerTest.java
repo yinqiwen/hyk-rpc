@@ -146,6 +146,10 @@ public class HykSerializerTest extends TestCase {
 		data = serializer.serialize(oa);
 		Object[] oa2 = serializer.deserialize(Object[].class, data);
 		assertEquals(true, Arrays.equals(oa, oa2));	
+		
+		byte[] content = new byte[32];
+		data = serializer.serialize(content);
+		System.out.println("####" + data.size());
 	}
 	
 	public void testEnum() throws NotSerializableException, IOException, InstantiationException

@@ -3,8 +3,8 @@
  */
 package com.hyk.compress;
 
+import com.hyk.compress.bz2.BZ2Compressor;
 import com.hyk.compress.gz.GZipCompressor;
-import com.hyk.compress.sevenzip.SevenZipCompressor;
 import com.hyk.compress.zip.ZipCompressor;
 
 /**
@@ -18,9 +18,9 @@ public class CompressorFactory
 	{
 		switch(type)
 		{
-			case SevenZip:
+			case BZ2:
 			{
-				return new SevenZipCompressor();
+				return new BZ2Compressor();
 			}
 			case Zip:
 			{

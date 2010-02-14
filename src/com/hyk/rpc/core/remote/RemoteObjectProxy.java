@@ -4,10 +4,8 @@
 package com.hyk.rpc.core.remote;
 
 import java.io.IOException;
-import java.io.Serializable;
 import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.Method;
-import java.lang.reflect.Proxy;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -61,7 +59,8 @@ public class RemoteObjectProxy implements InvocationHandler,Externalizable {
 
 	@Override
 	public Object invoke(Object proxy, Method method, Object[] args)
-			throws Throwable {
+			throws Throwable 
+	{
 		//int methodID = RemoteUtil.getMethodID(method, proxy);
 		if(method.getDeclaringClass().equals(Object.class))
 		{

@@ -76,9 +76,9 @@ public class Session
 
 	public void sendResponse(Message response) throws NotSerializableException, IOException
 	{
-		if(logger.isInfoEnabled())
+		if(logger.isDebugEnabled())
 		{
-			logger.info("Send invocation result back!");
+			logger.debug("Send invocation result back!");
 		}
 		channel.sendMessage(response);
 	}

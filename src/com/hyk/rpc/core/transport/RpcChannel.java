@@ -20,7 +20,6 @@ import com.hyk.rpc.core.address.Address;
 import com.hyk.rpc.core.message.Message;
 import com.hyk.rpc.core.message.MessageFragment;
 import com.hyk.rpc.core.message.MessageID;
-import com.hyk.rpc.core.message.MessageType;
 import com.hyk.rpc.core.session.SessionManager;
 import com.hyk.serializer.HykSerializer;
 import com.hyk.serializer.Serializer;
@@ -54,7 +53,7 @@ public abstract class RpcChannel
 	protected InputTask				inTask			= new InputTask();
 	protected boolean				isStarted		= false;
 
-	protected CompressorType		compressorType	= CompressorType.GZ;
+	protected CompressorType		compressorType	= CompressorType.NONE;
 	protected int					compressTrigger	= 256;
 
 	public RpcChannel()
@@ -248,10 +247,11 @@ public abstract class RpcChannel
 	{
 		// ByteArray data = ByteArray.allocate(maxMessageSize + GAP);
 		// data.put(MAGIC_HEADER);
-		ByteArray data = ByteArray.allocate(maxMessageSize + GAP);
+		int baseSize = msg.getContent().size();
+		ByteArray data = ByteArray.allocate(baseSize + 2*GAP);
 		data.put(MAGIC_HEADER);
 		
-		ByteArray seriaData = ByteArray.allocate(maxMessageSize);
+		ByteArray seriaData = ByteArray.allocate(baseSize + GAP);
 		seriaData = serializer.serialize(msg, seriaData);
 		msg.getContent().free();
 		
