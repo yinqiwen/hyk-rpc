@@ -119,6 +119,7 @@ public class Session
 			{
 				retransmitTask.cancel();
 			}
+			channel.clearSessionData(request.getId());
 		}
 
 	}
