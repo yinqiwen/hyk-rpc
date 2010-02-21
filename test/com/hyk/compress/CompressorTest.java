@@ -5,7 +5,6 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.util.Arrays;
 
-import com.hyk.compress.bz2.BZ2Compressor;
 import com.hyk.compress.gz.GZipCompressor;
 import com.hyk.compress.zip.ZipCompressor;
 import com.hyk.rpc.core.address.SimpleSockAddress;
@@ -32,13 +31,13 @@ public class CompressorTest extends TestCase {
 		orginal = ByteArray.wrap(orginalb);
 	}
 
-	public void testBZ2() throws IOException {
-		compressor = new BZ2Compressor();
-		ByteArray compressed = compressor.compress(orginal);
-		ByteArray restore = compressor.decompress(compressed);
-		assertEquals(orginal, restore);
-		assertTrue(restore.size() > (compressed.size() * 2));
-	}
+//	public void testBZ2() throws IOException {
+//		compressor = new BZ2Compressor();
+//		ByteArray compressed = compressor.compress(orginal);
+//		ByteArray restore = compressor.decompress(compressed);
+//		assertEquals(orginal, restore);
+//		assertTrue(restore.size() > (compressed.size() * 2));
+//	}
 	
 	public void testZip() throws IOException {
 		compressor = new ZipCompressor();

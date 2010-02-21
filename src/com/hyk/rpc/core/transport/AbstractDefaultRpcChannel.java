@@ -24,17 +24,25 @@ public abstract class AbstractDefaultRpcChannel extends RpcChannel {
 	
 	protected Map<MessageID, MessageFragment[]> fragmentTable = new ConcurrentHashMap<MessageID, MessageFragment[]>();
 	
-	public AbstractDefaultRpcChannel(Executor threadPool) {
+	public AbstractDefaultRpcChannel(Executor threadPool) 
+	{
 		super(threadPool);
-		// TODO Auto-generated constructor stub
 	}
 
-	/* (non-Javadoc)
-	 * @see com.hyk.rpc.core.transport.RpcChannel#deleteMessageFragments(long)
-	 */
 	@Override
-	protected void deleteMessageFragments(MessageID id) {
-		fragmentTable.remove(id);
+	protected void deleteMessageFragments(MessageID id) 
+	{
+		MessageFragment[] frags = fragmentTable.remove(id);
+		if(null != frags)
+		{
+			for(MessageFragment frag:frags)
+			{
+				if(null != frag)
+				{
+					frag.getContent().free();
+				}
+			}
+		}
 	}
 
 

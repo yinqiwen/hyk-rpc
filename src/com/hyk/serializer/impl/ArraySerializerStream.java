@@ -24,21 +24,31 @@ public class ArraySerializerStream<T> extends SerailizerStream<T>
 	{
 		try
 		{
-			int len = readInt(data);
-			int index = 0;
-			Class componentTypeClass = type.getComponentType();
 			
-			Object array = Array.newInstance(componentTypeClass, len);
-			ObjectReferenceUtil.addDeserializeThreadLocalObject(array);
-			Type componentType = ReflectionCache.getType(componentTypeClass);
-			while(index < len)
+			Class componentTypeClass = type.getComponentType();
+			if(componentTypeClass.equals(byte.class))
 			{
-				
-				Object element = readObject(data, componentTypeClass);
-				Array.set(array, index, element);
-				index++;
+				byte[] retValue = readBytes(data);	
+				return (T) retValue;
 			}
-			return (T)array;
+			else
+			{
+				int len = readInt(data);
+				int index = 0;
+				Object array = Array.newInstance(componentTypeClass, len);
+				ObjectReferenceUtil.addDeserializeThreadLocalObject(array);
+				Type componentType = ReflectionCache.getType(componentTypeClass);
+				while(index < len)
+				{
+					
+					Object element = readObject(data, componentTypeClass);
+					Array.set(array, index, element);
+					index++;
+				}
+				return (T)array;
+			}
+			
+			
 		}
 		catch(Exception e)
 		{
@@ -54,13 +64,23 @@ public class ArraySerializerStream<T> extends SerailizerStream<T>
 		int len = Array.getLength(value);
 		writeInt(data, len);
 		Class componentType = value.getClass().getComponentType();
-		int index = 0;
-		while(index < len)
+		if(componentType.equals(byte.class))
 		{
-			Object element = Array.get(value, index);      
-			writeObject(data, element, componentType);
-			index++;
+			byte[] rawValue = (byte[]) value;
+			writeBytes(data, rawValue);
+			
 		}
+		else
+		{
+			int index = 0;
+			while(index < len)
+			{
+				Object element = Array.get(value, index);      
+				writeObject(data, element, componentType);
+				index++;
+			}
+		}
+		
 		return data;
 	}
 
