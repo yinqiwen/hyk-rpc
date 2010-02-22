@@ -259,7 +259,7 @@ public abstract class RpcChannel
 		{
 			currentPreference = compressorPreference;
 		}
-		if(currentPreference.isEnable() && seriaData.size() > currentPreference.getTrigger())
+		if(seriaData.size() > currentPreference.getTrigger())
 		{
 			if(logger.isDebugEnabled())
 			{
