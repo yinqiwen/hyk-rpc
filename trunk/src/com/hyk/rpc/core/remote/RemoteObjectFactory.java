@@ -15,32 +15,33 @@ import com.hyk.rpc.core.util.RemoteUtil;
  * @author qiying.wang
  * 
  */
-public class RemoteObjectFactory {
-	private Address localAddress;
-	private Map<Long, Object> remoteRawObjectTable = new ConcurrentHashMap<Long, Object>();
+public class RemoteObjectFactory
+{
+	private Address				localAddress;
+	private Map<Long, Object>	remoteRawObjectTable	= new ConcurrentHashMap<Long, Object>();
 
-	public RemoteObjectFactory(Address localAddress) {
+	public RemoteObjectFactory(Address localAddress)
+	{
 		this.localAddress = localAddress;
 	}
 
-	public Object publish(Object obj) {
+	public Object publish(Object obj)
+	{
 		return publish(obj, ID.generateRemoteObjectID());
 	}
 
-	public Object publish(Object obj, long id) {
-
-		//System.out.println("####@@@@publish " + id);
+	public Object publish(Object obj, long id)
+	{
 		RemoteObjectProxy remoteObjectProxy = new RemoteObjectProxy();
 		remoteObjectProxy.setHostAddress(localAddress);
-		Object proxy = Proxy.newProxyInstance(obj.getClass().getClassLoader(),
-				RemoteUtil.getRemoteInterfaces(obj.getClass()),
-				remoteObjectProxy);
+		Object proxy = Proxy.newProxyInstance(obj.getClass().getClassLoader(), RemoteUtil.getRemoteInterfaces(obj.getClass()), remoteObjectProxy);
 		remoteObjectProxy.setObjID(id);
 		remoteRawObjectTable.put(id, obj);
 		return proxy;
 	}
 
-	public Object getRawObject(long id) {
+	public Object getRawObject(long id)
+	{
 		return remoteRawObjectTable.get(id);
 	}
 

@@ -10,7 +10,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import com.hyk.rpc.core.remote.Remote;
+import com.hyk.rpc.core.annotation.Remote;
 
 /**
  * @author qiying.wang

@@ -3,7 +3,7 @@
  */
 package com.hyk.rpc.core.service;
 
-import com.hyk.rpc.core.remote.Remote;
+import com.hyk.rpc.core.annotation.Remote;
 
 /**
  * @author qiying.wang

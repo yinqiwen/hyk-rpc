@@ -8,15 +8,13 @@ import java.io.NotSerializableException;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.Arrays;
-import java.util.Timer;
 import java.util.TimerTask;
-import java.util.concurrent.ScheduledExecutorService;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.hyk.rpc.core.RpcException;
-import com.hyk.rpc.core.Rpctimeout;
+import com.hyk.rpc.core.RequestListener;
+import com.hyk.rpc.core.ResponseListener;
 import com.hyk.rpc.core.message.Message;
 import com.hyk.rpc.core.message.MessageFactory;
 import com.hyk.rpc.core.message.Request;
@@ -38,13 +36,8 @@ public class Session
 	public static final int		CLIENT					= 0;
 	public static final int		SERVER					= 1;
 
-	private static final int	DEFAULT_TIMEOUT			= 100000;
-
 	private int					retransmitTimeStep		= 1000;
 	private int					waitRetransmitTimeout	= retransmitTimeStep * 10;
-
-	private int					type;
-	private Object				waitResLock				= new Object();
 
 	Message						request;
 	Message						response;
@@ -53,14 +46,33 @@ public class Session
 	private SessionManager		sessionManager;
 	private RetransmitTimerTask	retransmitTask;
 
-	public Session(SessionManager manager, Message request, int type, RpcChannel channel, RemoteObjectFactory remoteObjectFactory)
+	private ResponseListener	responseListener;
+	private RequestListener		requestListener;
+
+	private long				bornTime				= System.currentTimeMillis();
+	
+	public Session(SessionManager manager, Message request, RpcChannel channel, RemoteObjectFactory remoteObjectFactory)
 	{
 		this.sessionManager = manager;
 		this.request = request;
-		this.type = type;
 		this.channel = channel;
 		this.remoteObjectFactory = remoteObjectFactory;
 		// request.setSessionID(id);
+	}
+
+	public long getBornTime()
+	{
+		return bornTime;
+	}
+	
+	public void setResponseListener(ResponseListener responseListener)
+	{
+		this.responseListener = responseListener;
+	}
+
+	public void setRequestListener(RequestListener requestListener)
+	{
+		this.requestListener = requestListener;
 	}
 
 	public void sendRequest() throws NotSerializableException, IOException
@@ -83,55 +95,31 @@ public class Session
 		channel.sendMessage(response);
 	}
 
-	public Object waitInvokeResult() throws Throwable
-	{
-		try
-		{
-			if(null == response)
-			{
-				try
-				{
-					synchronized(waitResLock)
-					{
-						waitResLock.wait(sessionManager.getSessionTimeout());
-					}
-				}
-				catch(Exception e)
-				{
-					throw new Rpctimeout(e.getMessage());
-				}
-				if(null == response)
-				{
-					throw new Rpctimeout("RPC timeout!");
-				}
-			}
-			Response res = (Response)response.getValue();
-			Object reply = res.getReply();
-			if(reply != null && reply instanceof Throwable)
-			{
-				throw (Throwable)reply;
-			}
-			return reply;
-		}
-		finally
-		{
-			if(null != retransmitTask)
-			{
-				retransmitTask.cancel();
-			}
-			channel.clearSessionData(request.getId());
-		}
-
-	}
-
 	public void processResponse(Message res)
 	{
 		this.response = res;
-		synchronized(waitResLock)
+		if(null != responseListener)
 		{
-			waitResLock.notify();
+			try
+			{
+				responseListener.processResponse(this, (Response)res.getValue());
+			}
+			catch(Exception e)
+			{
+				logger.error("Failed to process response", e);
+			}
 		}
+		close();
 
+	}
+
+	public void close()
+	{
+		if(null != retransmitTask)
+		{
+			retransmitTask.cancel();
+		}
+		channel.clearSessionData(request.getId());
 	}
 
 	public void processRequest()
@@ -225,5 +213,18 @@ public class Session
 				logger.error("Failed to retransmit request", e);
 			}
 		}
+	}
+
+	class SessionTimeoutTask extends TimerTask
+	{
+
+		@Override
+		public void run()
+		{
+			// Message res = new Message();
+			// res
+			// processResponse();
+		}
+
 	}
 }
