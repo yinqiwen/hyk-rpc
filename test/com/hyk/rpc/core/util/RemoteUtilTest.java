@@ -1,6 +1,6 @@
 package com.hyk.rpc.core.util;
 
-import com.hyk.rpc.core.remote.Remote;
+import com.hyk.rpc.core.annotation.Remote;
 import com.hyk.rpc.core.service.NameService;
 import com.hyk.rpc.core.service.NameServiceImpl;
 

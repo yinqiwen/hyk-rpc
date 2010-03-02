@@ -63,7 +63,7 @@ public class SessionManager implements MessageListener
 
 	private Session createSession(Message request, int type)
 	{
-		Session session = new Session(this, request, type, channel, remoteObjectFactory);
+		Session session = new Session(this, request, channel, remoteObjectFactory);
 		switch(type)
 		{
 			case Session.CLIENT:
@@ -138,7 +138,6 @@ public class SessionManager implements MessageListener
 				if(!serverSessionMap.containsKey(msg.getId()))
 				{
 					session = createServerSession(msg);
-
 				}
 				else
 				{

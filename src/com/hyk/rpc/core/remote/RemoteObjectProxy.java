@@ -4,15 +4,22 @@
 package com.hyk.rpc.core.remote;
 
 import java.io.IOException;
+import java.io.NotSerializableException;
 import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.Method;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.hyk.rpc.core.RequestListener;
+import com.hyk.rpc.core.ResponseListener;
+import com.hyk.rpc.core.RpcCallback;
 import com.hyk.rpc.core.address.Address;
 import com.hyk.rpc.core.message.Message;
 import com.hyk.rpc.core.message.MessageFactory;
+import com.hyk.rpc.core.message.Request;
+import com.hyk.rpc.core.message.Response;
+import com.hyk.rpc.core.session.AppSession;
 import com.hyk.rpc.core.session.Session;
 import com.hyk.rpc.core.session.SessionManager;
 import com.hyk.serializer.Externalizable;
@@ -24,13 +31,12 @@ import com.hyk.util.thread.ThreadLocalUtil;
  * @author qiying.wang
  *
  */
-public class RemoteObjectProxy implements InvocationHandler,Externalizable {
+public class RemoteObjectProxy implements InvocationHandler, Externalizable {
 	
 	protected transient Logger			logger			= LoggerFactory.getLogger(getClass());
-	private long objID = -2;
-	private Address hostAddress;
-	private transient SessionManager sessionManager;
-	
+	protected long objID = -2;
+	protected Address hostAddress;
+	protected transient SessionManager sessionManager;
 	
 	public void setSessionManager(SessionManager sessionManager) {
 		this.sessionManager = sessionManager;
@@ -54,9 +60,22 @@ public class RemoteObjectProxy implements InvocationHandler,Externalizable {
 
 	public RemoteObjectProxy()
 	{
-		
+		//
 	}
-
+	
+    protected void invokeWithResponseListener(Method method, Object[] invokeArgs, ResponseListener listener, AppSession appSession) throws NotSerializableException, IOException
+    {
+    	Message msg = MessageFactory.instance.createRequest(objID, method.getName(), invokeArgs);
+		msg.setAddress(hostAddress);
+		Session session = sessionManager.createClientSession(msg);
+		session.setResponseListener(listener);
+		if(null != appSession)
+		{
+			appSession.setSession(session);
+		}
+		session.sendRequest();
+    }
+	
 	@Override
 	public Object invoke(Object proxy, Method method, Object[] args)
 			throws Throwable 
@@ -70,13 +89,14 @@ public class RemoteObjectProxy implements InvocationHandler,Externalizable {
 		{
 			logger.debug("Invoke method:" + method.getName());
 		}
-		Message msg = MessageFactory.instance.createRequest(objID, method.getName(), args);
-		msg.setAddress(hostAddress);
-		Session session = sessionManager.createClientSession(msg);
-		session.sendRequest();
-		//session.waitInvokeResult();
-		Object ret =  session.waitInvokeResult();
-		return ret;
+//		Object[] invokeArgs = args;
+//		Message msg = MessageFactory.instance.createRequest(objID, method.getName(), invokeArgs);
+//		msg.setAddress(hostAddress);
+//		Session session = sessionManager.createClientSession(msg);
+		RemoteInvocationResultFuture future = new RemoteInvocationResultFuture();
+		invokeWithResponseListener(method, args, future, future);
+		//session.sendRequest();
+		return future.get(sessionManager.getSessionTimeout());
 	}
 
 	@Override
@@ -94,7 +114,5 @@ public class RemoteObjectProxy implements InvocationHandler,Externalizable {
 		out.writeLong(objID);
 		out.writeObject(hostAddress, Address.class);
 	}
-
-
 
 }

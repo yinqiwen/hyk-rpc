@@ -12,6 +12,7 @@ import java.lang.reflect.InvocationTargetException;
 
 import com.hyk.serializer.Externalizable;
 import com.hyk.serializer.Serializer;
+import com.hyk.serializer.annotation.Stream;
 import com.hyk.serializer.io.Type;
 import com.hyk.serializer.reflect.ReflectionCache;
 import com.hyk.serializer.util.ObjectReferenceUtil;
@@ -48,6 +49,10 @@ public class ObjectSerializerStream<T> extends SerailizerStream<T>
 					break;
 				Field f = fs[tag - 1];
 				Class fieldType = f.getType();
+				if(f.isAnnotationPresent(Stream.class))
+				{
+					
+				}
 				f.set(ret, readObject(data, fieldType));
 			}
 			return ret;
@@ -86,6 +91,10 @@ public class ObjectSerializerStream<T> extends SerailizerStream<T>
 				Object fieldValue = f.get(value);
 				if(null != fieldValue)
 				{
+					if(f.isAnnotationPresent(Stream.class))
+					{
+						
+					}
 					writeTag(data, i + 1);
 					writeObject(data, fieldValue, f.getType());
 					

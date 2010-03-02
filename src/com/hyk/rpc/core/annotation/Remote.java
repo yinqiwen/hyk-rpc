@@ -1,7 +1,7 @@
 /**
  * 
  */
-package com.hyk.rpc.core.remote;
+package com.hyk.rpc.core.annotation;
 
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
