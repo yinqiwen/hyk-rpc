@@ -11,15 +11,10 @@ import java.lang.reflect.Method;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.hyk.rpc.core.RequestListener;
 import com.hyk.rpc.core.ResponseListener;
-import com.hyk.rpc.core.RpcCallback;
 import com.hyk.rpc.core.address.Address;
 import com.hyk.rpc.core.message.Message;
 import com.hyk.rpc.core.message.MessageFactory;
-import com.hyk.rpc.core.message.Request;
-import com.hyk.rpc.core.message.Response;
-import com.hyk.rpc.core.session.AppSession;
 import com.hyk.rpc.core.session.Session;
 import com.hyk.rpc.core.session.SessionManager;
 import com.hyk.serializer.Externalizable;
@@ -63,16 +58,12 @@ public class RemoteObjectProxy implements InvocationHandler, Externalizable {
 		//
 	}
 	
-    protected void invokeWithResponseListener(Method method, Object[] invokeArgs, ResponseListener listener, AppSession appSession) throws NotSerializableException, IOException
+    protected void invokeWithResponseListener(Method method, Object[] invokeArgs, ResponseListener listener) throws NotSerializableException, IOException
     {
     	Message msg = MessageFactory.instance.createRequest(objID, method.getName(), invokeArgs);
 		msg.setAddress(hostAddress);
 		Session session = sessionManager.createClientSession(msg);
 		session.setResponseListener(listener);
-		if(null != appSession)
-		{
-			appSession.setSession(session);
-		}
 		session.sendRequest();
     }
 	
@@ -89,13 +80,8 @@ public class RemoteObjectProxy implements InvocationHandler, Externalizable {
 		{
 			logger.debug("Invoke method:" + method.getName());
 		}
-//		Object[] invokeArgs = args;
-//		Message msg = MessageFactory.instance.createRequest(objID, method.getName(), invokeArgs);
-//		msg.setAddress(hostAddress);
-//		Session session = sessionManager.createClientSession(msg);
 		RemoteInvocationResultFuture future = new RemoteInvocationResultFuture();
-		invokeWithResponseListener(method, args, future, future);
-		//session.sendRequest();
+		invokeWithResponseListener(method, args, future);
 		return future.get(sessionManager.getSessionTimeout());
 	}
 
@@ -105,7 +91,6 @@ public class RemoteObjectProxy implements InvocationHandler, Externalizable {
 		objID = in.readLong();
 		hostAddress = in.readObject(Address.class);
 		sessionManager = ThreadLocalUtil.getThreadLocalUtil(SessionManager.class).getThreadLocalObject();
-		
 	}
 
 	@Override

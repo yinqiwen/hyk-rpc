@@ -56,16 +56,20 @@ public class Client {
 		}
 		long end = System.currentTimeMillis();
 		System.out.println(end - start);
-		System.out.println(hello.sayHello("hyk-rpc!"));
-//		aync.sayHello("hyk-rpc!", new RpcCallback<String>()
-//		{
-//			@Override
-//			public void run(String parameter, Throwable e)
-//			{
-//				System.out.println(parameter);
-//				
-//			}});
-		System.exit(1);
+		//System.out.println(hello.sayHello("hyk-rpc!"));
+		aync.sayHello("hyk-rpc!", new RpcCallback<String>()
+		{
+			@Override
+			public void run(String parameter, Throwable e)
+			{
+				if(null != e)
+				{
+					e.printStackTrace();
+				}
+				System.out.println("?????" + parameter);
+				
+			}});
+		//System.exit(1);
 	}
 
 }

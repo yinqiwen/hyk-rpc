@@ -2,18 +2,17 @@
  * This file is part of the hyk-rpc project.
  * Copyright (c) 2010 Yin QiWen <yinqiwen@gmail.com>
  *
- * Description: Timer.java 
+ * Description: TimerTask.java 
  *
- * @author qiying.wang [ Mar 4, 2010 | 4:37:37 PM ]
+ * @author qiying.wang [ Mar 4, 2010 | 4:37:49 PM ]
  *
  */
 package com.hyk.timer;
 
-
 /**
  *
  */
-public interface Timer
+public interface TimerTask
 {
-	  public TimerTask schedule(Runnable task, long delay);
+	public boolean cancel();
 }

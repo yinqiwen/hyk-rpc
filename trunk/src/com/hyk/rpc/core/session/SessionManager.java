@@ -3,24 +3,20 @@
  */
 package com.hyk.rpc.core.session;
 
-import java.util.LinkedList;
-import java.util.List;
 import java.util.Map;
-import java.util.Timer;
+import java.util.Properties;
 import java.util.concurrent.ConcurrentHashMap;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.hyk.rpc.core.address.Address;
+import com.hyk.rpc.core.constant.RpcConstants;
 import com.hyk.rpc.core.message.Message;
 import com.hyk.rpc.core.message.MessageID;
-import com.hyk.rpc.core.message.Request;
-import com.hyk.rpc.core.message.Response;
 import com.hyk.rpc.core.remote.RemoteObjectFactory;
 import com.hyk.rpc.core.transport.MessageListener;
 import com.hyk.rpc.core.transport.RpcChannel;
-import com.hyk.rpc.core.util.CommonUtil;
+import com.hyk.timer.Timer;
 
 /**
  * @author Administrator
@@ -33,31 +29,41 @@ public class SessionManager implements MessageListener
 	private Map<Long, Session>		clientSessionMap	= new ConcurrentHashMap<Long, Session>();
 	private Map<MessageID, Session>	serverSessionMap	= new ConcurrentHashMap<MessageID, Session>();
 
-	private List<Message>			processingMessages	= new LinkedList<Message>();
 	private RpcChannel				channel;
 	private RemoteObjectFactory		remoteObjectFactory;
 
-	private int						sessionTimeout		= 120000;
+	private int						sessionTimeout		= 1200;
 
 	Timer							timer				= null;
 
-	public SessionManager(RpcChannel channel, RemoteObjectFactory remoteObjectFactory)
+	public SessionManager(RpcChannel channel, RemoteObjectFactory remoteObjectFactory, Properties initProps) throws Exception
 	{
 		this.channel = channel;
 		this.remoteObjectFactory = remoteObjectFactory;
 		channel.setSessionManager(this);
+		configure(initProps);
+	}
+	
+	public void configure(Properties initProps) throws Exception
+	{
+		String timerClass = null;
+		if(null != initProps)
+		{
+			timerClass = initProps.getProperty(RpcConstants.TIMER_CLASS);
+			
+			String timeout = initProps.getProperty(RpcConstants.SESSIN_TIMEOUT);
+			if(null != timeout)
+			{
+				sessionTimeout = Integer.parseInt(timeout.trim());
+			}
+		}
+		if(null == timerClass)
+		{
+			timerClass = RpcConstants.DEFAULT_TIMER;
+		}
 		if(!channel.isReliable())
 		{
-			timer = new Timer(SessionManager.class.getName(), true);
-		}
-	}
-
-	public void dispatch(Message msg)
-	{
-		synchronized(processingMessages)
-		{
-			processingMessages.add(msg);
-			processingMessages.notify();
+			timer = (Timer)Class.forName(timerClass).newInstance();
 		}
 	}
 
@@ -118,11 +124,6 @@ public class SessionManager implements MessageListener
 		return sessionTimeout;
 	}
 
-	public void setSessionTimeout(int sessionTimeout)
-	{
-		this.sessionTimeout = sessionTimeout;
-	}
-
 	@Override
 	public void onMessage(Message msg)
 	{
@@ -152,7 +153,6 @@ public class SessionManager implements MessageListener
 			}
 			case Response:
 			{
-				// Response res = (Response) msg.getValue();
 				Session session = removeClientSession(msg.getSessionID());
 				if(null != session)
 				{

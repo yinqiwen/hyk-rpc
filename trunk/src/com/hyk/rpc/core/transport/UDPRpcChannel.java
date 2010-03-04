@@ -51,7 +51,6 @@ public class UDPRpcChannel extends AbstractDefaultRpcChannel
 		InetSocketAddress target = (InetSocketAddress)channel.receive(recvBuffer);
 		recvBuffer.flip();
 		SimpleSockAddress address = new SimpleSockAddress(target.getAddress().getHostAddress(), target.getPort());
-		// System.out.println("###recv len:" + recvBuffer.limit());
 		ByteArray data = ByteArray.allocate(recvBuffer.limit());
 		data.put(recvBuffer);
 		data.flip();
