@@ -59,7 +59,7 @@ public class RemoteObjectAyncProxy extends RemoteObjectProxy
 				}	
 			};
 		}
-		invokeWithResponseListener(method, invokeArgs, listener, null);
+		invokeWithResponseListener(method, invokeArgs, listener);
 		return null;
 	}
 }

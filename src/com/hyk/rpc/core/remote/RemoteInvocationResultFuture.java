@@ -12,13 +12,12 @@ package com.hyk.rpc.core.remote;
 import com.hyk.rpc.core.ResponseListener;
 import com.hyk.rpc.core.Rpctimeout;
 import com.hyk.rpc.core.message.Response;
-import com.hyk.rpc.core.session.AppSession;
 import com.hyk.rpc.core.session.Session;
 
 /**
  *
  */
-public class RemoteInvocationResultFuture implements ResponseListener, AppSession
+public class RemoteInvocationResultFuture implements ResponseListener
 {
 	private Session session;
 	private Object reply;
@@ -90,11 +89,5 @@ public class RemoteInvocationResultFuture implements ResponseListener, AppSessio
 		}
 	}
 
-
-	@Override
-	public void setSession(Session session)
-	{
-		this.session = session;
-	}
 
 }

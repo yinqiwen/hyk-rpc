@@ -8,22 +8,20 @@ import java.io.NotSerializableException;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.Arrays;
-import java.util.TimerTask;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.hyk.rpc.core.RequestListener;
 import com.hyk.rpc.core.ResponseListener;
+import com.hyk.rpc.core.Rpctimeout;
 import com.hyk.rpc.core.message.Message;
 import com.hyk.rpc.core.message.MessageFactory;
 import com.hyk.rpc.core.message.Request;
 import com.hyk.rpc.core.message.Response;
 import com.hyk.rpc.core.remote.RemoteObjectFactory;
 import com.hyk.rpc.core.transport.RpcChannel;
-import com.hyk.rpc.core.util.CommonUtil;
-import com.hyk.rpc.core.util.ID;
-import com.hyk.rpc.core.util.RemoteUtil;
+import com.hyk.timer.TimerTask;
 import com.hyk.util.reflect.ClassUtil;
 
 /**
@@ -44,13 +42,14 @@ public class Session
 	private RpcChannel			channel;
 	private RemoteObjectFactory	remoteObjectFactory;
 	private SessionManager		sessionManager;
-	private RetransmitTimerTask	retransmitTask;
+	private TimerTask			retransmitTask;
+	private TimerTask			sessionTimeoutTask;
 
 	private ResponseListener	responseListener;
 	private RequestListener		requestListener;
 
 	private long				bornTime				= System.currentTimeMillis();
-	
+
 	public Session(SessionManager manager, Message request, RpcChannel channel, RemoteObjectFactory remoteObjectFactory)
 	{
 		this.sessionManager = manager;
@@ -64,7 +63,7 @@ public class Session
 	{
 		return bornTime;
 	}
-	
+
 	public void setResponseListener(ResponseListener responseListener)
 	{
 		this.responseListener = responseListener;
@@ -81,8 +80,13 @@ public class Session
 		channel.sendMessage(request);
 		if(!channel.isReliable())
 		{
-			retransmitTask = new RetransmitTimerTask();
-			sessionManager.timer.schedule(retransmitTask, retransmitTimeStep);
+			Runnable task = new RetransmitTimerTask();
+			retransmitTask = sessionManager.timer.schedule(task, retransmitTimeStep);
+		}
+		if(sessionManager.getSessionTimeout() > 0)
+		{
+			Runnable task = new SessionTimeoutTask();
+			sessionTimeoutTask = sessionManager.timer.schedule(task, sessionManager.getSessionTimeout());
 		}
 	}
 
@@ -118,6 +122,10 @@ public class Session
 		if(null != retransmitTask)
 		{
 			retransmitTask.cancel();
+		}
+		if(null != sessionTimeoutTask)
+		{
+			sessionTimeoutTask.cancel();
 		}
 		channel.clearSessionData(request.getId());
 	}
@@ -190,7 +198,7 @@ public class Session
 		}
 	}
 
-	class CleanTimerTask extends TimerTask
+	class CleanTimerTask implements Runnable
 	{
 		@Override
 		public void run()
@@ -199,7 +207,7 @@ public class Session
 		}
 	}
 
-	class RetransmitTimerTask extends TimerTask
+	class RetransmitTimerTask implements Runnable
 	{
 		@Override
 		public void run()
@@ -215,15 +223,14 @@ public class Session
 		}
 	}
 
-	class SessionTimeoutTask extends TimerTask
+	class SessionTimeoutTask implements Runnable
 	{
 
 		@Override
 		public void run()
 		{
-			// Message res = new Message();
-			// res
-			// processResponse();
+			Message resMsg = MessageFactory.instance.createResponse(request, new Rpctimeout(""));
+			processResponse(resMsg);
 		}
 
 	}
