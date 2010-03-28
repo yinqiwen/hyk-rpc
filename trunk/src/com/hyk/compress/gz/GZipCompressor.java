@@ -3,14 +3,11 @@
  */
 package com.hyk.compress.gz;
 
-import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.util.zip.GZIPInputStream;
 import java.util.zip.GZIPOutputStream;
 
 import com.hyk.compress.AbstractCompressor;
-import com.hyk.compress.Compressor;
 import com.hyk.compress.CompressorType;
 import com.hyk.util.buffer.ByteArray;
 
