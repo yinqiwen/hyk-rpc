@@ -61,7 +61,6 @@ public class SessionManager implements MessageListener
 		{
 			timerClass = RpcConstants.DEFAULT_TIMER;
 		}
-		if(!channel.isReliable())
 		{
 			timer = (Timer)Class.forName(timerClass).newInstance();
 		}

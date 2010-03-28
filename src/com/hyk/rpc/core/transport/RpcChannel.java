@@ -8,16 +8,19 @@ import java.io.NotSerializableException;
 import java.util.Arrays;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Properties;
 import java.util.concurrent.Executor;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.hyk.compress.CompressPreference;
 import com.hyk.compress.Compressor;
 import com.hyk.compress.CompressorFactory;
-import com.hyk.compress.CompressorPreference;
 import com.hyk.compress.CompressorType;
+import com.hyk.compress.EmptyCompressPreference;
 import com.hyk.rpc.core.address.Address;
+import com.hyk.rpc.core.constant.RpcConstants;
 import com.hyk.rpc.core.message.Message;
 import com.hyk.rpc.core.message.MessageFragment;
 import com.hyk.rpc.core.message.MessageID;
@@ -54,7 +57,7 @@ public abstract class RpcChannel
 	protected InputTask				inTask			= new InputTask();
 	protected boolean				isStarted		= false;
 
-	protected CompressorPreference  compressorPreference = new CompressorPreference();
+	protected CompressPreference compressPreference = new EmptyCompressPreference();
 
 	public RpcChannel()
 	{
@@ -65,10 +68,14 @@ public abstract class RpcChannel
 	{
 		this.threadPool = threadPool;
 	}
-
-	public final void setCompressorPreference(CompressorPreference preference)
+	
+	public void configure(Properties initProps) throws Exception
 	{
-		this.compressorPreference = preference;
+		String compressPreferClassName = initProps.getProperty(RpcConstants.COMPRESS_PREFER);
+		if(null != compressPreferClassName)
+		{
+			compressPreference = (CompressPreference)Class.forName(compressPreferClassName).newInstance();
+		}
 	}
 
 	public synchronized void start()
@@ -254,19 +261,14 @@ public abstract class RpcChannel
 		ByteArray seriaData = ByteArray.allocate(baseSize + GAP);
 		seriaData = serializer.serialize(msg, seriaData);
 		msg.getContent().free();
-		CompressorPreference currentPreference = ThreadLocalUtil.getThreadLocalUtil(CompressorPreference.class).getThreadLocalObject();
-		if(null == currentPreference)
-		{
-			currentPreference = compressorPreference;
-		}
-		if(seriaData.size() > currentPreference.getTrigger())
+		if(seriaData.size() > compressPreference.getTrigger())
 		{
 			if(logger.isDebugEnabled())
 			{
 				logger.debug("Send/Before compressing, data size:" + seriaData.size());
 			}
-			SerailizerStream.writeInt(data, currentPreference.getCompressor().getType().getValue());
-			ByteArray newData = currentPreference.getCompressor().compress(seriaData);
+			SerailizerStream.writeInt(data, compressPreference.getCompressor().getType().getValue());
+			ByteArray newData = compressPreference.getCompressor().compress(seriaData);
 			if(logger.isDebugEnabled())
 			{
 				logger.debug("Send/After compressing, data size:" + newData.size());

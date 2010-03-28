@@ -18,4 +18,5 @@ public class RpcConstants
 	public static final String DEFAULT_TIMER = "com.hyk.timer.standard.StandardTimer";
 	
 	public static final String SESSIN_TIMEOUT = "com.hyk.rpc.session.timeout";
+	public static final String COMPRESS_PREFER = "com.hyk.rpc.compress.prefer";
 }

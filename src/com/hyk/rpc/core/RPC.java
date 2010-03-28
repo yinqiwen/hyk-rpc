@@ -50,6 +50,7 @@ public class RPC
 			sessionManager = new SessionManager(channel, remoteObjectFactory, props);
 			nameService = new NameServiceImpl(remoteObjectFactory);
 			this.props = props;
+			channel.configure(props);
 		}
 		catch(Throwable e)
 		{

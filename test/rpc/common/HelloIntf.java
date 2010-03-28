@@ -11,7 +11,7 @@ import com.hyk.rpc.core.annotation.Remote;
  */
 @Remote
 public interface HelloIntf{
-
+	
 	public String sayHello(String name);
 	
 	public void noop();
