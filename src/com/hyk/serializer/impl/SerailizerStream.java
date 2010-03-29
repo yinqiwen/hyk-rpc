@@ -95,6 +95,15 @@ public abstract class SerailizerStream<T>
 		{
 			return SerailizerStream.readBytes(data);
 		}
+		public void readBytes(byte[] content, int off, int len) throws IOException
+		{
+			SerailizerStream.readBytes(data, content, off, len);
+		}
+		
+		public void readBytes(byte[] content) throws IOException
+		{
+			SerailizerStream.readBytes(data, content);
+		}
 
 		@Override
 		public <T> T readObject(Class<T> type) throws IOException
@@ -342,7 +351,24 @@ public abstract class SerailizerStream<T>
 		{
 			throw new IOException("No enoght data in stream!");
 		}
-
+	}
+	
+	protected static void readBytes(ByteArray data, byte[] content) throws IOException
+	{
+		readBytes(data, content, 0, content.length);
+	}
+	
+	protected static void readBytes(ByteArray data, byte[] content, int off, int len) throws IOException
+	{
+		int size = readInt(data);
+		if(size > 0 && data.input.available() >= size && len == size)
+		{
+			data.input.read(content, off, len);
+		}
+		else
+		{
+			throw new IOException("No enoght data in stream!");
+		}
 	}
 
 	protected static double readDouble(ByteArray data) throws IOException
