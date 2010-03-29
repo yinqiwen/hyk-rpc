@@ -26,6 +26,8 @@ public interface SerializerInput
 	public byte readByte()throws IOException;
 	public String readString()throws IOException;
 	public byte[] readBytes() throws IOException;
+	public void readBytes(byte[] content, int off, int len) throws IOException;
+	public void readBytes(byte[] content) throws IOException;
 	//public byte[] readBytes()throws IOException;
 	public <T> T readObject(Class<T> type) throws IOException;
 	//public Object readProxyObject() throws IOException;

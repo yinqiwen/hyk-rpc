@@ -11,5 +11,5 @@ package com.hyk.rpc.core;
 
 public interface RpcCallback<ParameterType>
 {
-	void run(ParameterType parameter, Throwable e);
+	void callBack(RpcCallbackResult<ParameterType> result);
 }

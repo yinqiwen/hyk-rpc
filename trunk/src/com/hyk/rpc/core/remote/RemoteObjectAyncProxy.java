@@ -13,6 +13,7 @@ import java.lang.reflect.Method;
 
 import com.hyk.rpc.core.ResponseListener;
 import com.hyk.rpc.core.RpcCallback;
+import com.hyk.rpc.core.RpcCallbackResult;
 import com.hyk.rpc.core.message.Response;
 import com.hyk.rpc.core.session.Session;
 
@@ -55,7 +56,7 @@ public class RemoteObjectAyncProxy extends RemoteObjectProxy
 						e = (Throwable)reply;
 						reply = null;
 					}
-					temp.run(reply, e);
+					temp.callBack(new RpcCallbackResult(reply, e));
 				}	
 			};
 		}
