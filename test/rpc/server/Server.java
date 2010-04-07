@@ -25,6 +25,7 @@ public class Server {
 	public static void main(String[] args) throws IOException, RpcException {
 		UDPRpcChannel transport = new UDPRpcChannel(Executors.newFixedThreadPool(10), 48101);
 		//TCPRpcChannel transport = new TCPRpcChannel(Executors.newFixedThreadPool(10), 48101);
+		transport.setMaxMessageSize(20);
 		RPC rpc = new RPC(transport);
 		rpc.getLocalNaming().bind("hello", new HelloImpl());
 		

@@ -23,7 +23,6 @@ import com.hyk.timer.Timer;
  */
 public class RPC
 {
-
 	private RpcChannel			channel;
 	private RemoteObjectFactory	remoteObjectFactory;
 	private SessionManager		sessionManager;
@@ -78,6 +77,11 @@ public class RPC
 	{
 		NameService remoteNaming = getRemoteNaming(address);
 		return (T)remoteNaming.lookup(name);
+	}
+	
+	public Object exportRemoteObject(Object obj)
+	{
+		return remoteObjectFactory.publish(obj);
 	}
 
 }

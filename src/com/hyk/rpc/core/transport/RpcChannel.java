@@ -71,7 +71,7 @@ public abstract class RpcChannel
 	
 	public void configure(Properties initProps) throws Exception
 	{
-		String compressPreferClassName = initProps.getProperty(RpcConstants.COMPRESS_PREFER);
+		String compressPreferClassName = null != initProps ?initProps.getProperty(RpcConstants.COMPRESS_PREFER):null;
 		if(null != compressPreferClassName)
 		{
 			compressPreference = (CompressPreference)Class.forName(compressPreferClassName).newInstance();
@@ -152,6 +152,14 @@ public abstract class RpcChannel
 			msgFragsount++;
 		}
 
+		if(msgFragsount > 1)
+		{
+			System.out.println("####" + msgFragsount);
+			System.out.println("####" + size);
+			System.out.println("####" + data.position());
+			System.out.println("####" + data.limit());
+		}
+		
 		int off = 0;
 		int len = 0;
 		for(int i = 0; i < msgFragsount; i++)
@@ -172,7 +180,14 @@ public abstract class RpcChannel
 					len = size - off;
 				}
 				off += len;
+				
 				sent = ByteArray.allocate(len);
+				System.out.println("@@@@@" + len + " " + sent.size() + " " + off);
+			
+				if(len != maxMessageSize || i == msgFragsount - 1)
+				{
+					System.out.println("@@@@@" + len + " " + sent.size() + " " + off);
+				}
 				data.get(sent);
 				sent.flip();
 			}
