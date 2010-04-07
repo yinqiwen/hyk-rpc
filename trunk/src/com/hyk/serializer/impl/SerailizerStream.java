@@ -397,7 +397,6 @@ public abstract class SerailizerStream<T>
 		int size = readInt(data);
 		if(data.input.available() >= size)
 		{
-
 			String s = new String(data.rawbuffer(), data.position(), size, "UTF-8");
 			data.position(data.position() + size);
 			return s;

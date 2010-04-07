@@ -7,16 +7,14 @@ import rpc.common.HelloIntf;
 
 /**
  * @author Administrator
- *
+ * 
  */
-public class HelloImpl implements HelloIntf {
+public class HelloImpl implements HelloIntf
+{
 
-	/* (non-Javadoc)
-	 * @see rpc.common.HelloIntf#sayHello(java.lang.String)
-	 */
 	@Override
-	public String sayHello(String name) {
-		
+	public String sayHello(String name)
+	{
 		try
 		{
 			Thread.sleep(2000000);
@@ -32,8 +30,8 @@ public class HelloImpl implements HelloIntf {
 	@Override
 	public void noop()
 	{
-		//throw new NullPointerException("sdasd");
-		
+		// throw new NullPointerException("sdasd");
+
 	}
 
 }
