@@ -25,7 +25,7 @@ public class ZipCompressor extends AbstractCompressor {
 
 	public CompressorType getType()
 	{
-		return CompressorType.Zip;
+		return CompressorType.ZIP;
 	}
 
 	@Override

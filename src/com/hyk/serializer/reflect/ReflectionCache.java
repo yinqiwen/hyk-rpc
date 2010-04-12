@@ -10,6 +10,7 @@ import java.lang.reflect.Modifier;
 import java.lang.reflect.Proxy;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
@@ -147,6 +148,10 @@ public class ReflectionCache
 		else if(Proxy.isProxyClass(clazz))
 		{
 			ret = Type.PROXY;
+		}
+		else if(clazz.equals(ArrayList.class) || clazz.equals(LinkedList.class))
+		{
+			ret = Type.OTHER;
 		}
 		else
 		{

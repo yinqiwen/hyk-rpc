@@ -91,10 +91,6 @@ public class ObjectSerializerStream<T> extends SerailizerStream<T>
 				Object fieldValue = f.get(value);
 				if(null != fieldValue)
 				{
-					if(f.isAnnotationPresent(Stream.class))
-					{
-						
-					}
 					writeTag(data, i + 1);
 					writeObject(data, fieldValue, f.getType());
 					

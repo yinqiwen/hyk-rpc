@@ -17,7 +17,7 @@ public class CompressorFactory
 	{
 		switch(type)
 		{
-			case Zip:
+			case ZIP:
 			{
 				return new ZipCompressor();
 			}

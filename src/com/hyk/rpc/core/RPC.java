@@ -79,9 +79,33 @@ public class RPC
 		return (T)remoteNaming.lookup(name);
 	}
 	
+	public void shutdown()
+	{
+		channel.close();
+	}
+	
+	public void destroy(Object obj)
+	{
+		remoteObjectFactory.remove(obj);
+	}
+	
 	public Object exportRemoteObject(Object obj)
 	{
 		return remoteObjectFactory.publish(obj);
 	}
+	
+	public Object exportRemoteObject(Object obj, long objid)
+	{
+		return remoteObjectFactory.publish(obj, objid);
+	}
+	
+	public long getRemoteObjectId(Object obj)
+	{
+		return remoteObjectFactory.getRemoteObjectId(obj);
+	}
 
+	public Object exportRawObject(Object obj)
+	{
+		return remoteObjectFactory.getRawObject(obj);
+	}
 }

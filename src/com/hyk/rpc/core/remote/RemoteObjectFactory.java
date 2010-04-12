@@ -3,6 +3,7 @@
  */
 package com.hyk.rpc.core.remote;
 
+import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.Proxy;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
@@ -25,6 +26,21 @@ public class RemoteObjectFactory
 		this.localAddress = localAddress;
 	}
 
+	public boolean remove(Object obj)
+	{
+		if(Proxy.isProxyClass(obj.getClass()))
+		{
+			InvocationHandler handler = Proxy.getInvocationHandler(obj);
+			if(handler instanceof RemoteObjectProxy)
+			{
+				long id = ((RemoteObjectProxy)handler).getObjID();
+				remoteRawObjectTable.remove(id);
+				return true;
+			}
+		}
+		return false;
+	}
+	
 	public Object publish(Object obj)
 	{
 		return publish(obj, ID.generateRemoteObjectID());
@@ -43,6 +59,34 @@ public class RemoteObjectFactory
 	public Object getRawObject(long id)
 	{
 		return remoteRawObjectTable.get(id);
+	}
+	
+	public long getRemoteObjectId(Object obj) 
+	{
+		if(Proxy.isProxyClass(obj.getClass()))
+		{
+			InvocationHandler handler = Proxy.getInvocationHandler(obj);
+			if(handler instanceof RemoteObjectProxy)
+			{
+				long id = ((RemoteObjectProxy)handler).getObjID();
+				return id;
+			}
+		}
+		return 0;
+	}
+	
+	public Object getRawObject(Object obj)
+	{
+		if(Proxy.isProxyClass(obj.getClass()))
+		{
+			InvocationHandler handler = Proxy.getInvocationHandler(obj);
+			if(handler instanceof RemoteObjectProxy)
+			{
+				long id = ((RemoteObjectProxy)handler).getObjID();
+				return remoteRawObjectTable.get(id);
+			}
+		}
+		return null;
 	}
 
 }
