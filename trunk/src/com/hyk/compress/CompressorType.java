@@ -14,7 +14,7 @@ package com.hyk.compress;
  */
 public enum CompressorType
 {
-	NONE("none", 0),BZ2("bz2", 1), Zip("zip", 2), GZ("gz", 3) ;
+	NONE("none", 0),BZ2("bz2", 1), ZIP("zip", 2), GZ("gz", 3) ;
 	
 	private String name;
 	private int value;

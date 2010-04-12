@@ -151,14 +151,6 @@ public abstract class RpcChannel
 		{
 			msgFragsount++;
 		}
-
-		if(msgFragsount > 1)
-		{
-			System.out.println("####" + msgFragsount);
-			System.out.println("####" + size);
-			System.out.println("####" + data.position());
-			System.out.println("####" + data.limit());
-		}
 		
 		int off = 0;
 		int len = 0;
@@ -182,12 +174,6 @@ public abstract class RpcChannel
 				off += len;
 				
 				sent = ByteArray.allocate(len);
-				System.out.println("@@@@@" + len + " " + sent.size() + " " + off);
-			
-				if(len != maxMessageSize || i == msgFragsount - 1)
-				{
-					System.out.println("@@@@@" + len + " " + sent.size() + " " + off);
-				}
 				data.get(sent);
 				sent.flip();
 			}
@@ -315,8 +301,10 @@ public abstract class RpcChannel
 		oldContent.get(magicHeader);
 		if(!Arrays.equals(magicHeader, MAGIC_HEADER))
 		{
+			String x = new String(oldContent.buffer().array(), 0, oldContent.buffer().limit());
 			oldContent.free();
-			throw new RpcChannelException("Unexpected rpc message!");
+			
+			throw new RpcChannelException("Unexpected rpc message!#####" + x);
 		}
 		try
 		{
