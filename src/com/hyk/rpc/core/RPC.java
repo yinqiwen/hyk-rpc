@@ -50,6 +50,7 @@ public class RPC
 			nameService = new NameServiceImpl(remoteObjectFactory);
 			this.props = props;
 			channel.configure(props);
+			remoteObjectFactory.configure(props);
 		}
 		catch(Throwable e)
 		{

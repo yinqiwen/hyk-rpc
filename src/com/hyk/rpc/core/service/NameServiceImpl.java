@@ -24,11 +24,6 @@ public class NameServiceImpl implements NameService
 		this.remoteObjectFactory = remoteObjectFactory;
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see com.hyk.rpc.core.service.NameService#getObject(java.lang.String)
-	 */
 	@Override
 	public Object lookup(String name)
 	{
