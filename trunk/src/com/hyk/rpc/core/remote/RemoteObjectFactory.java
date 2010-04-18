@@ -6,9 +6,12 @@ package com.hyk.rpc.core.remote;
 import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.Proxy;
 import java.util.Map;
+import java.util.Properties;
 import java.util.concurrent.ConcurrentHashMap;
 
+import com.hyk.compress.CompressPreference;
 import com.hyk.rpc.core.address.Address;
+import com.hyk.rpc.core.constant.RpcConstants;
 import com.hyk.rpc.core.util.ID;
 import com.hyk.rpc.core.util.RemoteUtil;
 
@@ -21,9 +24,20 @@ public class RemoteObjectFactory
 	private Address				localAddress;
 	private Map<Long, Object>	remoteRawObjectTable	= new ConcurrentHashMap<Long, Object>();
 
+	private RemoteObjectIdGenerator idgen = RemoteObjectIdGenerator.defaultGenerator;
+	
 	public RemoteObjectFactory(Address localAddress)
 	{
 		this.localAddress = localAddress;
+	}
+	
+	public void configure(Properties initProps) throws Exception
+	{
+		String genClassName = null != initProps ?initProps.getProperty(RpcConstants.REMOTE_OBJECTID_GEN):null;
+		if(null != genClassName)
+		{
+			idgen = (RemoteObjectIdGenerator)Class.forName(genClassName).newInstance();
+		}
 	}
 
 	public boolean remove(Object obj)
@@ -43,11 +57,25 @@ public class RemoteObjectFactory
 	
 	public Object publish(Object obj)
 	{
-		return publish(obj, ID.generateRemoteObjectID());
+		if(Proxy.isProxyClass(obj.getClass()))
+		{
+			if(Proxy.getInvocationHandler(obj) instanceof  RemoteObjectProxy)
+			{
+				return obj;
+			}
+		}
+		return publish(obj, idgen.generateRemoteObjectID());
 	}
 
 	public Object publish(Object obj, long id)
 	{
+		if(Proxy.isProxyClass(obj.getClass()))
+		{
+			if(Proxy.getInvocationHandler(obj) instanceof  RemoteObjectProxy)
+			{
+				return obj;
+			}
+		}
 		RemoteObjectProxy remoteObjectProxy = new RemoteObjectProxy();
 		remoteObjectProxy.setHostAddress(localAddress);
 		Object proxy = Proxy.newProxyInstance(obj.getClass().getClassLoader(), RemoteUtil.getRemoteInterfaces(obj.getClass()), remoteObjectProxy);
