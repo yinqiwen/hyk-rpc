@@ -1,7 +1,7 @@
 /**
  * 
  */
-package com.hyk.compress;
+package com.hyk.compress.compressor;
 
 import java.io.IOException;
 
@@ -13,7 +13,7 @@ import com.hyk.util.buffer.ByteArray;
  */
 public interface Compressor {
 
-	public CompressorType getType();
+	public String getName();
 	public ByteArray compress(ByteArray data) throws IOException;
 	public ByteArray decompress(ByteArray data) throws IOException;
 }

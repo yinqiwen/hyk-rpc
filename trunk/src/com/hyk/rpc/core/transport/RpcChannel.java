@@ -14,11 +14,12 @@ import java.util.concurrent.Executor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.hyk.compress.CompressPreference;
-import com.hyk.compress.Compressor;
 import com.hyk.compress.CompressorFactory;
-import com.hyk.compress.CompressorType;
-import com.hyk.compress.EmptyCompressPreference;
+import com.hyk.compress.compressor.Compressor;
+import com.hyk.compress.compressor.none.NoneCompressor;
+import com.hyk.compress.preference.CompressPreference;
+import com.hyk.compress.preference.EmptyCompressPreference;
+
 import com.hyk.rpc.core.address.Address;
 import com.hyk.rpc.core.constant.RpcConstants;
 import com.hyk.rpc.core.message.Message;
@@ -58,6 +59,8 @@ public abstract class RpcChannel
 	protected boolean				isStarted		= false;
 
 	protected CompressPreference compressPreference = new EmptyCompressPreference();
+	
+	protected CompressorFactory compressorFactory = new CompressorFactory();
 
 	public RpcChannel()
 	{
@@ -268,7 +271,8 @@ public abstract class RpcChannel
 			{
 				logger.debug("Send/Before compressing, data size:" + seriaData.size());
 			}
-			SerailizerStream.writeInt(data, compressPreference.getCompressor().getType().getValue());
+			int compressorId = compressorFactory.getRegistCompressor(compressPreference.getCompressor().getName()).id;
+			SerailizerStream.writeInt(data, compressorId);
 			ByteArray newData = compressPreference.getCompressor().compress(seriaData);
 			if(logger.isDebugEnabled())
 			{
@@ -283,7 +287,7 @@ public abstract class RpcChannel
 		}
 		else
 		{
-			SerailizerStream.writeInt(data, CompressorType.NONE.getValue());
+			SerailizerStream.writeInt(data, compressorFactory.getRegistCompressor(NoneCompressor.NAME).id);
 			data.put(seriaData);
 			seriaData.free();
 		}
@@ -309,7 +313,7 @@ public abstract class RpcChannel
 		try
 		{
 			int compressorTypeValue = SerailizerStream.readInt(oldContent);
-			Compressor compressor = CompressorFactory.getCompressor(CompressorType.valueOf(compressorTypeValue));
+			Compressor compressor = compressorFactory.getRegistCompressor(compressorTypeValue).compressor;
 			if(logger.isDebugEnabled())
 			{
 				logger.debug("Recv/Before decompressing, data size:" + oldContent.size());
