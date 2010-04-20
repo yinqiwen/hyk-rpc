@@ -1,30 +1,25 @@
 /**
  * 
  */
-package com.hyk.compress.gz;
+package com.hyk.compress.compressor.gz;
 
 import java.io.IOException;
 import java.util.zip.GZIPInputStream;
 import java.util.zip.GZIPOutputStream;
 
-import com.hyk.compress.AbstractCompressor;
-import com.hyk.compress.CompressorType;
+import com.hyk.compress.compressor.Compressor;
 import com.hyk.util.buffer.ByteArray;
 
 /**
  * @author Administrator
- *
+ * 
  */
-public class GZipCompressor extends AbstractCompressor {
-
-	public CompressorType getType()
-	{
-		return CompressorType.GZ;
-	}
-	
+public class GZipCompressor implements Compressor
+{
+	public static final String NAME = "gz";
 	@Override
-	public ByteArray compress(ByteArray data)
-			throws IOException {
+	public ByteArray compress(ByteArray data) throws IOException
+	{
 		ByteArray ret = ByteArray.allocate(data.size() / 3);
 		GZIPOutputStream gos = new GZIPOutputStream(ret.output);
 		byte[] raw = data.rawbuffer();
@@ -37,8 +32,8 @@ public class GZipCompressor extends AbstractCompressor {
 	}
 
 	@Override
-	public ByteArray decompress(ByteArray data)
-			throws IOException {
+	public ByteArray decompress(ByteArray data) throws IOException
+	{
 		ByteArray ret = ByteArray.allocate(data.size() * 3);
 		GZIPInputStream gis = new GZIPInputStream(data.input);
 		int b;
@@ -49,6 +44,12 @@ public class GZipCompressor extends AbstractCompressor {
 		gis.close();
 		ret.flip();
 		return ret;
+	}
+	
+	@Override
+	public String getName()
+	{
+		return NAME;
 	}
 
 }

@@ -7,7 +7,9 @@
  * @author yinqiwen [ 2010-3-28 | 09:35:02 PM ]
  *
  */
-package com.hyk.compress;
+package com.hyk.compress.preference;
+
+import com.hyk.compress.compressor.Compressor;
 
 /**
  *

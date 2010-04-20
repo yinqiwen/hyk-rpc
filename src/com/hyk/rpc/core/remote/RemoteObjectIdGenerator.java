@@ -4,7 +4,7 @@
  *
  * Description: RemoteObjectIdGenerator.java 
  *
- * @author yinqiwen [ 2010-4-18 | обнГ08:24:42 ]
+ * @author yinqiwen [ 2010-4-18 | 08:24:42 PM ]
  *
  */
 package com.hyk.rpc.core.remote;
