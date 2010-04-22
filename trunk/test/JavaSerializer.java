@@ -34,7 +34,7 @@ public class JavaSerializer {
 		test.setName("wangqiying!");
 		StandardSerializer ser = new StandardSerializer();
 		long start = System.currentTimeMillis();
-		for (int i = 0; i < 1; i++) {
+		for (int i = 0; i < 99999; i++) {
 			ByteDataBuffer array = ser.serialize(test);
 			//array.free();
 		}
@@ -45,14 +45,14 @@ public class JavaSerializer {
 		//byte[] data = bos.toByteArray();
 		System.out.println("####Serialize size:" + array.size());
 		List<ByteBuffer> bufs = array.buffers();
+		
+		start = System.currentTimeMillis();
+		for (int i = 0; i < 99999; i++) {
+			ser.deserialize(TargetClassTop.class, array);
+		}
 		for(ByteBuffer buf:bufs)
 		{
 			System.out.println("####" + buf);
-			
-		}
-		start = System.currentTimeMillis();
-		for (int i = 0; i < 1; i++) {
-			ser.deserialize(TargetClassTop.class, array);
 		}
 		ser.deserialize(TargetClassTop.class, array);
 		end = System.currentTimeMillis();

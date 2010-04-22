@@ -33,16 +33,16 @@ public abstract class AbstractDefaultRpcChannel extends RpcChannel {
 	protected void deleteMessageFragments(MessageID id) 
 	{
 		MessageFragment[] frags = fragmentTable.remove(id);
-		if(null != frags)
-		{
-			for(MessageFragment frag:frags)
-			{
-				if(null != frag)
-				{
-					frag.getContent().free();
-				}
-			}
-		}
+//		if(null != frags)
+//		{
+//			for(MessageFragment frag:frags)
+//			{
+//				if(null != frag)
+//				{
+//					//frag.getContent().free();
+//				}
+//			}
+//		}
 	}
 
 

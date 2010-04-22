@@ -12,6 +12,7 @@ package compress.quicklz;
 import java.io.IOException;
 
 import com.hyk.compress.compressor.Compressor;
+import com.hyk.io.ByteDataBuffer;
 import com.hyk.util.buffer.ByteArray;
 
 /**
@@ -21,17 +22,17 @@ public class QuickLZCompressor implements Compressor
 {
 	public static final String NAME = "quicklz";
 	@Override
-	public ByteArray compress(ByteArray data) throws IOException
+	public ByteDataBuffer compress(ByteDataBuffer data) throws IOException
 	{
 		byte[] raw = data.toByteArray();
-		return ByteArray.wrap(QuickLZ.compress(raw, 1));
+		return ByteDataBuffer.wrap(QuickLZ.compress(raw, 1));
 	}
 
 	@Override
-	public ByteArray decompress(ByteArray data) throws IOException
+	public ByteDataBuffer decompress(ByteDataBuffer data) throws IOException
 	{
 		byte[] raw = data.toByteArray();
-		return ByteArray.wrap(QuickLZ.decompress(raw));
+		return ByteDataBuffer.wrap(QuickLZ.decompress(raw));
 	}
 
 	@Override

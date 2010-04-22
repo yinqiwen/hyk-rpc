@@ -5,6 +5,7 @@ package com.hyk.compress.compressor;
 
 import java.io.IOException;
 
+import com.hyk.io.ByteDataBuffer;
 import com.hyk.util.buffer.ByteArray;
 
 /**
@@ -14,6 +15,6 @@ import com.hyk.util.buffer.ByteArray;
 public interface Compressor {
 
 	public String getName();
-	public ByteArray compress(ByteArray data) throws IOException;
-	public ByteArray decompress(ByteArray data) throws IOException;
+	public ByteDataBuffer compress(ByteDataBuffer data) throws IOException;
+	public ByteDataBuffer decompress(ByteDataBuffer data) throws IOException;
 }
