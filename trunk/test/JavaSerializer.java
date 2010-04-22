@@ -3,7 +3,10 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
+import java.nio.ByteBuffer;
+import java.util.List;
 
+import com.hyk.io.ByteDataBuffer;
 import com.hyk.serializer.StandardSerializer;
 import com.hyk.util.buffer.ByteArray;
 
@@ -31,20 +34,24 @@ public class JavaSerializer {
 		test.setName("wangqiying!");
 		StandardSerializer ser = new StandardSerializer();
 		long start = System.currentTimeMillis();
-		for (int i = 0; i < 99999; i++) {
-			ByteArray array = ser.serialize(test);
-			array.free();
+		for (int i = 0; i < 1; i++) {
+			ByteDataBuffer array = ser.serialize(test);
+			//array.free();
 		}
-		ByteArray array = ser.serialize(test);
+		ByteDataBuffer array = ser.serialize(test);
 		long end = System.currentTimeMillis();
 		System.out.println("####Serialize time:" + (end - start));
 		
 		//byte[] data = bos.toByteArray();
 		System.out.println("####Serialize size:" + array.size());
-		
-		
+		List<ByteBuffer> bufs = array.buffers();
+		for(ByteBuffer buf:bufs)
+		{
+			System.out.println("####" + buf);
+			
+		}
 		start = System.currentTimeMillis();
-		for (int i = 0; i < 99999; i++) {
+		for (int i = 0; i < 1; i++) {
 			ser.deserialize(TargetClassTop.class, array);
 		}
 		ser.deserialize(TargetClassTop.class, array);

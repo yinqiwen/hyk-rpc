@@ -8,10 +8,10 @@ import java.lang.reflect.Method;
 import java.lang.reflect.Proxy;
 import java.util.Arrays;
 
+import com.hyk.io.ByteDataBuffer;
 import com.hyk.rpc.core.message.Message;
 import com.hyk.rpc.core.message.MessageFactory;
 import com.hyk.rpc.core.message.Response;
-import com.hyk.util.buffer.ByteArray;
 
 import target.TargetClassTop;
 import junit.framework.TestCase;
@@ -67,7 +67,7 @@ public class HykSerializerTest extends TestCase {
 	{
 		int expected = 1;
 		//byte[] data = serializer.serialize(expected);
-		ByteArray data = serializer.serialize(expected);
+		ByteDataBuffer data = serializer.serialize(expected);
 		int actually = serializer.deserialize(int.class, data);
 		assertEquals(actually, expected);
 		
@@ -95,14 +95,14 @@ public class HykSerializerTest extends TestCase {
 //		paras[0].setTypeName("java.lang.String");
 //		paras[0].setValue("safasgas");
 //		Message msg = MessageFactory.instance.createRequest(-1, 1, paras);
-//		ByteArray data = serializer.serialize(msg);
+//		ByteDataBuffer data = serializer.serialize(msg);
 //		serializer.deserialize(Message.class, data);
 //		
 //	}
 	public void testObject2() throws NotSerializableException, IOException, InstantiationException
 	{
 		TestF t = new TestF();
-		ByteArray data = serializer.serialize(t);
+		ByteDataBuffer data = serializer.serialize(t);
 		serializer.deserialize(TestF.class, data);
 	}
 	public void testMessage() throws NotSerializableException, IOException, InstantiationException
@@ -113,9 +113,9 @@ public class HykSerializerTest extends TestCase {
 		//paras[0].setValue("safasgas");
 		Object[] paras = new Object[]{"safasgas"};
 		Message request = MessageFactory.instance.createRequest(-1, "hello", paras);
-		ByteArray data = serializer.serialize(request);
+		ByteDataBuffer data = serializer.serialize(request);
 		//byte[] data = serializer.serialize_(msg);
-		//System.out.println(new String(data.toByteArray()));
+		//System.out.println(new String(data.toByteDataBuffer()));
 		serializer.deserialize(Message.class, data);
 		
 		Message response = MessageFactory.instance.createResponse(request, new NullPointerException("waht!"));
@@ -133,7 +133,7 @@ public class HykSerializerTest extends TestCase {
 	{
 		int[] array = new int[]{0,1,2,456,-789,-48100,10625, 0};
 		//byte[] data = serializer.serialize(array);
-		ByteArray data = serializer.serialize(array);
+		ByteDataBuffer data = serializer.serialize(array);
 		int[] array2 = serializer.deserialize(int[].class, data);
 		assertEquals(true, Arrays.equals(array, array2));	
 		
@@ -155,7 +155,7 @@ public class HykSerializerTest extends TestCase {
 	public void testEnum() throws NotSerializableException, IOException, InstantiationException
 	{
 		//byte[] data = serializer.serialize(TEST.A);
-		ByteArray data = serializer.serialize(TEST.A);
+		ByteDataBuffer data = serializer.serialize(TEST.A);
 		TEST result = serializer.deserialize(TEST.class, data);
 		assertEquals(result, TEST.A);
 		
@@ -168,7 +168,7 @@ public class HykSerializerTest extends TestCase {
 	{
 		byte b = (byte) 128;
 		//byte[] data = serializer.serialize(b);
-		ByteArray data = serializer.serialize(b);
+		ByteDataBuffer data = serializer.serialize(b);
 		byte result = serializer.deserialize(byte.class, data);
 		assertEquals(result, b);
 		
@@ -181,7 +181,7 @@ public class HykSerializerTest extends TestCase {
 	public void testString() throws NotSerializableException, IOException, InstantiationException
 	{
 		//byte[] data = serializer.serialize("hello,world");
-		ByteArray data = serializer.serialize("hello,world");
+		ByteDataBuffer data = serializer.serialize("hello,world");
 		String result = serializer.deserialize(String.class, data);
 		assertEquals(result, "hello,world");
 	}
@@ -189,7 +189,7 @@ public class HykSerializerTest extends TestCase {
 	public void testException() throws NotSerializableException, IOException, InstantiationException
 	{
 		NullPointerException exception = new NullPointerException("asdasfas");
-		ByteArray data = serializer.serialize(exception);
+		ByteDataBuffer data = serializer.serialize(exception);
 		NullPointerException result = serializer.deserialize(NullPointerException.class, data);
 		assertEquals(result.getMessage(), exception.getMessage());
 	}
@@ -198,7 +198,7 @@ public class HykSerializerTest extends TestCase {
 	{
 		Object obj = Proxy.newProxyInstance(HykSerializerTest.class.getClassLoader(), new Class[]{TI.class}, new TH());
 		//byte[] data = serializer.serialize(obj);
-		ByteArray data = serializer.serialize(obj);
+		ByteDataBuffer data = serializer.serialize(obj);
 		TI t = (TI) serializer.deserialize(Proxy.getProxyClass(HykSerializerTest.class.getClassLoader(), new Class[]{TI.class}), data);
 		assertEquals(expectedProxyTestResult, t.say());
 	}
@@ -208,7 +208,7 @@ public class HykSerializerTest extends TestCase {
 		TargetClassTop test = new TargetClassTop();
 		test.setName("wangqiying!");
 		byte[] data = serializer.serialize_(test);
-		//ByteArray data = serializer.serialize(test);
+		//ByteDataBuffer data = serializer.serialize(test);
 		TargetClassTop t = serializer.deserialize_(TargetClassTop.class, data);
 		assertEquals("wangqiying!", t.getName());
 	}
@@ -224,11 +224,11 @@ public class HykSerializerTest extends TestCase {
 		for (int i = 0; i < 999999; i++) {
 			//byte[] buf = new byte[100];
 			//byte[] data = serializer.serialize_(test);
-			ByteArray array = serializer.serialize(test);
+			ByteDataBuffer array = serializer.serialize(test);
 			//array.free();
 		}
 		//byte[] data = serializer.serialize_(test);
-		ByteArray array = serializer.serialize(test);
+		ByteDataBuffer array = serializer.serialize(test);
 		long end = System.currentTimeMillis();
 		System.out.println("####Serialize time:" + (end - start));
 
