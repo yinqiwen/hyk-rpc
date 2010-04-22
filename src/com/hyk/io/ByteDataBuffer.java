@@ -9,11 +9,10 @@
  */
 package com.hyk.io;
 
-import java.io.InputStream;
-import java.io.OutputStream;
+import java.io.IOException;
 import java.nio.ByteBuffer;
-import java.util.ArrayList;
 import java.util.List;
+
 
 /**
  *
@@ -25,6 +24,11 @@ public class ByteDataBuffer
 	private ByteBufferOutputStream out =  new ByteBufferOutputStream(repository);
 	private ByteBufferInputStream in = new ByteBufferInputStream(repository);
 	
+	public static ByteDataBuffer wrap(byte[] b)
+	{
+		return new ByteDataBuffer(ByteBuffer.wrap(b));
+	}
+	
 	public static ByteDataBuffer allocate(int size)
 	{
 		return new ByteDataBuffer(size);
@@ -33,6 +37,11 @@ public class ByteDataBuffer
 	private ByteDataBuffer(int size)
 	{
 		
+	}
+	
+	private ByteDataBuffer(ByteBuffer buffer)
+	{
+		repository.put(buffer);
 	}
 	
 	public ByteBufferInputStream getInputStream()
@@ -45,9 +54,10 @@ public class ByteDataBuffer
 		return out;
 	}
 	
-	public void reset()
+	public void reset() throws IOException
 	{
 		repository.reset();
+		in.reset();
 	}
 	
 	public List<ByteBuffer> buffers()
@@ -57,7 +67,163 @@ public class ByteDataBuffer
 
 	public int size()
 	{
-		// TODO Auto-generated method stub
-		return repository.peekAll().size();
+		List<ByteBuffer> bufs = repository.peekAll();
+		int size = 0;
+		for(ByteBuffer buf:bufs)
+		{
+			size += buf.remaining();
+		}
+		return size;
 	}
+
+	public void flip()
+	{
+		try
+		{
+			out.flush();
+		}
+		catch(IOException e)
+		{
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+	}
+
+	public void put(byte[] data)
+	{
+		try
+		{
+			out.write(data);
+		}
+		catch(Exception e)
+		{
+			
+		}
+		
+	}
+	
+	public void put(ByteBuffer data)
+	{
+		try
+		{
+			out.write(data);
+		}
+		catch(Exception e)
+		{
+			
+		}
+		
+	}
+	
+	public void put(ByteDataBuffer data)
+	{
+		try
+		{
+			List<ByteBuffer> all = data.repository.takeAll();
+			for(ByteBuffer buf:all)
+			{
+				out.write(buf);
+			}
+		}
+		catch(Exception e)
+		{
+			
+		}
+		
+	}
+
+	public void get(byte[] b)
+	{
+		try
+		{
+			in.read(b);
+		}
+		catch(IOException e)
+		{
+			e.printStackTrace();
+		}	
+	}
+	
+	public void get(ByteBuffer b)
+	{
+		try
+		{
+			in.read(b);
+		}
+		catch(IOException e)
+		{
+			e.printStackTrace();
+		}	
+	}
+	
+	public boolean equals(Object obj)
+	{
+		if(null == obj)
+		{
+			return false;
+		}
+		if(obj instanceof ByteDataBuffer)
+		{
+			ByteDataBuffer other = (ByteDataBuffer)obj;
+			if(size() == other.size())
+			{
+				ByteBufferInputStream ois = other.in;
+				try
+				{
+					int i = 0;
+					int size = size();
+					while(i < size)
+					{
+						try
+						{
+							if(in.read() != ois.read())
+							{
+								return false;
+							}
+							i++;
+						}
+						catch(IOException e)
+						{
+							// TODO Auto-generated catch block
+							e.printStackTrace();
+						}
+					}
+					return true;
+				}
+				finally
+				{
+					try
+					{
+						reset();
+						other.reset();		
+					}
+					catch(IOException e)
+					{
+						// TODO Auto-generated catch block
+						e.printStackTrace();
+					}
+						
+				}
+				
+				
+			}
+		}
+		return false;
+	}
+
+	public byte[] toByteArray()
+	{
+		byte[] ret = new byte[size()];
+		try
+		{
+			in.read(ret);
+		}
+		catch(IOException e)
+		{
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		return ret;
+	}
+	
 }

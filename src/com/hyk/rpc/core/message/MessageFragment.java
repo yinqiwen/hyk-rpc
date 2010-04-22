@@ -5,6 +5,7 @@ package com.hyk.rpc.core.message;
 
 import java.io.IOException;
 
+import com.hyk.io.ByteDataBuffer;
 import com.hyk.rpc.core.address.Address;
 import com.hyk.serializer.Externalizable;
 import com.hyk.serializer.SerializerInput;
@@ -49,11 +50,11 @@ public class MessageFragment implements Externalizable{
 		this.totalFragmentCount = totalFragmentCount;
 	}
 
-	public ByteArray getContent() {
+	public byte[] getContent() {
 		return content;
 	}
 
-	public void setContent(ByteArray content) {
+	public void setContent(byte[] content) {
 		this.content = content;
 	}
 	//Address address;
@@ -70,7 +71,7 @@ public class MessageFragment implements Externalizable{
 	}
 	int sequence;
 	int totalFragmentCount;
-	ByteArray content;
+	byte[] content;
 	
 	@Override
 	public void readExternal(SerializerInput in) throws IOException {
@@ -78,8 +79,8 @@ public class MessageFragment implements Externalizable{
 		id = in.readObject(MessageID.class);
 		sequence = in.readInt();
 		totalFragmentCount = in.readInt();
-		byte[] rawContent = in.readBytes();
-		content = ByteArray.wrap(rawContent);
+		content = in.readBytes();
+		//content = ByteDataBuffer.wrap(rawContent);
 	}
 
 	@Override
@@ -88,7 +89,7 @@ public class MessageFragment implements Externalizable{
 		out.writeObject(id);
 		out.writeInt(sequence);
 		out.writeInt(totalFragmentCount);
-		out.writeBytes(content.rawbuffer(), content.position(), content.size());
+		out.writeBytes(content);
 	}
 
 }

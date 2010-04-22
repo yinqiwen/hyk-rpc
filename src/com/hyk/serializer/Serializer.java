@@ -7,8 +7,6 @@ import java.io.IOException;
 import java.io.NotSerializableException;
 
 import com.hyk.io.ByteDataBuffer;
-import com.hyk.util.buffer.ByteArray;
-import com.hyk.util.buffer.ByteArrayPool;
 
 /**
  * @author Administrator

@@ -13,6 +13,7 @@ import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.Executor;
 
+import com.hyk.io.ByteDataBuffer;
 import com.hyk.rpc.core.address.Address;
 import com.hyk.rpc.core.address.SimpleSockAddress;
 import com.hyk.rpc.core.message.MessageFragment;
@@ -51,7 +52,7 @@ public class UDPRpcChannel extends AbstractDefaultRpcChannel
 		InetSocketAddress target = (InetSocketAddress)channel.receive(recvBuffer);
 		recvBuffer.flip();
 		SimpleSockAddress address = new SimpleSockAddress(target.getAddress().getHostAddress(), target.getPort());
-		ByteArray data = ByteArray.allocate(recvBuffer.limit());
+		ByteDataBuffer data = ByteDataBuffer.allocate(recvBuffer.limit());
 		data.put(recvBuffer);
 		data.flip();
 		return new RpcChannelData(data, address);
@@ -63,7 +64,9 @@ public class UDPRpcChannel extends AbstractDefaultRpcChannel
 	{
 		SimpleSockAddress address = (SimpleSockAddress)data.address;
 		InetSocketAddress addr = new InetSocketAddress(address.getHost(), address.getPort());
-		channel.send(data.content.buffer(), addr);
+		ByteBuffer buffer = ByteBuffer.allocate(data.content.size());
+		data.content.get(buffer);
+		channel.send(buffer, addr);
 	}
 
 	@Override

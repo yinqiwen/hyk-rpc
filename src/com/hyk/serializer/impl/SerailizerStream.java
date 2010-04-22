@@ -405,7 +405,7 @@ public abstract class SerailizerStream<T>
 		}
 		else
 		{
-			throw new IOException("No enought data in stream!");
+			throw new IOException("No enought data in stream!" + data.getInputStream().available());
 		}
 	}
 
