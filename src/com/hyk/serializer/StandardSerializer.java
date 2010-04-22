@@ -3,6 +3,7 @@ package com.hyk.serializer;
 import java.io.IOException;
 import java.io.NotSerializableException;
 
+import com.hyk.io.ByteDataBuffer;
 import com.hyk.serializer.impl.OtherSerializerStream;
 import com.hyk.serializer.impl.SerailizerStreamFactory;
 import com.hyk.util.buffer.ByteArray;
@@ -11,23 +12,24 @@ public class StandardSerializer implements Serializer
 {
 
 
-	public ByteArray serialize(Object obj) throws NotSerializableException, IOException
+	public ByteDataBuffer serialize(Object obj) throws NotSerializableException, IOException
 	{
-		return serialize(obj, ByteArray.allocate(32));
+		return serialize(obj, ByteDataBuffer.allocate(256));
 	}
 
-	public ByteArray serialize(Object obj, ByteArray input) throws NotSerializableException, IOException
+	public ByteDataBuffer serialize(Object obj, ByteDataBuffer input) throws NotSerializableException, IOException
 	{
 		SerailizerStreamFactory.otherSerializer.marshal(obj, input);
-		return input.flip();
+		input.getOutputStream().close();
+		return input;
 	}
 
-	public <T> T deserialize(Class<T> type, ByteArray data) throws NotSerializableException, IOException, InstantiationException
+	public <T> T deserialize(Class<T> type, ByteDataBuffer data) throws NotSerializableException, IOException, InstantiationException
 	{
 		OtherSerializerStream other = SerailizerStreamFactory.otherSerializer;
 		Class clazz = type;
 		T ret = (T)other.unmarshal(clazz, data);
-		data.rewind();
+		data.reset();
 		return ret;
 	}
 

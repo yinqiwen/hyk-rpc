@@ -9,5 +9,6 @@
 	<classpathentry kind="lib" path="lib/slf4j-log4j12-1.5.10.jar"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.junit.JUNIT_CONTAINER/3"/>
+	<classpathentry combineaccessrules="false" kind="src" path="/hyk-util"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>

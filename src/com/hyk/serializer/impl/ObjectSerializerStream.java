@@ -17,6 +17,7 @@ import com.hyk.serializer.io.Type;
 import com.hyk.serializer.reflect.ReflectionCache;
 import com.hyk.serializer.util.ObjectReferenceUtil;
 import com.hyk.util.buffer.ByteArray;
+import com.hyk.io.ByteDataBuffer;
 
 /**
  * @author qiying.wang
@@ -25,7 +26,7 @@ import com.hyk.util.buffer.ByteArray;
 public class ObjectSerializerStream<T> extends SerailizerStream<T>
 {	
 	@Override
-	protected T unmarshal(Class<T> type, ByteArray data) throws NotSerializableException, IOException, InstantiationException
+	protected T unmarshal(Class<T> type, ByteDataBuffer data) throws NotSerializableException, IOException, InstantiationException
 	{
 		try
 		{
@@ -68,7 +69,7 @@ public class ObjectSerializerStream<T> extends SerailizerStream<T>
 	}
 
 	@Override
-	protected ByteArray marshal(T value, ByteArray data) throws NotSerializableException, IOException
+	protected ByteDataBuffer marshal(T value, ByteDataBuffer data) throws NotSerializableException, IOException
 	{	
 		Class clazz = value.getClass();
 		if(!(value instanceof Serializable))

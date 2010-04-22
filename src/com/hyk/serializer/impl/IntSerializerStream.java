@@ -7,6 +7,7 @@ import java.io.IOException;
 import java.io.NotSerializableException;
 
 import com.hyk.util.buffer.ByteArray;
+import com.hyk.io.ByteDataBuffer;
 
 /**
  * @author qiying.wang
@@ -15,13 +16,13 @@ import com.hyk.util.buffer.ByteArray;
 public class IntSerializerStream extends SerailizerStream<Integer>{
 
 	@Override
-	protected ByteArray marshal(Integer obj,  ByteArray data)
+	protected ByteDataBuffer marshal(Integer obj,  ByteDataBuffer data)
 			throws NotSerializableException, IOException {
 		writeInt(data, obj);
 		return data;
 	}
 
-	protected Integer unmarshal(Class<Integer> type,ByteArray data)
+	protected Integer unmarshal(Class<Integer> type,ByteDataBuffer data)
 			throws NotSerializableException, IOException,
 			InstantiationException {
 		return readInt(data);

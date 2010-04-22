@@ -7,6 +7,7 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.NotSerializableException;
 
+import com.hyk.io.ByteDataBuffer;
 import com.hyk.serializer.impl.SerailizerStream;
 import com.hyk.serializer.impl.SerailizerStreamFactory;
 import com.hyk.serializer.io.BufferedInputStream;
@@ -147,13 +148,13 @@ public class HykSerializer implements Serializer {
 		return in.readObject(type);
 	}
 
-	public <T> T deserialize(Class<T> type, ByteArray data)
+	public <T> T deserialize(Class<T> type, ByteDataBuffer data)
 			throws NotSerializableException, IOException,
 			InstantiationException {
 		ObjectReferenceUtil.cleanDeserializeThreadLocalObjects();
 		//T ret = (T)SerializerImplFactory.getSerializer(type).unmarshal(type, data);
 		T ret = SerailizerStream.deserialize(type, data);
-		data.rewind();
+		data.reset();
 		return ret;
 	}
 
@@ -166,16 +167,17 @@ public class HykSerializer implements Serializer {
 		return bos.toByteArray();
 	}
 
-	public ByteArray serialize(Object obj) throws NotSerializableException,
+	public ByteDataBuffer serialize(Object obj) throws NotSerializableException,
 			IOException {
-		return serialize(obj, ByteArray.allocate(256));
+		return serialize(obj, ByteDataBuffer.allocate(256));
 	}
 
-	public ByteArray serialize(Object obj, ByteArray input)
+	public ByteDataBuffer serialize(Object obj, ByteDataBuffer input)
 			throws NotSerializableException, IOException {
 		ObjectReferenceUtil.cleanSerializeThreadLocalObjects();
 		SerailizerStream.serialize(obj, input);
-		return input.flip();
+		input.getOutputStream().close();
+		return input;
 	}
 
 }

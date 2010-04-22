@@ -7,6 +7,7 @@ import java.io.IOException;
 import java.io.NotSerializableException;
 
 import com.hyk.util.buffer.ByteArray;
+import com.hyk.io.ByteDataBuffer;
 
 /**
  * @author qiying.wang
@@ -15,7 +16,7 @@ import com.hyk.util.buffer.ByteArray;
 public class LongSerializerStream extends SerailizerStream<Long> {
 
 	@Override
-	protected Long unmarshal(Class<Long> type, ByteArray data)
+	protected Long unmarshal(Class<Long> type, ByteDataBuffer data)
 			throws NotSerializableException, IOException,
 			InstantiationException {
 
@@ -23,7 +24,7 @@ public class LongSerializerStream extends SerailizerStream<Long> {
 	}
 
 	@Override
-	protected ByteArray marshal(Long value, ByteArray data)
+	protected ByteDataBuffer marshal(Long value, ByteDataBuffer data)
 			throws NotSerializableException, IOException {
 		writeLong(data, value);
 		return data;

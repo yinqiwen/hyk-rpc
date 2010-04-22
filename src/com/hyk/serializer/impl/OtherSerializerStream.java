@@ -16,6 +16,7 @@ import java.io.ObjectOutputStream;
 
 import com.hyk.serializer.util.ObjectReferenceUtil;
 import com.hyk.util.buffer.ByteArray;
+import com.hyk.io.ByteDataBuffer;
 
 /**
  *
@@ -24,20 +25,20 @@ public class OtherSerializerStream extends SerailizerStream<Object>
 {
 
 	@Override
-	public ByteArray marshal(Object obj, ByteArray data) throws NotSerializableException, IOException
+	public ByteDataBuffer marshal(Object obj, ByteDataBuffer data) throws NotSerializableException, IOException
 	{
-		ObjectOutputStream oos = new ObjectOutputStream(data.output);
+		ObjectOutputStream oos = new ObjectOutputStream(data.getOutputStream());
 		oos.writeObject(obj);
 		// don't close the stream
 		return data;
 	}
 
 	@Override
-	public Object unmarshal(Class<Object> type, ByteArray data) throws NotSerializableException, IOException, InstantiationException
+	public Object unmarshal(Class<Object> type, ByteDataBuffer data) throws NotSerializableException, IOException, InstantiationException
 	{
 		try
 		{
-			ObjectInputStream ois = new ObjectInputStream(data.input);
+			ObjectInputStream ois = new ObjectInputStream(data.getInputStream());
 			Object ret = ois.readObject();
 			ObjectReferenceUtil.addDeserializeThreadLocalObject(ret);
 			// don't close the stream
