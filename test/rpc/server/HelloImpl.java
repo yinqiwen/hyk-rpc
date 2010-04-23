@@ -17,7 +17,7 @@ public class HelloImpl implements HelloIntf
 	{
 		try
 		{
-			Thread.sleep(2000000);
+			Thread.sleep(12);
 		}
 		catch(InterruptedException e)
 		{

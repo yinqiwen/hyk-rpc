@@ -17,5 +17,5 @@ import com.hyk.compress.compressor.Compressor;
 public interface CompressPreference
 {
 	Compressor getCompressor();
-	int getTrigger();
+	//int getTrigger();
 }

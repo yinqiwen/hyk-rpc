@@ -17,12 +17,10 @@ import com.hyk.compress.compressor.Compressor;
 public class DefaultCompressPreference implements CompressPreference
 {
 	private static Compressor compressor;
-	private static int trigger;
 	
-	public static void init(Compressor compressor, int trigger)
+	public static void init(Compressor compressor)
 	{
 		DefaultCompressPreference.compressor = compressor;
-		DefaultCompressPreference.trigger = trigger;
 	}
 	
 	@Override
@@ -31,10 +29,5 @@ public class DefaultCompressPreference implements CompressPreference
 		return compressor;
 	}
 
-	@Override
-	public int getTrigger()
-	{
-		return trigger;
-	}
 
 }

@@ -17,8 +17,8 @@ import com.hyk.rpc.core.RpcCallbackResult;
 import com.hyk.rpc.core.RpcException;
 import com.hyk.rpc.core.address.SimpleSockAddress;
 import com.hyk.rpc.core.service.NameService;
-import com.hyk.rpc.core.transport.TCPRpcChannel;
-import com.hyk.rpc.core.transport.UDPRpcChannel;
+import com.hyk.rpc.core.transport.impl.tcp.TCPRpcChannel;
+import com.hyk.rpc.core.transport.impl.udp.UDPRpcChannel;
 import com.hyk.rpc.core.util.CommonUtil;
 import com.hyk.rpc.core.util.RpcUtil;
 
@@ -79,6 +79,17 @@ public class Client
 
 			}
 		});
+		try
+		{
+			Thread.sleep(1000);
+		}
+		catch(InterruptedException e)
+		{
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		System.exit(1);
+		
 		// System.exit(1);
 	}
 

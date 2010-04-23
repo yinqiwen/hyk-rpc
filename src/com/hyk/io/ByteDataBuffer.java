@@ -13,53 +13,59 @@ import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.util.List;
 
-
 /**
  *
  */
 public class ByteDataBuffer
 {
-	private ByteBufferRepository repository = ByteBufferRepository.DefaultBuilder.buildDefaultRepository();
-	
-	private ByteBufferOutputStream out =  new ByteBufferOutputStream(repository);
-	private ByteBufferInputStream in = new ByteBufferInputStream(repository);
-	
+	private ByteBufferRepository	repository	= ByteBufferRepository.DefaultBuilder.buildDefaultRepository();
+
+	private final ByteBufferOutputStream	out			;
+	private final ByteBufferInputStream	in			= new ByteBufferInputStream(repository);
+
 	public static ByteDataBuffer wrap(byte[] b)
 	{
 		return new ByteDataBuffer(ByteBuffer.wrap(b));
 	}
-	
+
+	public static ByteDataBuffer wrap(ByteBuffer buffer)
+	{
+		return new ByteDataBuffer(buffer);
+	}
+
 	public static ByteDataBuffer allocate(int size)
 	{
 		return new ByteDataBuffer(size);
 	}
-	
+
 	private ByteDataBuffer(int size)
 	{
-		
+		out = new ByteBufferOutputStream(repository, size);
 	}
-	
+
 	private ByteDataBuffer(ByteBuffer buffer)
 	{
 		repository.put(buffer);
+		out = new ByteBufferOutputStream(repository);
+		//in = 
 	}
-	
+
 	public ByteBufferInputStream getInputStream()
 	{
 		return in;
 	}
-	
+
 	public ByteBufferOutputStream getOutputStream()
 	{
 		return out;
 	}
-	
+
 	public void reset() throws IOException
 	{
 		repository.reset();
 		in.reset();
 	}
-	
+
 	public List<ByteBuffer> buffers()
 	{
 		return repository.takeAll();
@@ -69,7 +75,7 @@ public class ByteDataBuffer
 	{
 		List<ByteBuffer> bufs = repository.peekAll();
 		int size = 0;
-		for(ByteBuffer buf:bufs)
+		for(ByteBuffer buf : bufs)
 		{
 			size += buf.remaining();
 		}
@@ -97,11 +103,11 @@ public class ByteDataBuffer
 		}
 		catch(Exception e)
 		{
-			
+
 		}
-		
+
 	}
-	
+
 	public void put(ByteBuffer data)
 	{
 		try
@@ -110,26 +116,26 @@ public class ByteDataBuffer
 		}
 		catch(Exception e)
 		{
-			
+
 		}
-		
+
 	}
-	
+
 	public void put(ByteDataBuffer data)
 	{
 		try
 		{
 			List<ByteBuffer> all = data.repository.takeAll();
-			for(ByteBuffer buf:all)
+			for(ByteBuffer buf : all)
 			{
 				out.write(buf);
 			}
 		}
 		catch(Exception e)
 		{
-			
+
 		}
-		
+
 	}
 
 	public void get(byte[] b)
@@ -141,21 +147,33 @@ public class ByteDataBuffer
 		catch(IOException e)
 		{
 			e.printStackTrace();
-		}	
-	}
-	
-	public void get(ByteBuffer b)
-	{
-		try
-		{
-			in.read(b);
 		}
-		catch(IOException e)
-		{
-			e.printStackTrace();
-		}	
 	}
-	
+
+//	public void get(ByteBuffer b)
+//	{
+//		try
+//		{
+//			in.read(b);
+//		}
+//		catch(IOException e)
+//		{
+//			e.printStackTrace();
+//		}
+//	}
+
+	public ByteBuffer toByteBuffer()
+	{
+		repository.reset();
+		if(repository.size() == 1)
+		{
+			return repository.peek();
+		}
+		byte[] buffer = new byte[size()];
+		get(buffer);
+		return ByteBuffer.wrap(buffer);
+	}
+
 	public boolean equals(Object obj)
 	{
 		if(null == obj)
@@ -195,17 +213,16 @@ public class ByteDataBuffer
 					try
 					{
 						reset();
-						other.reset();		
+						other.reset();
 					}
 					catch(IOException e)
 					{
 						// TODO Auto-generated catch block
 						e.printStackTrace();
 					}
-						
+
 				}
-				
-				
+
 			}
 		}
 		return false;
@@ -225,5 +242,5 @@ public class ByteDataBuffer
 		}
 		return ret;
 	}
-	
+
 }

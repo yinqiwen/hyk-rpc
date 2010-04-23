@@ -1,23 +1,20 @@
 /**
  * 
  */
-package com.hyk.rpc.core.transport;
+package com.hyk.rpc.core.transport.impl.udp;
 
 import java.io.IOException;
 import java.net.InetAddress;
 import java.net.InetSocketAddress;
-import java.net.SocketAddress;
 import java.nio.ByteBuffer;
 import java.nio.channels.DatagramChannel;
-import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.Executor;
 
 import com.hyk.io.ByteDataBuffer;
 import com.hyk.rpc.core.address.Address;
 import com.hyk.rpc.core.address.SimpleSockAddress;
-import com.hyk.rpc.core.message.MessageFragment;
-import com.hyk.util.buffer.ByteArray;
+import com.hyk.rpc.core.transport.RpcChannelData;
+import com.hyk.rpc.core.transport.impl.AbstractDefaultRpcChannel;
 
 /**
  * @author Administrator
@@ -25,7 +22,7 @@ import com.hyk.util.buffer.ByteArray;
  */
 public class UDPRpcChannel extends AbstractDefaultRpcChannel
 {
-	private ByteBuffer			recvBuffer	= ByteBuffer.allocate(65536);
+	private ByteBuffer			recvBuffer	= ByteBuffer.allocateDirect(65536);
 	private DatagramChannel		channel;
 	private SimpleSockAddress	localAddr;
 
@@ -45,12 +42,12 @@ public class UDPRpcChannel extends AbstractDefaultRpcChannel
 	}
 
 	@Override
-	protected RpcChannelData read() throws IOException
+	protected RpcChannelData recv() throws IOException
 	{
-
 		recvBuffer.clear();
 		InetSocketAddress target = (InetSocketAddress)channel.receive(recvBuffer);
 		recvBuffer.flip();
+		
 		SimpleSockAddress address = new SimpleSockAddress(target.getAddress().getHostAddress(), target.getPort());
 		ByteDataBuffer data = ByteDataBuffer.allocate(recvBuffer.limit());
 		data.put(recvBuffer);
@@ -64,9 +61,11 @@ public class UDPRpcChannel extends AbstractDefaultRpcChannel
 	{
 		SimpleSockAddress address = (SimpleSockAddress)data.address;
 		InetSocketAddress addr = new InetSocketAddress(address.getHost(), address.getPort());
-		ByteBuffer buffer = ByteBuffer.allocate(data.content.size());
-		data.content.get(buffer);
-		channel.send(buffer, addr);
+		//ByteBuffer buffer = ByteBuffer.allocate(data.content.size());
+		//System.out.println("####send" + data.content.size());
+		//data.content.get(buffer);
+		//System.out.println("####send" + buffer.remaining());
+		channel.send(data.content.toByteBuffer(), addr);
 	}
 
 	@Override

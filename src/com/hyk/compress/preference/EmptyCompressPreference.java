@@ -24,11 +24,4 @@ public class EmptyCompressPreference implements CompressPreference
 	{
 		return compressor;
 	}
-
-	@Override
-	public int getTrigger()
-	{
-		return 0;
-	}
-
 }

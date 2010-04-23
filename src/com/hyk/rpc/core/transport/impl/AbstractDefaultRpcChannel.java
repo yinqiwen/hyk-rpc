@@ -1,7 +1,7 @@
 /**
  * 
  */
-package com.hyk.rpc.core.transport;
+package com.hyk.rpc.core.transport.impl;
 
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
@@ -10,9 +10,9 @@ import java.util.concurrent.Executor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.hyk.rpc.core.address.Address;
 import com.hyk.rpc.core.message.MessageFragment;
 import com.hyk.rpc.core.message.MessageID;
+import com.hyk.rpc.core.transport.RpcChannel;
 
 /**
  * @author Administrator
