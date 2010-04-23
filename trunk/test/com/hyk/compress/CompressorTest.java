@@ -3,6 +3,7 @@ package com.hyk.compress;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
+import java.nio.ByteBuffer;
 import java.util.Arrays;
 
 import com.hyk.compress.compressor.Compressor;
@@ -130,7 +131,7 @@ public class CompressorTest extends TestCase
 		frag.setSessionID(1);
 		frag.setAddress(new SimpleSockAddress("127.0.0.1", 48101));
 		frag.setSequence(1);
-		byte[] content = "asdasfsa12312".getBytes();
+		ByteBuffer content = ByteBuffer.wrap("asdasfsa12312".getBytes());
 		frag.setContent(content);
 		ByteDataBuffer data = serializer.serialize(frag);
 		ByteDataBuffer compressed = compressor.compress(data);

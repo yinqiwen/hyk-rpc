@@ -5,14 +5,12 @@ package com.hyk.compress.compressor.zip;
 
 import java.io.IOException;
 import java.nio.ByteBuffer;
-
 import java.util.List;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 import java.util.zip.ZipOutputStream;
 
 import com.hyk.compress.compressor.Compressor;
-import com.hyk.util.buffer.ByteArray;
 import com.hyk.io.ByteDataBuffer;
 
 /**
@@ -21,27 +19,15 @@ import com.hyk.io.ByteDataBuffer;
  */
 public class ZipCompressor implements Compressor
 {
-	public static final String NAME = "zip";
+	public static final String	NAME	= "zip";
+
 	@Override
 	public ByteDataBuffer compress(ByteDataBuffer data) throws IOException
 	{
 		ByteDataBuffer ret = ByteDataBuffer.allocate(data.size() / 3);
-		ZipOutputStream zos = new ZipOutputStream(ret.getOutputStream());
-		zos.putNextEntry(new ZipEntry("temp"));
-		//zos.write(data.rawbuffer(), data.position(), data.size());
-		List<ByteBuffer> bufs = data.buffers();
-		for(ByteBuffer buf:bufs)
-		{
-			byte[] raw = buf.array();
-			int offset = buf.position();
-			int len = buf.limit()- buf.position();
-			zos.write(raw, offset, len);
-		}
-		zos.flush();
-		zos.closeEntry();
-		zos.close();
-		//data.rewind();
-		return ret;
+
+		// data.rewind();
+		return compress(data, ret);
 	}
 
 	@Override
@@ -68,6 +54,26 @@ public class ZipCompressor implements Compressor
 	public String getName()
 	{
 		return NAME;
+	}
+
+	@Override
+	public ByteDataBuffer compress(ByteDataBuffer data, ByteDataBuffer out) throws IOException
+	{
+		ZipOutputStream zos = new ZipOutputStream(out.getOutputStream());
+		zos.putNextEntry(new ZipEntry("temp"));
+		// zos.write(data.rawbuffer(), data.position(), data.size());
+		List<ByteBuffer> bufs = data.buffers();
+		for(ByteBuffer buf : bufs)
+		{
+			byte[] raw = buf.array();
+			int offset = buf.position();
+			int len = buf.limit() - buf.position();
+			zos.write(raw, offset, len);
+		}
+		zos.flush();
+		zos.closeEntry();
+		zos.close();
+		return out;
 	}
 
 }

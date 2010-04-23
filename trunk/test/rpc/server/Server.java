@@ -8,8 +8,8 @@ import java.util.concurrent.Executors;
 
 import com.hyk.rpc.core.RPC;
 import com.hyk.rpc.core.RpcException;
-import com.hyk.rpc.core.transport.TCPRpcChannel;
-import com.hyk.rpc.core.transport.UDPRpcChannel;
+import com.hyk.rpc.core.transport.impl.tcp.TCPRpcChannel;
+import com.hyk.rpc.core.transport.impl.udp.UDPRpcChannel;
 
 /**
  * @author Administrator

@@ -9,6 +9,12 @@ package com.hyk.rpc.core.address;
  */
 public class SimpleSockAddress implements Address {
 
+	@Override
+	public String toString()
+	{
+		return "SimpleSockAddress [host=" + host + ", port=" + port + "]";
+	}
+
 	private String host;
 	private int port;
 

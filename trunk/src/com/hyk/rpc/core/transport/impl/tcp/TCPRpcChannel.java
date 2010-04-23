@@ -1,7 +1,7 @@
 /**
  * 
  */
-package com.hyk.rpc.core.transport;
+package com.hyk.rpc.core.transport.impl.tcp;
 
 import java.io.IOException;
 import java.net.InetAddress;
@@ -26,7 +26,8 @@ import org.slf4j.LoggerFactory;
 import com.hyk.io.ByteDataBuffer;
 import com.hyk.rpc.core.address.Address;
 import com.hyk.rpc.core.address.SimpleSockAddress;
-import com.hyk.util.buffer.ByteArray;
+import com.hyk.rpc.core.transport.RpcChannelData;
+import com.hyk.rpc.core.transport.impl.AbstractDefaultBufferRpcChannel;
 
 /**
  * Since TCP transmit is not atomic, this implementation is not correct exactly
@@ -34,14 +35,13 @@ import com.hyk.util.buffer.ByteArray;
  * @author Administrator
  * 
  */
-public class TCPRpcChannel extends AbstractDefaultRpcChannel
+public class TCPRpcChannel extends AbstractDefaultBufferRpcChannel
 {
 	protected Logger								logger			= LoggerFactory.getLogger(getClass());
 	
 	private ByteBuffer								recvBuffer		= ByteBuffer.allocate(65536);
 	private ServerSocketChannel						channel;
 	private List<RpcChannelData>					recvList		= new LinkedList<RpcChannelData>();
-	private SimpleSockAddress						localAddr;
 	private Selector								selector;
 	private List<SelectionKey>						selectionKeys	= new ArrayList<SelectionKey>();
 	private Map<SimpleSockAddress, SocketChannel>	socketTable		= new ConcurrentHashMap<SimpleSockAddress, SocketChannel>();
@@ -168,14 +168,10 @@ public class TCPRpcChannel extends AbstractDefaultRpcChannel
 		super.start();
 	}
 
-	@Override
-	public Address getRpcChannelAddress()
-	{
-		return localAddr;
-	}
+
 
 	@Override
-	protected RpcChannelData read() throws IOException
+	protected RpcChannelData recvRawData() throws IOException
 	{
 		synchronized(recvList)
 		{
@@ -197,7 +193,7 @@ public class TCPRpcChannel extends AbstractDefaultRpcChannel
 	}
 
 	@Override
-	protected void send(RpcChannelData data) throws IOException
+	protected void sendRawData(RpcChannelData data) throws IOException
 	{
 		if(logger.isDebugEnabled())
 		{

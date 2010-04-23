@@ -4,7 +4,6 @@
 package com.hyk.rpc.core;
 
 import java.lang.reflect.Proxy;
-import java.util.Map;
 import java.util.Properties;
 
 import com.hyk.rpc.core.address.Address;
@@ -15,7 +14,6 @@ import com.hyk.rpc.core.service.NameServiceImpl;
 import com.hyk.rpc.core.session.SessionManager;
 import com.hyk.rpc.core.transport.RpcChannel;
 import com.hyk.rpc.core.util.ID;
-import com.hyk.timer.Timer;
 
 /**
  * @author Administrator

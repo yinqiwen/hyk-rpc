@@ -5,7 +5,6 @@ package com.hyk.rpc.core.transport;
 
 import com.hyk.io.ByteDataBuffer;
 import com.hyk.rpc.core.address.Address;
-import com.hyk.util.buffer.ByteArray;
 
 /**
  * @author Administrator

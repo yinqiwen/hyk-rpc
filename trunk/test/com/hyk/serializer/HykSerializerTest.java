@@ -221,7 +221,7 @@ public class HykSerializerTest extends TestCase {
 		HykSerializer serializer = new HykSerializer();
 		//Serializer serializer = new StandardSerializer();
 		long start = System.currentTimeMillis();
-		for (int i = 0; i < 99999; i++) {
+		for (int i = 0; i < 999999; i++) {
 			//byte[] buf = new byte[100];
 			//byte[] data = serializer.serialize_(test);
 			ByteDataBuffer array = serializer.serialize(test);
@@ -236,7 +236,7 @@ public class HykSerializerTest extends TestCase {
 		//System.out.println("####Serialize size:" + data.length);
 		
 		start = System.currentTimeMillis();
-		for (int i = 0; i < 99999; i++) {
+		for (int i = 0; i < 999999; i++) {
 			//System.out.println("????");
 			//byte[] buf = new byte[100];
 			//serializer.deserialize_(TargetClassTop.class, data);

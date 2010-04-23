@@ -7,7 +7,6 @@ import java.io.IOException;
 
 import com.hyk.compress.compressor.Compressor;
 import com.hyk.io.ByteDataBuffer;
-import com.hyk.util.buffer.ByteArray;
 
 /**
  * @author Administrator
@@ -32,5 +31,11 @@ public class NoneCompressor implements Compressor
 	public String getName()
 	{
 		return NAME;
+	}
+
+	@Override
+	public ByteDataBuffer compress(ByteDataBuffer data, ByteDataBuffer out) throws IOException
+	{
+		return out;
 	}
 }

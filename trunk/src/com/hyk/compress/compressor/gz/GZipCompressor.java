@@ -11,7 +11,6 @@ import java.util.zip.GZIPOutputStream;
 
 import com.hyk.compress.compressor.Compressor;
 import com.hyk.io.ByteDataBuffer;
-import com.hyk.util.buffer.ByteArray;
 
 /**
  * @author Administrator
@@ -24,19 +23,8 @@ public class GZipCompressor implements Compressor
 	public ByteDataBuffer compress(ByteDataBuffer data) throws IOException
 	{
 		ByteDataBuffer ret = ByteDataBuffer.allocate(data.size() / 3);
-		GZIPOutputStream gos = new GZIPOutputStream(ret.getOutputStream());
-		List<ByteBuffer> bufs = data.buffers();
-		for(ByteBuffer buf:bufs)
-		{
-			byte[] raw = buf.array();
-			int offset = buf.position();
-			int len = buf.remaining();
-			gos.write(raw, offset, len);
-		}
-		gos.flush();
-		gos.finish();
-		gos.close();
-		return ret;
+		
+		return compress(data,ret);
 	}
 
 	@Override
@@ -62,6 +50,24 @@ public class GZipCompressor implements Compressor
 	public String getName()
 	{
 		return NAME;
+	}
+
+	@Override
+	public ByteDataBuffer compress(ByteDataBuffer data, ByteDataBuffer out) throws IOException
+	{
+		GZIPOutputStream gos = new GZIPOutputStream(out.getOutputStream());
+		List<ByteBuffer> bufs = data.buffers();
+		for(ByteBuffer buf:bufs)
+		{
+			byte[] raw = buf.array();
+			int offset = buf.position();
+			int len = buf.remaining();
+			gos.write(raw, offset, len);
+		}
+		gos.flush();
+		gos.finish();
+		gos.close();
+		return out;
 	}
 
 }

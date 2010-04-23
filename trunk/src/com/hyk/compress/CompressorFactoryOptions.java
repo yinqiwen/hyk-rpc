@@ -11,7 +11,6 @@ package com.hyk.compress;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 
 import com.hyk.compress.CompressorFactory.RegistCompressor;
 import com.hyk.compress.compressor.Compressor;
