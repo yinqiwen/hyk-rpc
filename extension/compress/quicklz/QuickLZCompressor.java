@@ -41,4 +41,13 @@ public class QuickLZCompressor implements Compressor
 		return NAME;
 	}
 
+	@Override
+	public ByteDataBuffer compress(ByteDataBuffer data, ByteDataBuffer out) throws IOException
+	{
+		byte[] raw = data.toByteArray();
+		out.put(QuickLZ.compress(raw, 1));
+		out.flip();
+		return out;
+	}
+
 }
