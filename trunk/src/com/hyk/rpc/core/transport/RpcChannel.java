@@ -193,7 +193,8 @@ public abstract class RpcChannel
 			{
 				logger.debug("Send message with size:" + sent.remaining() + ", fragments count:" + msgFragsount);
 			}
-			if(null != threadPool)
+			//when the send list empty ,send data directly
+			if(null != threadPool && !sendList.isEmpty())
 			{
 				synchronized(sendList)
 				{

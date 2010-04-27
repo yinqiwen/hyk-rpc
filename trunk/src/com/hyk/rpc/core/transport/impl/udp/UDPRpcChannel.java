@@ -61,10 +61,6 @@ public class UDPRpcChannel extends AbstractDefaultRpcChannel
 	{
 		SimpleSockAddress address = (SimpleSockAddress)data.address;
 		InetSocketAddress addr = new InetSocketAddress(address.getHost(), address.getPort());
-		//ByteBuffer buffer = ByteBuffer.allocate(data.content.size());
-		//System.out.println("####send" + data.content.size());
-		//data.content.get(buffer);
-		//System.out.println("####send" + buffer.remaining());
 		channel.send(data.content.toByteBuffer(), addr);
 	}
 

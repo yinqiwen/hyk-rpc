@@ -10,12 +10,15 @@ import java.lang.reflect.Modifier;
 import java.lang.reflect.Proxy;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Hashtable;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import java.util.TreeSet;
+import java.util.Vector;
 import java.util.concurrent.ConcurrentHashMap;
 
-import com.hyk.serializer.HykSerializer;
 import com.hyk.serializer.io.Type;
 
 /**
@@ -60,6 +63,14 @@ public class ReflectionCache
 		reservedClassTable.put(long[].class, Type.ARRAY);
 		reservedClassTable.put(float[].class, Type.ARRAY);
 		reservedClassTable.put(double[].class, Type.ARRAY);
+		reservedClassTable.put(HashMap.class, Type.OTHER);
+		reservedClassTable.put(ConcurrentHashMap.class, Type.OTHER);
+		reservedClassTable.put(LinkedList.class, Type.OTHER);
+		reservedClassTable.put(Hashtable.class, Type.OTHER);
+		reservedClassTable.put(ArrayList.class, Type.OTHER);
+		reservedClassTable.put(Vector.class, Type.OTHER);
+		reservedClassTable.put(HashSet.class, Type.OTHER);
+		reservedClassTable.put(TreeSet.class, Type.OTHER);
 	}
 
 	public static Constructor getDefaultConstructor(Class clazz)
@@ -69,14 +80,17 @@ public class ReflectionCache
 			return defaultConstructorCacheTable.get(clazz);
 		}
 		Constructor cons = null;
-		try {
+		try
+		{
 			cons = clazz.getDeclaredConstructor(null);
 			cons.setAccessible(true);
 			defaultConstructorCacheTable.put(clazz, cons);
-		} catch (Exception e) {
-			//System.out.println("%%%%%" + clazz.getName());
 		}
-		
+		catch(Exception e)
+		{
+			// System.out.println("%%%%%" + clazz.getName());
+		}
+
 		return cons;
 	}
 
