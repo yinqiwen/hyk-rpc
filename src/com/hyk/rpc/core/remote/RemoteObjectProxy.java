@@ -72,10 +72,6 @@ public class RemoteObjectProxy implements InvocationHandler, Externalizable {
 			throws Throwable 
 	{
 		//int methodID = RemoteUtil.getMethodID(method, proxy);
-		if(method.getDeclaringClass().equals(Object.class))
-		{
-			return method.invoke(this, args);
-		}
 		if(logger.isDebugEnabled())
 		{
 			logger.debug("Invoke method:" + method.getName());

@@ -7,6 +7,10 @@ import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.Method;
 import java.lang.reflect.Proxy;
 import java.util.Arrays;
+import java.util.HashMap;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Map;
 
 import com.hyk.io.ByteDataBuffer;
 import com.hyk.rpc.core.message.Message;
@@ -142,7 +146,7 @@ public class HykSerializerTest extends TestCase {
 		String[] ret = serializer.deserialize(String[].class, data);
 		assertEquals(true, Arrays.equals(value, ret));	
 		
-		Object[] oa = new Object[]{1,"asdas",3.5, 56567};
+		Object[] oa = new Object[]{1,"asdas",null, 56567};
 		data = serializer.serialize(oa);
 		Object[] oa2 = serializer.deserialize(Object[].class, data);
 		assertEquals(true, Arrays.equals(oa, oa2));	
@@ -211,6 +215,22 @@ public class HykSerializerTest extends TestCase {
 		//ByteDataBuffer data = serializer.serialize(test);
 		TargetClassTop t = serializer.deserialize_(TargetClassTop.class, data);
 		assertEquals("wangqiying!", t.getName());
+	}
+	
+	public void testCollections() throws NotSerializableException, IOException, InstantiationException
+	{
+		List<Object> list = new LinkedList<Object>();
+		list.add("asdsa");
+		list.add(120);
+		ByteDataBuffer data = serializer.serialize(list);
+		List<Object> ret = serializer.deserialize(List.class, data);
+		assertEquals(ret, list);
+		
+		Map<String, Object> map = new HashMap<String, Object>();
+		map.put("sad", "safasfsa");
+		data = serializer.serialize(map);
+		Map<String, Object> retMap = serializer.deserialize(Map.class, data);
+		assertEquals(retMap, map);
 	}
 	
 	

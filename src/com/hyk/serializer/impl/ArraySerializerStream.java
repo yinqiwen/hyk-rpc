@@ -68,8 +68,7 @@ public class ArraySerializerStream<T> extends SerailizerStream<T>
 		if(componentType.equals(byte.class))
 		{
 			byte[] rawValue = (byte[]) value;
-			writeBytes(data, rawValue);
-			
+			writeBytes(data, rawValue);	
 		}
 		else
 		{

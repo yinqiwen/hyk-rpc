@@ -27,7 +27,8 @@ public abstract class SerailizerStream<T>
 	private static final int	INDICATOR_PROXY		= 2;
 	private static final int	INDICATOR_OTHER		= 3;
 	private static final int	INDICATOR_LOOP_REF	= 4;
-
+	private static final int	INDICATOR_NULL	= 5;
+	
 	protected static class Input implements SerializerInput
 	{
 		private ByteDataBuffer	data;
@@ -648,6 +649,10 @@ public abstract class SerailizerStream<T>
 					int refSeq = readInt(data);
 					return (T)ObjectReferenceUtil.getDeserializeThreadLocalObject(refSeq);
 				}
+				case INDICATOR_NULL:
+				{
+					return null;
+				}
 				default:
 					break;
 			}
@@ -670,10 +675,10 @@ public abstract class SerailizerStream<T>
 
 	protected static void writeObject(ByteDataBuffer data, Object value, Class type) throws IOException
 	{
-		if(null == value)
-		{
-			return;
-		}
+//		if(null == value)
+//		{
+//			return;
+//		}
 		Type declType = ReflectionCache.getType(type);
 		switch (declType) 
 		{
@@ -723,11 +728,15 @@ public abstract class SerailizerStream<T>
 			   return;
 		   }
 		}
-		Class clazz = value.getClass();
-		Type dataType = ReflectionCache.getType(clazz);
 		
+		Class clazz = null != value?value.getClass():type;
+		Type dataType = ReflectionCache.getType(clazz);
+		if(null == value)
+		{
+			dataType = Type.NULL;
+		}
 		// loop reference
-		int refSeq = ObjectReferenceUtil.querySerializeThreadLocalObjectIndex(value);
+		int refSeq = null != value?ObjectReferenceUtil.querySerializeThreadLocalObjectIndex(value):-1;
 		if(refSeq != -1)
 		{
 			writeTag(data, INDICATOR_LOOP_REF);
@@ -746,6 +755,11 @@ public abstract class SerailizerStream<T>
 			{
 				writeTag(data, INDICATOR_OTHER);
 				break;
+			}
+			case NULL:
+			{
+				writeTag(data, INDICATOR_NULL);
+				return;
 			}
 			default:
 			{
