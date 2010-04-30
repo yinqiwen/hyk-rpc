@@ -39,29 +39,31 @@ import com.hyk.util.thread.ThreadLocalUtil;
  */
 public abstract class RpcChannel
 {
-	protected Logger				logger			= LoggerFactory.getLogger(getClass());
+	protected Logger				logger				= LoggerFactory.getLogger(getClass());
 
-	protected static final byte[]	MAGIC_HEADER	= "@hyk-rpc@".getBytes();
-	protected static final int		GAP				= 32;
+	protected static final byte[]	MAGIC_HEADER		= "@hyk-rpc@".getBytes();
+	protected static final int		GAP					= 32;
 
-	protected byte[]				magicHeader		= new byte[MAGIC_HEADER.length];
+	protected byte[]				magicHeader			= new byte[MAGIC_HEADER.length];
 
-	protected int					maxMessageSize	= 2048;
+	protected int					maxMessageSize		= 2048;
 
-	protected List<MessageFragment>	sendList		= new LinkedList<MessageFragment>();
-	protected Serializer			serializer		= new HykSerializer();
+	protected List<MessageFragment>	sendList			= new LinkedList<MessageFragment>();
+	protected Serializer			serializer			= new HykSerializer();
 	protected Executor				threadPool;
 	protected SessionManager		sessionManager;
 
-	protected List<MessageListener>	msgListeners	= new LinkedList<MessageListener>();
+	// protected List<MessageListener> msgListeners = new
+	// LinkedList<MessageListener>();
+	protected MessageListener		msgListener;
 
-	protected OutputTask			outTask			= new OutputTask();
-	protected InputTask				inTask			= new InputTask();
-	protected boolean				isStarted		= false;
+	protected OutputTask			outTask				= new OutputTask();
+	protected InputTask				inTask				= new InputTask();
+	protected boolean				isStarted			= false;
 
-	protected CompressPreference compressPreference = new EmptyCompressPreference();
-	
-	//protected CompressorFactory compressorFactory = new CompressorFactory();
+	protected CompressPreference	compressPreference	= new EmptyCompressPreference();
+
+	// protected CompressorFactory compressorFactory = new CompressorFactory();
 
 	public RpcChannel()
 	{
@@ -72,10 +74,10 @@ public abstract class RpcChannel
 	{
 		this.threadPool = threadPool;
 	}
-	
+
 	public void configure(Properties initProps) throws Exception
 	{
-		String compressPreferClassName = null != initProps ?initProps.getProperty(RpcConstants.COMPRESS_PREFER):null;
+		String compressPreferClassName = null != initProps ? initProps.getProperty(RpcConstants.COMPRESS_PREFER) : null;
 		if(null != compressPreferClassName)
 		{
 			compressPreference = (CompressPreference)Class.forName(compressPreferClassName).newInstance();
@@ -109,7 +111,8 @@ public abstract class RpcChannel
 
 	public final void registerMessageListener(MessageListener listener)
 	{
-		msgListeners.add(listener);
+		//msgListeners.add(listener);
+		this.msgListener = listener;
 	}
 
 	public void setMaxMessageSize(int maxMessageSize)
@@ -140,7 +143,7 @@ public abstract class RpcChannel
 	{
 		deleteMessageFragments(sessionID);
 	}
-	
+
 	public final void sendMessage(Message message) throws NotSerializableException, IOException
 	{
 		ByteDataBuffer data = serializer.serialize(message);
@@ -154,7 +157,7 @@ public abstract class RpcChannel
 		{
 			msgFragsount++;
 		}
-		
+
 		int off = 0;
 		int len = 0;
 		for(int i = 0; i < msgFragsount; i++)
@@ -175,12 +178,12 @@ public abstract class RpcChannel
 					len = size - off;
 				}
 				off += len;
-				
-				//sent = ByteBuffer.allocate(len); 
+
+				// sent = ByteBuffer.allocate(len);
 				byte[] raw = new byte[len];
 				data.get(raw);
-				//sent = raw;
-				sent = ByteBuffer.wrap(raw); 
+				// sent = raw;
+				sent = ByteBuffer.wrap(raw);
 			}
 
 			MessageFragment fragment = new MessageFragment();
@@ -193,7 +196,7 @@ public abstract class RpcChannel
 			{
 				logger.debug("Send message with size:" + sent.remaining() + ", fragments count:" + msgFragsount);
 			}
-			//when the send list empty ,send data directly
+			// when the send list empty ,send data directly
 			if(null != threadPool && !sendList.isEmpty())
 			{
 				synchronized(sendList)
@@ -207,10 +210,10 @@ public abstract class RpcChannel
 				sendMessageFragment(fragment);
 			}
 		}
-//		if(msgFragsount > 1)
-//		{
-//			//data.free();
-//		}
+		// if(msgFragsount > 1)
+		// {
+		// //data.free();
+		// }
 	}
 
 	public final void processIncomingData(RpcChannelData data) throws RpcChannelException
@@ -220,12 +223,13 @@ public abstract class RpcChannel
 			logger.debug("Process message from " + data.address.toPrintableString());
 		}
 		Message msg = processRpcChannelData(data);
-		if(msg != null)
+		if(msg != null && null != msgListener)
 		{
-			for(final MessageListener messageListener : msgListeners)
-			{
-				messageListener.onMessage(msg);
-			}
+//			for(final MessageListener messageListener : msgListeners)
+//			{
+//				messageListener.onMessage(msg);
+//			}
+			msgListener.onMessage(msg);
 		}
 	}
 
@@ -236,7 +240,7 @@ public abstract class RpcChannel
 			logger.debug("Dispatch message!");
 		}
 
-		for(final MessageListener messageListener : msgListeners)
+		//for(final MessageListener messageListener : msgListeners)
 		{
 			threadPool.execute(new Runnable()
 			{
@@ -245,7 +249,10 @@ public abstract class RpcChannel
 				{
 					try
 					{
-						messageListener.onMessage(msg);
+						if(null != msgListener)
+						{
+							msgListener.onMessage(msg);
+						}
 					}
 					catch(Exception e)
 					{
@@ -262,8 +269,8 @@ public abstract class RpcChannel
 		// ByteArray data = ByteArray.allocate(maxMessageSize + GAP);
 		// data.put(MAGIC_HEADER);
 		int baseSize = msg.getContent().remaining();
-		ByteDataBuffer data = ByteDataBuffer.allocate(baseSize + 2*GAP);
-		//data.put(MAGIC_HEADER);
+		ByteDataBuffer data = ByteDataBuffer.allocate(baseSize + 2 * GAP);
+		// data.put(MAGIC_HEADER);
 		data.getOutputStream().write(MAGIC_HEADER);
 		int compressorId = CompressorFactory.getRegistCompressor(compressPreference.getCompressor().getName()).id;
 		SerailizerStream.writeInt(data, compressorId);
@@ -285,63 +292,68 @@ public abstract class RpcChannel
 				logger.debug("Send/After compressing, data size:" + newData.size());
 			}
 		}
-//		ByteDataBuffer seriaData = ByteDataBuffer.allocate(baseSize + GAP);
-//		seriaData = serializer.serialize(msg, seriaData);
-		//msg.getContent().free();
-//		if(seriaData.size() > compressPreference.getTrigger())
-//		{
-//			if(logger.isDebugEnabled())
-//			{
-//				logger.debug("Send/Before compressing, data size:" + seriaData.size());
-//			}
-//			int compressorId = CompressorFactory.getRegistCompressor(compressPreference.getCompressor().getName()).id;
-//			SerailizerStream.writeInt(data, compressorId);
-//			ByteDataBuffer newData = compressPreference.getCompressor().compress(seriaData);
-//			if(logger.isDebugEnabled())
-//			{
-//				logger.debug("Send/After compressing, data size:" + newData.size());
-//			}
-////			if(newData != seriaData)
-////			{
-////				seriaData.free();
-////			}
-//			data.put(newData);
-//			//newData.free();
-//		}
-//		else
-//		{
-//			SerailizerStream.writeInt(data, CompressorFactory.getRegistCompressor(NoneCompressor.NAME).id);
-//			data.put(seriaData);
-//			//data.getOutputStream().write(seriaData);
-//			//seriaData.free();
-//		}
+		// ByteDataBuffer seriaData = ByteDataBuffer.allocate(baseSize + GAP);
+		// seriaData = serializer.serialize(msg, seriaData);
+		// msg.getContent().free();
+		// if(seriaData.size() > compressPreference.getTrigger())
+		// {
+		// if(logger.isDebugEnabled())
+		// {
+		// logger.debug("Send/Before compressing, data size:" +
+		// seriaData.size());
+		// }
+		// int compressorId =
+		// CompressorFactory.getRegistCompressor(compressPreference.getCompressor().getName()).id;
+		// SerailizerStream.writeInt(data, compressorId);
+		// ByteDataBuffer newData =
+		// compressPreference.getCompressor().compress(seriaData);
+		// if(logger.isDebugEnabled())
+		// {
+		// logger.debug("Send/After compressing, data size:" + newData.size());
+		// }
+		// // if(newData != seriaData)
+		// // {
+		// // seriaData.free();
+		// // }
+		// data.put(newData);
+		// //newData.free();
+		// }
+		// else
+		// {
+		// SerailizerStream.writeInt(data,
+		// CompressorFactory.getRegistCompressor(NoneCompressor.NAME).id);
+		// data.put(seriaData);
+		// //data.getOutputStream().write(seriaData);
+		// //seriaData.free();
+		// }
 
 		data.flip();
 		RpcChannelData send = new RpcChannelData(data, msg.getAddress());
 		send(send);
-		//data.free();
+		// data.free();
 	}
 
 	protected synchronized Message processRpcChannelData(RpcChannelData data) throws RpcChannelException
 	{
 		if(logger.isDebugEnabled())
 		{
-			logger.debug("Recv data from " + data.address +", data size is " + data.content.size());
+			logger.debug("Recv data from " + data.address + ", data size is " + data.content.size());
 		}
 		ByteDataBuffer oldContent = data.content;
 		oldContent.get(magicHeader);
-		//oldContent.getInputStream().read(magicHeader);
+		// oldContent.getInputStream().read(magicHeader);
 		if(!Arrays.equals(magicHeader, MAGIC_HEADER))
 		{
-			//String x = new String(oldContent.buffer().array(), 0, oldContent.buffer().limit());
-			//oldContent.free();	
+			// String x = new String(oldContent.buffer().array(), 0,
+			// oldContent.buffer().limit());
+			// oldContent.free();
 			throw new RpcChannelException("Unexpected rpc message with bad header!" + new String(magicHeader));
 		}
 		try
 		{
 			int compressorTypeValue = SerailizerStream.readInt(oldContent);
 			Compressor compressor = CompressorFactory.getRegistCompressor(compressorTypeValue).compressor;
-			//Compressor compressor = new NoneCompressor();
+			// Compressor compressor = new NoneCompressor();
 			if(logger.isDebugEnabled())
 			{
 				logger.debug("Recv/Before decompressing, data size:" + oldContent.size());
@@ -351,10 +363,10 @@ public abstract class RpcChannel
 			{
 				logger.debug("Recv/After decompressing, data size:" + content.size());
 			}
-//			if(content != oldContent)
-//			{
-//				oldContent.free();
-//			}
+			// if(content != oldContent)
+			// {
+			// oldContent.free();
+			// }
 			ThreadLocalUtil.getThreadLocalUtil(SessionManager.class).setThreadLocalObject(sessionManager);
 			MessageFragment fragment = serializer.deserialize(MessageFragment.class, content);
 			fragment.setAddress(data.address);
@@ -362,12 +374,12 @@ public abstract class RpcChannel
 			{
 				logger.debug("Recv " + fragment + " with size:" + content.size());
 			}
-			//content.free();
+			// content.free();
 			if(fragment.getTotalFragmentCount() == 1 && fragment.getSequence() == 0)
 			{
 				Message msg = serializer.deserialize(Message.class, ByteDataBuffer.wrap(fragment.getContent()));
-				//fragment.getContent().free();
-				
+				// fragment.getContent().free();
+
 				msg.setAddress(data.address);
 				msg.setSessionID(fragment.getSessionID());
 				return msg;
@@ -400,7 +412,7 @@ public abstract class RpcChannel
 			ByteDataBuffer msgBuffer = ByteDataBuffer.allocate(totalSize);
 			for(int i = 0; i < fragments.length; i++)
 			{
-				//msgBuffer.getOutputStream().write(fragments[i].getContent());
+				// msgBuffer.getOutputStream().write(fragments[i].getContent());
 				msgBuffer.put(fragments[i].getContent());
 			}
 			msgBuffer.flip();
@@ -409,8 +421,8 @@ public abstract class RpcChannel
 			Message msg = serializer.deserialize(Message.class, msgBuffer);
 			msg.setSessionID(fragment.getSessionID());
 			msg.setAddress(data.address);
-			//msgBuffer.free();
-			
+			// msgBuffer.free();
+
 			return msg;
 		}
 		catch(RpcChannelException e)

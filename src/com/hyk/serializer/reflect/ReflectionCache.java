@@ -110,7 +110,17 @@ public class ReflectionCache
 				{
 					continue;
 				}
-				field.setAccessible(true);
+				try
+				{
+					if(!Modifier.isPublic(field.getModifiers()))
+					{
+						field.setAccessible(true);
+					}
+				}
+				catch(Exception e)
+				{
+					return null;
+				}	
 				ret.add(field);
 			}
 			clazz = clazz.getSuperclass();
