@@ -5,6 +5,7 @@ package com.hyk.rpc.core.remote;
 
 import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.Proxy;
+import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 import java.util.concurrent.ConcurrentHashMap;
@@ -20,9 +21,11 @@ import com.hyk.rpc.core.util.RemoteUtil;
 public class RemoteObjectFactory
 {
 	private Address				localAddress;
-	private Map<Long, Object>	remoteRawObjectTable	= new ConcurrentHashMap<Long, Object>();
+	private Map<Long, RemoteObjectReference>	remoteRawObjectTable	= new ConcurrentHashMap<Long, RemoteObjectReference>();
 
 	private RemoteObjectIdGenerator idgen = RemoteObjectIdGenerator.defaultGenerator;
+	
+	private RemoteObjectStorage remoteObjectStorage;
 	
 	public RemoteObjectFactory(Address localAddress)
 	{
@@ -35,6 +38,38 @@ public class RemoteObjectFactory
 		if(null != genClassName)
 		{
 			idgen = (RemoteObjectIdGenerator)Class.forName(genClassName).newInstance();
+		}
+		
+		String storeageClassName = null != initProps ?initProps.getProperty(RpcConstants.REMOTE_OBJECT_STORAGE):null;
+		if(null != storeageClassName)
+		{
+			remoteObjectStorage = (RemoteObjectStorage)Class.forName(storeageClassName).newInstance();
+		}
+		loadAllRemoteObjects();
+	}
+	
+	private void saveRemoteObject(RemoteObjectProxy remoteObjectProxy)
+	{
+		RemoteObjectReference ref = RemoteObjectReference.refernce(remoteObjectProxy, this);
+		remoteRawObjectTable.put(remoteObjectProxy.getObjID(), ref);
+		if(null != remoteObjectStorage)
+		{
+			remoteObjectStorage.store(ref);
+		}
+	}
+	
+	private void loadAllRemoteObjects()
+	{
+		if(null != remoteObjectStorage)
+		{
+			List<RemoteObjectReference> refs = remoteObjectStorage.loadAll();
+			if(null != refs)
+			{
+				for(RemoteObjectReference ref:refs)
+				{
+					remoteRawObjectTable.put(ref.getObjID(), ref);
+				}
+			}
 		}
 	}
 
@@ -65,6 +100,7 @@ public class RemoteObjectFactory
 		return publish(obj, idgen.generateRemoteObjectID());
 	}
 
+	
 	public Object publish(Object obj, long id)
 	{
 		if(Proxy.isProxyClass(obj.getClass()))
@@ -78,13 +114,14 @@ public class RemoteObjectFactory
 		remoteObjectProxy.setHostAddress(localAddress);
 		Object proxy = Proxy.newProxyInstance(obj.getClass().getClassLoader(), RemoteUtil.getRemoteInterfaces(obj.getClass()), remoteObjectProxy);
 		remoteObjectProxy.setObjID(id);
-		remoteRawObjectTable.put(id, obj);
+		//remoteRawObjectTable.put(id, RemoteObjectReference.refernce(remoteObjectProxy, this));
+		saveRemoteObject(remoteObjectProxy);
 		return proxy;
 	}
 
 	public Object getRawObject(long id)
 	{
-		return remoteRawObjectTable.get(id);
+		return remoteRawObjectTable.get(id).getImpl();
 	}
 	
 	public long getRemoteObjectId(Object obj) 
@@ -109,7 +146,7 @@ public class RemoteObjectFactory
 			if(handler instanceof RemoteObjectProxy)
 			{
 				long id = ((RemoteObjectProxy)handler).getObjID();
-				return remoteRawObjectTable.get(id);
+				return remoteRawObjectTable.get(id).getImpl();
 			}
 		}
 		return null;
