@@ -20,4 +20,5 @@ public class RpcConstants
 	public static final String SESSIN_TIMEOUT = "com.hyk.rpc.session.timeout";
 	public static final String COMPRESS_PREFER = "com.hyk.rpc.compress.prefer";
 	public static final String REMOTE_OBJECTID_GEN = "com.hyk.rpc.core.remote.idgen";
+	public static final String REMOTE_OBJECT_STORAGE = "com.hyk.rpc.core.remote.obj.storage";
 }
