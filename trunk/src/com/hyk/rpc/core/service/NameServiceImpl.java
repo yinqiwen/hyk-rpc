@@ -43,11 +43,8 @@ public class NameServiceImpl implements NameService
 		{
 			return false;
 		}
-		else
-		{
-			objTable.put(name, remoteObjectFactory.publish(obj));
-			return true;
-		}
+		objTable.put(name, remoteObjectFactory.publish(obj));
+		return true;
 	}
 
 }

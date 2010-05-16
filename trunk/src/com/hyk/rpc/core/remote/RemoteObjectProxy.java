@@ -71,6 +71,10 @@ public class RemoteObjectProxy implements InvocationHandler, Externalizable {
 	public Object invoke(Object proxy, Method method, Object[] args)
 			throws Throwable 
 	{
+		if(method.getDeclaringClass().equals(Object.class))
+		{
+			return method.invoke(this, args);
+		}
 		//int methodID = RemoteUtil.getMethodID(method, proxy);
 		if(logger.isDebugEnabled())
 		{
@@ -95,5 +99,4 @@ public class RemoteObjectProxy implements InvocationHandler, Externalizable {
 		out.writeLong(objID);
 		out.writeObject(hostAddress, Address.class);
 	}
-
 }

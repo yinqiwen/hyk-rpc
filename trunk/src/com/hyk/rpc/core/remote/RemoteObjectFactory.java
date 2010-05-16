@@ -48,9 +48,9 @@ public class RemoteObjectFactory
 		loadAllRemoteObjects();
 	}
 	
-	private void saveRemoteObject(RemoteObjectProxy remoteObjectProxy)
+	private void saveRemoteObject(RemoteObjectProxy remoteObjectProxy, Object rawObj)
 	{
-		RemoteObjectReference ref = RemoteObjectReference.refernce(remoteObjectProxy, this);
+		RemoteObjectReference ref = RemoteObjectReference.refernce(remoteObjectProxy.getObjID(), rawObj);
 		remoteRawObjectTable.put(remoteObjectProxy.getObjID(), ref);
 		if(null != remoteObjectStorage)
 		{
@@ -112,16 +112,21 @@ public class RemoteObjectFactory
 		}
 		RemoteObjectProxy remoteObjectProxy = new RemoteObjectProxy();
 		remoteObjectProxy.setHostAddress(localAddress);
-		Object proxy = Proxy.newProxyInstance(obj.getClass().getClassLoader(), RemoteUtil.getRemoteInterfaces(obj.getClass()), remoteObjectProxy);
+		Class[] remoteInterfaces =  RemoteUtil.getRemoteInterfaces(obj.getClass());
+		Object proxy = Proxy.newProxyInstance(obj.getClass().getClassLoader(),remoteInterfaces, remoteObjectProxy);
 		remoteObjectProxy.setObjID(id);
-		//remoteRawObjectTable.put(id, RemoteObjectReference.refernce(remoteObjectProxy, this));
-		saveRemoteObject(remoteObjectProxy);
+		saveRemoteObject(remoteObjectProxy, obj);
 		return proxy;
 	}
 
 	public Object getRawObject(long id)
 	{
-		return remoteRawObjectTable.get(id).getImpl();
+		RemoteObjectReference ref = remoteRawObjectTable.get(id);
+		if(null == ref)
+		{
+			return null;
+		}
+		return ref.getImpl();
 	}
 	
 	public long getRemoteObjectId(Object obj) 

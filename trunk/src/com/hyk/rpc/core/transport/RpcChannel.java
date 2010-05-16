@@ -367,6 +367,7 @@ public abstract class RpcChannel
 			// {
 			// oldContent.free();
 			// }
+			
 			ThreadLocalUtil.getThreadLocalUtil(SessionManager.class).setThreadLocalObject(sessionManager);
 			MessageFragment fragment = serializer.deserialize(MessageFragment.class, content);
 			fragment.setAddress(data.address);

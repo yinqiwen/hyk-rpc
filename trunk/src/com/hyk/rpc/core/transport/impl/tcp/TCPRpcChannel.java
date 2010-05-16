@@ -203,9 +203,9 @@ public class TCPRpcChannel extends AbstractDefaultBufferRpcChannel
 		SocketChannel csc = socketTable.get(address);
 		if(null != csc)
 		{
-			List<ByteBuffer> bufs = data.content.buffers();
-			ByteBuffer[] sends = new ByteBuffer[bufs.size()];
-			csc.write(bufs.toArray(sends));
+			//List<ByteBuffer> bufs = data.content.buffers();
+			//ByteBuffer[] sends = new ByteBuffer[bufs.size()];
+			csc.write(data.content.buffers());
 		}
 		else
 		{
@@ -218,10 +218,8 @@ public class TCPRpcChannel extends AbstractDefaultBufferRpcChannel
 				{
 					logger.debug("Create socket to connect " + target + " " + csc.socket().getRemoteSocketAddress());
 				}
-				List<ByteBuffer> bufs = data.content.buffers();
-				ByteBuffer[] sends = new ByteBuffer[bufs.size()];
 				
-				long len = csc.write(bufs.toArray(sends));
+				long len = csc.write(data.content.buffers());
 				
 			}
 		}

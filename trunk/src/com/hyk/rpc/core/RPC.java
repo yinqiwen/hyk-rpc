@@ -102,9 +102,4 @@ public class RPC
 	{
 		return remoteObjectFactory.getRemoteObjectId(obj);
 	}
-
-	public Object exportRawObject(Object obj)
-	{
-		return remoteObjectFactory.getRawObject(obj);
-	}
 }

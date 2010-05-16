@@ -675,10 +675,6 @@ public abstract class SerailizerStream<T>
 
 	protected static void writeObject(ByteDataBuffer data, Object value, Class type) throws IOException
 	{
-//		if(null == value)
-//		{
-//			return;
-//		}
 		Type declType = ReflectionCache.getType(type);
 		switch (declType) 
 		{

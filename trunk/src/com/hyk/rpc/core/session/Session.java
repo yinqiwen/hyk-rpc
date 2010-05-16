@@ -7,6 +7,7 @@ import java.io.IOException;
 import java.io.NotSerializableException;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
+import java.lang.reflect.Proxy;
 import java.util.Arrays;
 
 import org.slf4j.Logger;
@@ -178,7 +179,7 @@ public class Session
 
 			if(logger.isDebugEnabled())
 			{
-				logger.debug("Invoked finish with result:" + result);
+				logger.debug("Invoked finish with normal result.");
 			}
 			response = MessageFactory.instance.createResponse(request, result);
 			sendResponse(response);

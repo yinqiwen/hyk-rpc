@@ -62,8 +62,8 @@ public class ZipCompressor implements Compressor
 		ZipOutputStream zos = new ZipOutputStream(out.getOutputStream());
 		zos.putNextEntry(new ZipEntry("temp"));
 		// zos.write(data.rawbuffer(), data.position(), data.size());
-		List<ByteBuffer> bufs = data.buffers();
-		for(ByteBuffer buf : bufs)
+		//List<ByteBuffer> bufs = data.buffers();
+		for(ByteBuffer buf : data.buffers())
 		{
 			byte[] raw = buf.array();
 			int offset = buf.position();

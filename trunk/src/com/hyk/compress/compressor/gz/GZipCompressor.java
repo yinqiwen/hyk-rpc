@@ -56,8 +56,8 @@ public class GZipCompressor implements Compressor
 	public ByteDataBuffer compress(ByteDataBuffer data, ByteDataBuffer out) throws IOException
 	{
 		GZIPOutputStream gos = new GZIPOutputStream(out.getOutputStream());
-		List<ByteBuffer> bufs = data.buffers();
-		for(ByteBuffer buf:bufs)
+		//List<ByteBuffer> bufs = data.buffers();
+		for(ByteBuffer buf:data.buffers())
 		{
 			byte[] raw = buf.array();
 			int offset = buf.position();
