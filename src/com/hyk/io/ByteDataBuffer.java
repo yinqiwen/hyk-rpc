@@ -66,9 +66,12 @@ public class ByteDataBuffer
 		in.reset();
 	}
 
-	public List<ByteBuffer> buffers()
+	public ByteBuffer[] buffers()
 	{
-		return repository.takeAll();
+		List<ByteBuffer> ret = repository.takeAll();
+		ByteBuffer[] array = new ByteBuffer[ret.size()];
+		return ret.toArray(array);
+		//return repository.takeAll();
 	}
 
 	public int size()

@@ -69,19 +69,19 @@ public class CompressorTest extends TestCase
 
 	}
 
-	public void _testQuickLZ() throws IOException
-	{
-		compressor = new QuickLZCompressor();
-		for(int i = 0; i < repeat; i++)
-		{
-			ByteDataBuffer compressed = compressor.compress(orginal);
-			ByteDataBuffer restore = compressor.decompress(compressed);
-			//assertEquals(orginal, restore);
-			assertEquals(orginal.size(), restore.size());
-			assertTrue(restore.size() > (compressed.size() * 2));
-			//assertEquals(orginal, restore);
-		}
-	}
+//	public void _testQuickLZ() throws IOException
+//	{
+//		compressor = new QuickLZCompressor();
+//		for(int i = 0; i < repeat; i++)
+//		{
+//			ByteDataBuffer compressed = compressor.compress(orginal);
+//			ByteDataBuffer restore = compressor.decompress(compressed);
+//			//assertEquals(orginal, restore);
+//			assertEquals(orginal.size(), restore.size());
+//			assertTrue(restore.size() > (compressed.size() * 2));
+//			//assertEquals(orginal, restore);
+//		}
+//	}
 	
 	public void testLZF() throws IOException
 	{

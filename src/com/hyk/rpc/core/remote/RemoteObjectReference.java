@@ -11,6 +11,8 @@ package com.hyk.rpc.core.remote;
 
 import java.io.Serializable;
 
+import com.hyk.rpc.core.util.RemoteUtil;
+
 /**
  *
  */
@@ -18,7 +20,6 @@ public class RemoteObjectReference implements Serializable
 {
 	private long objID;
 	private Object impl;
-	
 	
 	private RemoteObjectReference()
 	{
@@ -35,16 +36,17 @@ public class RemoteObjectReference implements Serializable
 		return objID;
 	}
 	
+	
 	public boolean isSerializable()
 	{
 		return impl instanceof Serializable;
 	}
 	
-	public static RemoteObjectReference refernce(RemoteObjectProxy proxy, RemoteObjectFactory factory)
+	public static RemoteObjectReference refernce(long id, Object rawObj)
 	{
 		RemoteObjectReference reference = new RemoteObjectReference();
-		reference.objID = proxy.getObjID();
-		reference.impl = factory.getRawObject(reference.objID);
+		reference.objID = id;
+		reference.impl = rawObj;
 		return reference;
 	}
 }
