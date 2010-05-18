@@ -102,4 +102,9 @@ public class RPC
 	{
 		return remoteObjectFactory.getRemoteObjectId(obj);
 	}
+	
+	public void close()
+	{
+		channel.close();
+	}
 }
