@@ -22,7 +22,7 @@ public class GZipCompressor implements Compressor
 	@Override
 	public ByteDataBuffer compress(ByteDataBuffer data) throws IOException
 	{
-		ByteDataBuffer ret = ByteDataBuffer.allocate(data.size() / 3);
+		ByteDataBuffer ret = ByteDataBuffer.allocate(data.readableBytes() / 3);
 		
 		return compress(data,ret);
 	}
@@ -30,7 +30,7 @@ public class GZipCompressor implements Compressor
 	@Override
 	public ByteDataBuffer decompress(ByteDataBuffer data) throws IOException
 	{
-		ByteDataBuffer ret = ByteDataBuffer.allocate(data.size() * 3);
+		ByteDataBuffer ret = ByteDataBuffer.allocate(data.readableBytes() * 3);
 		GZIPInputStream gis = new GZIPInputStream(data.getInputStream());
 		int b;
 		
