@@ -3,6 +3,7 @@
  */
 package com.hyk.compress;
 
+import java.util.Collection;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -50,6 +51,11 @@ public class CompressorFactory
 	private static void addCompressor(Compressor compressor)
 	{
 		addCompressor(compressor, ID_SEED.getAndIncrement());
+	}
+	
+	public static Collection<RegistCompressor> getAllRegistCompressors()
+	{
+		return NAME_TO_REGISTE_COMPRESSOR_TABLE.values();
 	}
 
 	private static void addCompressor(Compressor compressor, int id)

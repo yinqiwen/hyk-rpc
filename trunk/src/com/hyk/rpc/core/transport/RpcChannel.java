@@ -52,6 +52,8 @@ public abstract class RpcChannel
 	protected Serializer			serializer			= new HykSerializer();
 	protected Executor				threadPool;
 	protected SessionManager		sessionManager;
+	
+	protected boolean running = true;
 
 	// protected List<MessageListener> msgListeners = new
 	// LinkedList<MessageListener>();
@@ -136,7 +138,7 @@ public abstract class RpcChannel
 
 	public void close()
 	{
-		// nothing
+		running = false;
 	}
 
 	public final void clearSessionData(MessageID sessionID)
@@ -442,11 +444,15 @@ public abstract class RpcChannel
 		@Override
 		public void run()
 		{
-			while(true)
+			while(running)
 			{
 				try
 				{
 					RpcChannelData data = recv();
+					if(null == data)
+					{
+						continue;
+					}
 					Message msg = processRpcChannelData(data);
 					if(null != msg)
 					{
@@ -466,7 +472,7 @@ public abstract class RpcChannel
 		@Override
 		public void run()
 		{
-			while(true)
+			while(running)
 			{
 				try
 				{
@@ -475,9 +481,12 @@ public abstract class RpcChannel
 					{
 						if(sendList.isEmpty())
 						{
-							sendList.wait();
+							sendList.wait(1000);
 						}
-						msg = sendList.remove(0);
+						if(!sendList.isEmpty())
+						{
+							msg = sendList.remove(0);
+						}
 					}
 					if(null != msg)
 					{
