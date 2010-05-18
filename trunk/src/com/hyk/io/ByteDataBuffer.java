@@ -74,15 +74,16 @@ public class ByteDataBuffer
 		//return repository.takeAll();
 	}
 
-	public int size()
+	public int readableBytes()
 	{
-		List<ByteBuffer> bufs = repository.peekAll();
-		int size = 0;
-		for(ByteBuffer buf : bufs)
+		try
 		{
-			size += buf.remaining();
+			return in.available();
 		}
-		return size;
+		catch(IOException e)
+		{
+			return -1;
+		}
 	}
 
 	public void flip()
@@ -172,7 +173,7 @@ public class ByteDataBuffer
 		{
 			return repository.peek();
 		}
-		byte[] buffer = new byte[size()];
+		byte[] buffer = new byte[readableBytes()];
 		get(buffer);
 		return ByteBuffer.wrap(buffer);
 	}
@@ -186,13 +187,13 @@ public class ByteDataBuffer
 		if(obj instanceof ByteDataBuffer)
 		{
 			ByteDataBuffer other = (ByteDataBuffer)obj;
-			if(size() == other.size())
+			if(readableBytes() == other.readableBytes())
 			{
 				ByteBufferInputStream ois = other.in;
 				try
 				{
 					int i = 0;
-					int size = size();
+					int size = readableBytes();
 					while(i < size)
 					{
 						try
@@ -233,7 +234,7 @@ public class ByteDataBuffer
 
 	public byte[] toByteArray()
 	{
-		byte[] ret = new byte[size()];
+		byte[] ret = new byte[readableBytes()];
 		try
 		{
 			in.read(ret);

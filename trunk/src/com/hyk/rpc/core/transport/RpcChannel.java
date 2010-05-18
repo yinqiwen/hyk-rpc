@@ -149,7 +149,7 @@ public abstract class RpcChannel
 	public final void sendMessage(Message message) throws NotSerializableException, IOException
 	{
 		ByteDataBuffer data = serializer.serialize(message);
-		int size = data.size();
+		int size = data.readableBytes();
 		if(logger.isDebugEnabled())
 		{
 			logger.debug("send message " + message.getValue() + " to " + message.getAddress().toPrintableString() + " with total size:" + size);
@@ -286,12 +286,12 @@ public abstract class RpcChannel
 			seriaData = serializer.serialize(msg, seriaData);
 			if(logger.isDebugEnabled())
 			{
-				logger.debug("Send/Before compressing, data size:" + seriaData.size());
+				logger.debug("Send/Before compressing, data size:" + seriaData.readableBytes());
 			}
 			ByteDataBuffer newData = compressPreference.getCompressor().compress(seriaData, data);
 			if(logger.isDebugEnabled())
 			{
-				logger.debug("Send/After compressing, data size:" + newData.size());
+				logger.debug("Send/After compressing, data size:" + newData.readableBytes());
 			}
 		}
 		// ByteDataBuffer seriaData = ByteDataBuffer.allocate(baseSize + GAP);
@@ -339,7 +339,7 @@ public abstract class RpcChannel
 	{
 		if(logger.isDebugEnabled())
 		{
-			logger.debug("Recv data from " + data.address + ", data size is " + data.content.size());
+			logger.debug("Recv data from " + data.address + ", data size is " + data.content.readableBytes());
 		}
 		ByteDataBuffer oldContent = data.content;
 		oldContent.get(magicHeader);
@@ -358,12 +358,12 @@ public abstract class RpcChannel
 			// Compressor compressor = new NoneCompressor();
 			if(logger.isDebugEnabled())
 			{
-				logger.debug("Recv/Before decompressing, data size:" + oldContent.size());
+				logger.debug("Recv/Before decompressing, data size:" + oldContent.readableBytes());
 			}
 			ByteDataBuffer content = compressor.decompress(oldContent);
 			if(logger.isDebugEnabled())
 			{
-				logger.debug("Recv/After decompressing, data size:" + content.size());
+				logger.debug("Recv/After decompressing, data size:" + content.readableBytes());
 			}
 			// if(content != oldContent)
 			// {
@@ -375,7 +375,7 @@ public abstract class RpcChannel
 			fragment.setAddress(data.address);
 			if(logger.isDebugEnabled())
 			{
-				logger.debug("Recv " + fragment + " with size:" + content.size());
+				logger.debug("Recv " + fragment + " with size:" + content.readableBytes());
 			}
 			// content.free();
 			if(fragment.getTotalFragmentCount() == 1 && fragment.getSequence() == 0)

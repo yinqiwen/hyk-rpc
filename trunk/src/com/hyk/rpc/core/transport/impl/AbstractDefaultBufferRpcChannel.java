@@ -36,7 +36,7 @@ public abstract class AbstractDefaultBufferRpcChannel extends AbstractDefaultRpc
 		int length = -1;
 		public boolean isReady()
 		{
-			if(length < 0 || data.size() < length)
+			if(length < 0 || data.readableBytes() < length)
 			{
 				return false;
 			}
@@ -45,7 +45,7 @@ public abstract class AbstractDefaultBufferRpcChannel extends AbstractDefaultRpc
 		
 		public int expectedRemaining()
 		{
-			return length - data.size();
+			return length - data.readableBytes();
 		}
 		
 		public RpcChannelData get()

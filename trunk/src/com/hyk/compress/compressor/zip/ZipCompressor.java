@@ -24,7 +24,7 @@ public class ZipCompressor implements Compressor
 	@Override
 	public ByteDataBuffer compress(ByteDataBuffer data) throws IOException
 	{
-		ByteDataBuffer ret = ByteDataBuffer.allocate(data.size() / 3);
+		ByteDataBuffer ret = ByteDataBuffer.allocate(data.readableBytes() / 3);
 
 		// data.rewind();
 		return compress(data, ret);
@@ -33,7 +33,7 @@ public class ZipCompressor implements Compressor
 	@Override
 	public ByteDataBuffer decompress(ByteDataBuffer data) throws IOException
 	{
-		ByteDataBuffer ret = ByteDataBuffer.allocate(data.size() * 3);
+		ByteDataBuffer ret = ByteDataBuffer.allocate(data.readableBytes() * 3);
 		// ByteArrayInputStream bis = new ByteArrayInputStream(data, offset,
 		// length);
 		// ByteArrayOutputStream bos = new ByteArrayOutputStream(length * 3);
