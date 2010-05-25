@@ -14,9 +14,8 @@ import java.io.NotSerializableException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 
+import com.hyk.io.buffer.ChannelDataBuffer;
 import com.hyk.serializer.util.ObjectReferenceUtil;
-import com.hyk.util.buffer.ByteArray;
-import com.hyk.io.ByteDataBuffer;
 
 /**
  *
@@ -25,7 +24,7 @@ public class OtherSerializerStream extends SerailizerStream<Object>
 {
 
 	@Override
-	public ByteDataBuffer marshal(Object obj, ByteDataBuffer data) throws NotSerializableException, IOException
+	public ChannelDataBuffer marshal(Object obj, ChannelDataBuffer data) throws NotSerializableException, IOException
 	{
 		ObjectOutputStream oos = new ObjectOutputStream(data.getOutputStream());
 		oos.writeObject(obj);
@@ -34,7 +33,7 @@ public class OtherSerializerStream extends SerailizerStream<Object>
 	}
 
 	@Override
-	public Object unmarshal(Class<Object> type, ByteDataBuffer data) throws NotSerializableException, IOException, InstantiationException
+	public Object unmarshal(Class<Object> type, ChannelDataBuffer data) throws NotSerializableException, IOException, InstantiationException
 	{
 		try
 		{

@@ -6,7 +6,7 @@ package com.hyk.serializer;
 import java.io.IOException;
 import java.io.NotSerializableException;
 
-import com.hyk.io.ByteDataBuffer;
+import com.hyk.io.buffer.ChannelDataBuffer;
 
 /**
  * @author Administrator
@@ -14,8 +14,8 @@ import com.hyk.io.ByteDataBuffer;
  */
 public interface Serializer {
 	
-	ByteDataBuffer serialize(Object value) throws NotSerializableException, IOException ;
-	ByteDataBuffer serialize(Object value, ByteDataBuffer data) throws NotSerializableException, IOException ;
+	ChannelDataBuffer serialize(Object value) throws NotSerializableException, IOException ;
+	ChannelDataBuffer serialize(Object value, ChannelDataBuffer data) throws NotSerializableException, IOException ;
 	
-	<T> T deserialize(Class<T> type,ByteDataBuffer data) throws NotSerializableException, IOException,InstantiationException ;
+	<T> T deserialize(Class<T> type,ChannelDataBuffer data) throws NotSerializableException, IOException,InstantiationException ;
 }

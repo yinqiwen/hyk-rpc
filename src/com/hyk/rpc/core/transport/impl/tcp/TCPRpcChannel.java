@@ -23,7 +23,7 @@ import java.util.concurrent.Executor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.hyk.io.ByteDataBuffer;
+import com.hyk.io.buffer.ChannelDataBuffer;
 import com.hyk.rpc.core.address.Address;
 import com.hyk.rpc.core.address.SimpleSockAddress;
 import com.hyk.rpc.core.transport.RpcChannelData;
@@ -135,8 +135,8 @@ public class TCPRpcChannel extends AbstractDefaultBufferRpcChannel
 									{
 										logger.debug("recv data from " + target);
 									}
-									ByteDataBuffer data = ByteDataBuffer.allocate(recvBuffer.limit());
-									data.put(recvBuffer);
+									ChannelDataBuffer data = ChannelDataBuffer.allocate(recvBuffer.limit());
+									data.writeBytes(recvBuffer);
 									data.flip();
 									
 									SimpleSockAddress address = new SimpleSockAddress(target.getAddress().getHostAddress(), target.getPort());
@@ -205,7 +205,7 @@ public class TCPRpcChannel extends AbstractDefaultBufferRpcChannel
 		{
 			//List<ByteBuffer> bufs = data.content.buffers();
 			//ByteBuffer[] sends = new ByteBuffer[bufs.size()];
-			csc.write(data.content.buffers());
+			csc.write(ChannelDataBuffer.asByteBuffer(data.content));
 		}
 		else
 		{
@@ -219,7 +219,7 @@ public class TCPRpcChannel extends AbstractDefaultBufferRpcChannel
 					logger.debug("Create socket to connect " + target + " " + csc.socket().getRemoteSocketAddress());
 				}
 				
-				long len = csc.write(data.content.buffers());
+				long len = csc.write(ChannelDataBuffer.asByteBuffer(data.content));
 				
 			}
 		}

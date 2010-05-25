@@ -6,7 +6,7 @@ package com.hyk.compress.compressor.none;
 import java.io.IOException;
 
 import com.hyk.compress.compressor.Compressor;
-import com.hyk.io.ByteDataBuffer;
+import com.hyk.io.buffer.ChannelDataBuffer;
 
 /**
  * @author Administrator
@@ -16,13 +16,13 @@ public class NoneCompressor implements Compressor
 {
 	public static final String NAME = "none";
 	@Override
-	public ByteDataBuffer compress(ByteDataBuffer data) throws IOException
+	public ChannelDataBuffer compress(ChannelDataBuffer data) throws IOException
 	{
 		return data;
 	}
 
 	@Override
-	public ByteDataBuffer decompress(ByteDataBuffer data) throws IOException
+	public ChannelDataBuffer decompress(ChannelDataBuffer data) throws IOException
 	{
 		return data;
 	}
@@ -34,7 +34,7 @@ public class NoneCompressor implements Compressor
 	}
 
 	@Override
-	public ByteDataBuffer compress(ByteDataBuffer data, ByteDataBuffer out) throws IOException
+	public ChannelDataBuffer compress(ChannelDataBuffer data, ChannelDataBuffer out) throws IOException
 	{
 		return out;
 	}

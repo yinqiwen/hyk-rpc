@@ -11,7 +11,7 @@ import com.hyk.serializer.SerializerOutput;
 import com.hyk.serializer.io.Type;
 import com.hyk.serializer.reflect.ReflectionCache;
 import com.hyk.serializer.util.ObjectReferenceUtil;
-import com.hyk.io.ByteDataBuffer;
+import com.hyk.io.buffer.ChannelDataBuffer;
 import com.hyk.util.reflect.ClassUtil;
 
 /**
@@ -31,9 +31,9 @@ public abstract class SerailizerStream<T>
 	
 	protected static class Input implements SerializerInput
 	{
-		private ByteDataBuffer	data;
+		private ChannelDataBuffer	data;
 
-		public Input(ByteDataBuffer data)
+		public Input(ChannelDataBuffer data)
 		{
 			this.data = data;
 		}
@@ -115,9 +115,9 @@ public abstract class SerailizerStream<T>
 
 	protected static class Output implements SerializerOutput
 	{
-		private ByteDataBuffer	data;
+		private ChannelDataBuffer	data;
 
-		public Output(ByteDataBuffer data)
+		public Output(ChannelDataBuffer data)
 		{
 			this.data = data;
 		}
@@ -201,12 +201,21 @@ public abstract class SerailizerStream<T>
 			if(null != value)
 			{
 				SerailizerStream.writeInt(data, len);
+				writeRawBytes(value, off, len);
+			}
+		}
+
+		@Override
+		public void writeRawBytes(byte[] value, int off, int len) throws IOException
+		{
+			if(null != value)
+			{
 				SerailizerStream.writeBytes(data, value, off, len);
 			}
 		}
 	}
 
-	protected static int readRawLittleEndian32(ByteDataBuffer data) throws IOException
+	protected static int readRawLittleEndian32(ChannelDataBuffer data) throws IOException
 	{
 		final byte b1 = readByte(data);
 		final byte b2 = readByte(data);
@@ -215,7 +224,7 @@ public abstract class SerailizerStream<T>
 		return (((int)b1 & 0xff)) | (((int)b2 & 0xff) << 8) | (((int)b3 & 0xff) << 16) | (((int)b4 & 0xff) << 24);
 	}
 
-	protected static long readRawLittleEndian64(ByteDataBuffer data) throws IOException
+	protected static long readRawLittleEndian64(ChannelDataBuffer data) throws IOException
 	{
 		final byte b1 = readByte(data);
 		final byte b2 = readByte(data);
@@ -229,12 +238,12 @@ public abstract class SerailizerStream<T>
 				| (((long)b6 & 0xff) << 40) | (((long)b7 & 0xff) << 48) | (((long)b8 & 0xff) << 56);
 	}
 
-	protected static byte readByte(ByteDataBuffer data) throws IOException
+	protected static byte readByte(ChannelDataBuffer data) throws IOException
 	{
 		return (byte)data.getInputStream().read();
 	}
 
-	protected static long readLong(ByteDataBuffer data) throws IOException
+	protected static long readLong(ChannelDataBuffer data) throws IOException
 	{
 		int shift = 0;
 		long result = 0;
@@ -251,7 +260,7 @@ public abstract class SerailizerStream<T>
 		throw new IOException("encountered a malformed varint");
 	}
 
-	protected static short readShort(ByteDataBuffer data) throws IOException
+	protected static short readShort(ChannelDataBuffer data) throws IOException
 	{
 		int shift = 0;
 		short result = 0;
@@ -268,7 +277,7 @@ public abstract class SerailizerStream<T>
 		throw new IOException("encountered a malformed varint");
 	}
 
-	protected static char readChar(ByteDataBuffer data) throws IOException
+	protected static char readChar(ChannelDataBuffer data) throws IOException
 	{
 		int shift = 0;
 		char result = 0;
@@ -286,7 +295,7 @@ public abstract class SerailizerStream<T>
 	}
 
 
-	public static int readInt(ByteDataBuffer data) throws IOException
+	public static int readInt(ChannelDataBuffer data) throws IOException
 	{
 		byte tmp = readByte(data);
 		if(tmp >= 0)
@@ -334,12 +343,12 @@ public abstract class SerailizerStream<T>
 		return result;
 	}
 
-	protected static boolean readBool(ByteDataBuffer data) throws IOException
+	protected static boolean readBool(ChannelDataBuffer data) throws IOException
 	{
 		return readInt(data) != 0;
 	}
 
-	protected static byte[] readBytes(ByteDataBuffer data) throws IOException
+	protected static byte[] readBytes(ChannelDataBuffer data) throws IOException
 	{
 		int size = readInt(data);
 		if(size > 0 && data.getInputStream().available() >= size)
@@ -354,12 +363,12 @@ public abstract class SerailizerStream<T>
 		}
 	}
 	
-	protected static void readBytes(ByteDataBuffer data, byte[] content) throws IOException
+	protected static void readBytes(ChannelDataBuffer data, byte[] content) throws IOException
 	{
 		readBytes(data, content, 0, content.length);
 	}
 	
-	protected static void readBytes(ByteDataBuffer data, byte[] content, int off, int len) throws IOException
+	protected static void readBytes(ChannelDataBuffer data, byte[] content, int off, int len) throws IOException
 	{
 		int size = readInt(data);
 		if(size > 0 && data.getInputStream().available() >= size && len == size)
@@ -372,17 +381,17 @@ public abstract class SerailizerStream<T>
 		}
 	}
 
-	protected static double readDouble(ByteDataBuffer data) throws IOException
+	protected static double readDouble(ChannelDataBuffer data) throws IOException
 	{
 		return Double.longBitsToDouble(readRawLittleEndian64(data));
 	}
 
-	protected static float readFloat(ByteDataBuffer data) throws IOException
+	protected static float readFloat(ChannelDataBuffer data) throws IOException
 	{
 		return Float.intBitsToFloat(readRawLittleEndian32(data));
 	}
 
-	protected static int readTag(ByteDataBuffer data) throws IOException
+	protected static int readTag(ChannelDataBuffer data) throws IOException
 	{
 		if(data.getInputStream().available() == 0)
 		{
@@ -393,7 +402,7 @@ public abstract class SerailizerStream<T>
 	}
 
 
-	protected static String readString(ByteDataBuffer data) throws IOException
+	protected static String readString(ChannelDataBuffer data) throws IOException
 	{
 		int size = readInt(data);
 		if(data.getInputStream().available() >= size)
@@ -410,37 +419,37 @@ public abstract class SerailizerStream<T>
 		}
 	}
 
-	protected static void writeByte(ByteDataBuffer data, final byte value) throws IOException
+	protected static void writeByte(ChannelDataBuffer data, final byte value) throws IOException
 	{
 		data.getOutputStream().write(value);
 	}
 
-	protected static void writeBytes(ByteDataBuffer data, final byte[] value, int off, int len) throws IOException
+	protected static void writeBytes(ChannelDataBuffer data, final byte[] value, int off, int len) throws IOException
 	{
 		data.getOutputStream().write(value, off, len);
 	}
 
-	protected static void writeBytes(ByteDataBuffer data, final byte[] value) throws IOException
+	protected static void writeBytes(ChannelDataBuffer data, final byte[] value) throws IOException
 	{
 		data.getOutputStream().write(value);
 	}
 
-	protected static void writeByte(ByteDataBuffer data, final int value) throws IOException
+	protected static void writeByte(ChannelDataBuffer data, final int value) throws IOException
 	{
 		writeByte(data, (byte)value);
 	}
 
-	protected static void writeBoolean(ByteDataBuffer data, boolean value) throws IOException
+	protected static void writeBoolean(ChannelDataBuffer data, boolean value) throws IOException
 	{
 		writeByte(data, value ? 1 : 0);
 	}
 
-	protected static void write(ByteDataBuffer data, int value) throws IOException
+	protected static void write(ChannelDataBuffer data, int value) throws IOException
 	{
 		writeInt(data, value);
 	}
 
-	public static void writeInt(ByteDataBuffer data, int value) throws IOException
+	public static void writeInt(ChannelDataBuffer data, int value) throws IOException
 	{
 		if(value >= 0)
 		{
@@ -465,12 +474,12 @@ public abstract class SerailizerStream<T>
 
 	}
 
-	protected static void writeShort(ByteDataBuffer data, int value) throws IOException
+	protected static void writeShort(ChannelDataBuffer data, int value) throws IOException
 	{
 		writeShort(data, (short)value);
 	}
 
-	protected static void writeShort(ByteDataBuffer data, short value) throws IOException
+	protected static void writeShort(ChannelDataBuffer data, short value) throws IOException
 	{
 		if(value >= 0)
 		{
@@ -494,17 +503,17 @@ public abstract class SerailizerStream<T>
 		}
 	}
 
-	protected static void writeChar(ByteDataBuffer data, int value) throws IOException
+	protected static void writeChar(ChannelDataBuffer data, int value) throws IOException
 	{
 		writeChar(data, (char)value);
 	}
 
-	protected static void writeChar(ByteDataBuffer data, char value) throws IOException
+	protected static void writeChar(ChannelDataBuffer data, char value) throws IOException
 	{
 		writeShort(data, value);
 	}
 
-	protected static void writeLong(ByteDataBuffer data, long value) throws IOException
+	protected static void writeLong(ChannelDataBuffer data, long value) throws IOException
 	{
 		while(true)
 		{
@@ -521,7 +530,7 @@ public abstract class SerailizerStream<T>
 		}
 	}
 
-	protected static void writeRawLittleEndian32(ByteDataBuffer data, final int value) throws IOException
+	protected static void writeRawLittleEndian32(ChannelDataBuffer data, final int value) throws IOException
 	{
 		writeByte(data, (value) & 0xFF);
 		writeByte(data, (value >> 8) & 0xFF);
@@ -529,7 +538,7 @@ public abstract class SerailizerStream<T>
 		writeByte(data, (value >> 24) & 0xFF);
 	}
 
-	protected static void writeRawLittleEndian64(ByteDataBuffer data, final long value) throws IOException
+	protected static void writeRawLittleEndian64(ChannelDataBuffer data, final long value) throws IOException
 	{
 		writeByte(data, (int)(value) & 0xFF);
 		writeByte(data, (int)(value >> 8) & 0xFF);
@@ -541,29 +550,29 @@ public abstract class SerailizerStream<T>
 		writeByte(data, (int)(value >> 56) & 0xFF);
 	}
 
-	protected static void writeFloat(ByteDataBuffer data, final float value) throws IOException
+	protected static void writeFloat(ChannelDataBuffer data, final float value) throws IOException
 	{
 		writeRawLittleEndian32(data, Float.floatToRawIntBits(value));
 	}
 
-	protected static void writeDouble(ByteDataBuffer data, final double value) throws IOException
+	protected static void writeDouble(ChannelDataBuffer data, final double value) throws IOException
 	{
 		writeRawLittleEndian64(data, Double.doubleToRawLongBits(value));
 	}
 
-	protected static void writeTag(ByteDataBuffer data, int tag) throws IOException
+	protected static void writeTag(ChannelDataBuffer data, int tag) throws IOException
 	{
 		tag = ((tag << 3) | 0);
 		write(data, tag);
 	}
 
-	protected static void write(ByteDataBuffer data, byte[] b) throws IOException
+	protected static void write(ChannelDataBuffer data, byte[] b) throws IOException
 	{
 		// buffer.put(b);
 		data.getOutputStream().write(b);
 	}
 
-	protected static void writeString(ByteDataBuffer data, String s) throws IOException
+	protected static void writeString(ChannelDataBuffer data, String s) throws IOException
 	{
 		if(null == s)
 			return;
@@ -572,7 +581,7 @@ public abstract class SerailizerStream<T>
 		write(data, bytes);
 	}
 
-	protected static <T> T readObject(ByteDataBuffer data, Class<T> type) throws IOException
+	protected static <T> T readObject(ChannelDataBuffer data, Class<T> type) throws IOException
 	{
 		Type dataType = ReflectionCache.getType(type);
 		switch (dataType) 
@@ -673,7 +682,7 @@ public abstract class SerailizerStream<T>
 
 	}
 
-	protected static void writeObject(ByteDataBuffer data, Object value, Class type) throws IOException
+	protected static void writeObject(ChannelDataBuffer data, Object value, Class type) throws IOException
 	{
 		Type declType = ReflectionCache.getType(type);
 		switch (declType) 
@@ -787,7 +796,7 @@ public abstract class SerailizerStream<T>
 		stream.marshal(value, data);
 	}
 
-	protected static void writeObject(ByteDataBuffer data, Object value) throws IOException
+	protected static void writeObject(ChannelDataBuffer data, Object value) throws IOException
 	{
 		if(null != value)
 		{
@@ -795,19 +804,19 @@ public abstract class SerailizerStream<T>
 		}
 	}
 	
-	public static ByteDataBuffer serialize(Object obj, ByteDataBuffer data) throws NotSerializableException, IOException
+	public static ChannelDataBuffer serialize(Object obj, ChannelDataBuffer data) throws NotSerializableException, IOException
 	{
 		writeObject(data, obj);
 		return data;
 	}
 	
-	public static <T> T deserialize(Class<T> type, ByteDataBuffer data) throws NotSerializableException, IOException,InstantiationException
+	public static <T> T deserialize(Class<T> type, ChannelDataBuffer data) throws NotSerializableException, IOException,InstantiationException
 	{
 		return readObject(data, type);
 	}
 	
-	protected abstract ByteDataBuffer marshal(T obj, ByteDataBuffer data) throws NotSerializableException, IOException;
+	protected abstract ChannelDataBuffer marshal(T obj, ChannelDataBuffer data) throws NotSerializableException, IOException;
 
-	protected abstract T unmarshal(Class<T> type, ByteDataBuffer data) throws NotSerializableException, IOException, InstantiationException;
+	protected abstract T unmarshal(Class<T> type, ChannelDataBuffer data) throws NotSerializableException, IOException, InstantiationException;
 	
 }

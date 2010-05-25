@@ -20,7 +20,7 @@ import com.hyk.compress.compressor.Compressor;
 import com.hyk.compress.compressor.none.NoneCompressor;
 import com.hyk.compress.preference.CompressPreference;
 import com.hyk.compress.preference.EmptyCompressPreference;
-import com.hyk.io.ByteDataBuffer;
+import com.hyk.io.buffer.ChannelDataBuffer;
 
 import com.hyk.rpc.core.address.Address;
 import com.hyk.rpc.core.constant.RpcConstants;
@@ -148,7 +148,7 @@ public abstract class RpcChannel
 
 	public final void sendMessage(Message message) throws NotSerializableException, IOException
 	{
-		ByteDataBuffer data = serializer.serialize(message);
+		ChannelDataBuffer data = serializer.serialize(message);
 		int size = data.readableBytes();
 		if(logger.isDebugEnabled())
 		{
@@ -164,10 +164,10 @@ public abstract class RpcChannel
 		int len = 0;
 		for(int i = 0; i < msgFragsount; i++)
 		{
-			ByteBuffer sent = null;
+			ChannelDataBuffer sent = null;
 			if(msgFragsount == 1)
 			{
-				sent = data.toByteBuffer();
+				sent = data;
 			}
 			else
 			{
@@ -183,9 +183,10 @@ public abstract class RpcChannel
 
 				// sent = ByteBuffer.allocate(len);
 				byte[] raw = new byte[len];
-				data.get(raw);
+				data.readBytes(raw);
+				sent = ChannelDataBuffer.wrap(raw);
 				// sent = raw;
-				sent = ByteBuffer.wrap(raw);
+				//sent = ByteBuffer.wrap(raw);
 			}
 
 			MessageFragment fragment = new MessageFragment();
@@ -196,7 +197,7 @@ public abstract class RpcChannel
 			fragment.setContent(sent);
 			if(logger.isDebugEnabled())
 			{
-				logger.debug("Send message with size:" + sent.remaining() + ", fragments count:" + msgFragsount);
+				logger.debug("Send message with size:" + sent.capacity() + ", fragments count:" + msgFragsount);
 			}
 			// when the send list empty ,send data directly
 			if(null != threadPool && !sendList.isEmpty())
@@ -270,8 +271,8 @@ public abstract class RpcChannel
 	{
 		// ByteArray data = ByteArray.allocate(maxMessageSize + GAP);
 		// data.put(MAGIC_HEADER);
-		int baseSize = msg.getContent().remaining();
-		ByteDataBuffer data = ByteDataBuffer.allocate(baseSize + 2 * GAP);
+		int baseSize = msg.getContent().capacity();
+		ChannelDataBuffer data = ChannelDataBuffer.allocate(baseSize + 2 * GAP);
 		// data.put(MAGIC_HEADER);
 		data.getOutputStream().write(MAGIC_HEADER);
 		int compressorId = CompressorFactory.getRegistCompressor(compressPreference.getCompressor().getName()).id;
@@ -282,13 +283,13 @@ public abstract class RpcChannel
 		}
 		else
 		{
-			ByteDataBuffer seriaData = ByteDataBuffer.allocate(baseSize + GAP);
+			ChannelDataBuffer seriaData = ChannelDataBuffer.allocate(baseSize + GAP);
 			seriaData = serializer.serialize(msg, seriaData);
 			if(logger.isDebugEnabled())
 			{
 				logger.debug("Send/Before compressing, data size:" + seriaData.readableBytes());
 			}
-			ByteDataBuffer newData = compressPreference.getCompressor().compress(seriaData, data);
+			ChannelDataBuffer newData = compressPreference.getCompressor().compress(seriaData, data);
 			if(logger.isDebugEnabled())
 			{
 				logger.debug("Send/After compressing, data size:" + newData.readableBytes());
@@ -341,8 +342,8 @@ public abstract class RpcChannel
 		{
 			logger.debug("Recv data from " + data.address + ", data size is " + data.content.readableBytes());
 		}
-		ByteDataBuffer oldContent = data.content;
-		oldContent.get(magicHeader);
+		ChannelDataBuffer oldContent = data.content;
+		oldContent.readBytes(magicHeader);
 		// oldContent.getInputStream().read(magicHeader);
 		if(!Arrays.equals(magicHeader, MAGIC_HEADER))
 		{
@@ -360,7 +361,7 @@ public abstract class RpcChannel
 			{
 				logger.debug("Recv/Before decompressing, data size:" + oldContent.readableBytes());
 			}
-			ByteDataBuffer content = compressor.decompress(oldContent);
+			ChannelDataBuffer content = compressor.decompress(oldContent);
 			if(logger.isDebugEnabled())
 			{
 				logger.debug("Recv/After decompressing, data size:" + content.readableBytes());
@@ -380,7 +381,7 @@ public abstract class RpcChannel
 			// content.free();
 			if(fragment.getTotalFragmentCount() == 1 && fragment.getSequence() == 0)
 			{
-				Message msg = serializer.deserialize(Message.class, ByteDataBuffer.wrap(fragment.getContent()));
+				Message msg = serializer.deserialize(Message.class, fragment.getContent());
 				// fragment.getContent().free();
 
 				msg.setAddress(data.address);
@@ -406,22 +407,22 @@ public abstract class RpcChannel
 					}
 					return null;
 				}
-				totalSize += fragments[i].getContent().remaining();
+				totalSize += fragments[i].getContent().capacity();
 			}
 			if(logger.isDebugEnabled())
 			{
 				logger.debug("Message is ready to process!");
 			}
-			ByteDataBuffer msgBuffer = ByteDataBuffer.allocate(totalSize);
+			ChannelDataBuffer[] msgBuffers = new ChannelDataBuffer[fragments.length];
 			for(int i = 0; i < fragments.length; i++)
 			{
 				// msgBuffer.getOutputStream().write(fragments[i].getContent());
-				msgBuffer.put(fragments[i].getContent());
+				msgBuffers[i] = fragments[i].getContent();
 			}
-			msgBuffer.flip();
+			//msgBuffer.flip();
 			deleteMessageFragments(fragment.getId());
 
-			Message msg = serializer.deserialize(Message.class, msgBuffer);
+			Message msg = serializer.deserialize(Message.class, ChannelDataBuffer.wrap(msgBuffers));
 			msg.setSessionID(fragment.getSessionID());
 			msg.setAddress(data.address);
 			// msgBuffer.free();
