@@ -6,8 +6,7 @@ package com.hyk.serializer.impl;
 import java.io.IOException;
 import java.io.NotSerializableException;
 
-import com.hyk.util.buffer.ByteArray;
-import com.hyk.io.ByteDataBuffer;
+import com.hyk.io.buffer.ChannelDataBuffer;
 
 /**
  * @author qiying.wang
@@ -16,14 +15,14 @@ import com.hyk.io.ByteDataBuffer;
 public class DoubleSerializerStream extends SerailizerStream<Double> {
 
 	@Override
-	protected Double unmarshal(Class<Double> type, ByteDataBuffer data)
+	protected Double unmarshal(Class<Double> type, ChannelDataBuffer data)
 			throws NotSerializableException, IOException,
 			InstantiationException {
 		return readDouble(data);
 	}
 
 	@Override
-	protected ByteDataBuffer marshal(Double value, ByteDataBuffer data)
+	protected ChannelDataBuffer marshal(Double value, ChannelDataBuffer data)
 			throws NotSerializableException, IOException {
 		writeDouble(data, value);
 		return data;

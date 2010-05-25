@@ -12,8 +12,7 @@ package compress.quicklz;
 import java.io.IOException;
 
 import com.hyk.compress.compressor.Compressor;
-import com.hyk.io.ByteDataBuffer;
-import com.hyk.util.buffer.ByteArray;
+import com.hyk.io.buffer.ChannelDataBuffer;
 
 /**
  *
@@ -22,17 +21,18 @@ public class QuickLZCompressor implements Compressor
 {
 	public static final String NAME = "quicklz";
 	@Override
-	public ByteDataBuffer compress(ByteDataBuffer data) throws IOException
+	public ChannelDataBuffer compress(ChannelDataBuffer data) throws IOException
 	{
-		byte[] raw = data.toByteArray();
-		return ByteDataBuffer.wrap(QuickLZ.compress(raw, 1));
+		byte[] raw = ChannelDataBuffer.asByteArray(data);
+		data.clear();
+		return ChannelDataBuffer.wrap(QuickLZ.compress(raw, 1));
 	}
 
 	@Override
-	public ByteDataBuffer decompress(ByteDataBuffer data) throws IOException
+	public ChannelDataBuffer decompress(ChannelDataBuffer data) throws IOException
 	{
-		byte[] raw = data.toByteArray();
-		return ByteDataBuffer.wrap(QuickLZ.decompress(raw));
+		byte[] raw = ChannelDataBuffer.asByteArray(data);
+		return ChannelDataBuffer.wrap(QuickLZ.decompress(raw));
 	}
 
 	@Override
@@ -42,10 +42,10 @@ public class QuickLZCompressor implements Compressor
 	}
 
 	@Override
-	public ByteDataBuffer compress(ByteDataBuffer data, ByteDataBuffer out) throws IOException
+	public ChannelDataBuffer compress(ChannelDataBuffer data, ChannelDataBuffer out) throws IOException
 	{
-		byte[] raw = data.toByteArray();
-		out.put(QuickLZ.compress(raw, 1));
+		byte[] raw = ChannelDataBuffer.asByteArray(data);
+		out.writeBytes(QuickLZ.compress(raw, 1));
 		out.flip();
 		return out;
 	}

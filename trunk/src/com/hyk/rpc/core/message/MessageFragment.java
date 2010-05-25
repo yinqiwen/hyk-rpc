@@ -6,12 +6,11 @@ package com.hyk.rpc.core.message;
 import java.io.IOException;
 import java.nio.ByteBuffer;
 
-import com.hyk.io.ByteDataBuffer;
+import com.hyk.io.buffer.ChannelDataBuffer;
 import com.hyk.rpc.core.address.Address;
 import com.hyk.serializer.Externalizable;
 import com.hyk.serializer.SerializerInput;
 import com.hyk.serializer.SerializerOutput;
-import com.hyk.util.buffer.ByteArray;
 
 /**
  * @author Administrator
@@ -51,11 +50,11 @@ public class MessageFragment implements Externalizable{
 		this.totalFragmentCount = totalFragmentCount;
 	}
 
-	public ByteBuffer getContent() {
+	public ChannelDataBuffer getContent() {
 		return content;
 	}
 
-	public void setContent(ByteBuffer content) {
+	public void setContent(ChannelDataBuffer content) {
 		this.content = content;
 	}
 	//Address address;
@@ -72,7 +71,7 @@ public class MessageFragment implements Externalizable{
 	}
 	int sequence;
 	int totalFragmentCount;
-	ByteBuffer content;
+	ChannelDataBuffer content;
 	
 	@Override
 	public void readExternal(SerializerInput in) throws IOException {
@@ -83,7 +82,7 @@ public class MessageFragment implements Externalizable{
 		byte[] raw = in.readBytes();
 		if(null != raw)
 		{
-			content = ByteBuffer.wrap(raw);
+			content = ChannelDataBuffer.wrap(raw);
 		}
 		//content = ByteDataBuffer.wrap(rawContent);
 	}
@@ -96,7 +95,12 @@ public class MessageFragment implements Externalizable{
 		out.writeInt(totalFragmentCount);
 		if(null != content)
 		{
-			out.writeBytes(content.array(), content.position(), content.remaining());
+			ByteBuffer[] bufs = ChannelDataBuffer.asByteBuffers(content);
+			out.writeInt(content.capacity());
+			for(ByteBuffer buf:bufs)
+			{
+				out.writeRawBytes(buf.array(), buf.position(), buf.remaining());
+			}
 		}
 		
 	}

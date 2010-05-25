@@ -5,23 +5,23 @@ import java.nio.ByteBuffer;
 import java.util.List;
 
 import com.hyk.compress.compressor.Compressor;
-import com.hyk.io.ByteDataBuffer;
+import com.hyk.io.buffer.ChannelDataBuffer;
 
 
 public class LZFCompressor implements Compressor {
 
 	@Override
-	public ByteDataBuffer compress(ByteDataBuffer data)
+	public ChannelDataBuffer compress(ChannelDataBuffer data)
 			throws IOException {
-		ByteDataBuffer ret = ByteDataBuffer.allocate(data.size() / 3);
+		ChannelDataBuffer ret = ChannelDataBuffer.allocate(data.readableBytes() / 3);
 		
 		return compress(data, ret);
 	}
 
 	@Override
-	public ByteDataBuffer decompress(ByteDataBuffer data)
+	public ChannelDataBuffer decompress(ChannelDataBuffer data)
 			throws IOException {
-		ByteDataBuffer ret = ByteDataBuffer.allocate(data.size() * 3);
+		ChannelDataBuffer ret = ChannelDataBuffer.allocate(data.readableBytes() * 3);
 		LZFInputStream lzfis = new LZFInputStream(data.getInputStream());
 		int b;
 		while((b = lzfis.read()) != -1)
@@ -40,10 +40,10 @@ public class LZFCompressor implements Compressor {
 	}
 
 	@Override
-	public ByteDataBuffer compress(ByteDataBuffer data, ByteDataBuffer out) throws IOException
+	public ChannelDataBuffer compress(ChannelDataBuffer data, ChannelDataBuffer out) throws IOException
 	{
 		LZFOutputStream lzfos = new LZFOutputStream(out.getOutputStream());
-		List<ByteBuffer> bufs = data.buffers();
+		ByteBuffer[] bufs = ChannelDataBuffer.asByteBuffers(data);
 		for(ByteBuffer buf:bufs)
 		{
 			byte[] raw = buf.array();

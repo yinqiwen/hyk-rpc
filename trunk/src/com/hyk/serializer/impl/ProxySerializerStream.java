@@ -14,9 +14,8 @@ import java.io.NotSerializableException;
 import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.Proxy;
 
+import com.hyk.io.buffer.ChannelDataBuffer;
 import com.hyk.serializer.util.ObjectReferenceUtil;
-import com.hyk.util.buffer.ByteArray;
-import com.hyk.io.ByteDataBuffer;
 
 /**
  *
@@ -25,7 +24,7 @@ public class ProxySerializerStream<T> extends SerailizerStream<T>
 {
 
 	@Override
-	protected T unmarshal(Class<T> type, ByteDataBuffer data) throws NotSerializableException, IOException, InstantiationException
+	protected T unmarshal(Class<T> type, ChannelDataBuffer data) throws NotSerializableException, IOException, InstantiationException
 	{
 		try
 		{	
@@ -48,7 +47,7 @@ public class ProxySerializerStream<T> extends SerailizerStream<T>
 	}
 
 	@Override
-	protected ByteDataBuffer marshal(T value, ByteDataBuffer data) throws NotSerializableException, IOException
+	protected ChannelDataBuffer marshal(T value, ChannelDataBuffer data) throws NotSerializableException, IOException
 	{
 		Class[] interfaces = value.getClass().getInterfaces();
 		String[] interfaceNames = new String[interfaces.length];

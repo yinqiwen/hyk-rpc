@@ -3,7 +3,7 @@
  */
 package com.hyk.rpc.core.transport;
 
-import com.hyk.io.ByteDataBuffer;
+import com.hyk.io.buffer.ChannelDataBuffer;
 import com.hyk.rpc.core.address.Address;
 
 /**
@@ -12,10 +12,10 @@ import com.hyk.rpc.core.address.Address;
  */
 public class RpcChannelData {
 
-	public RpcChannelData(ByteDataBuffer data, Address address) {
+	public RpcChannelData(ChannelDataBuffer data, Address address) {
 		this.content = data;
 		this.address = address;
 	}
-	public final ByteDataBuffer content;
+	public final ChannelDataBuffer content;
 	public final Address address;
 }

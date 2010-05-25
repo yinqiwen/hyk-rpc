@@ -7,11 +7,10 @@ import java.io.IOException;
 import java.io.NotSerializableException;
 import java.lang.reflect.Array;
 
+import com.hyk.io.buffer.ChannelDataBuffer;
 import com.hyk.serializer.io.Type;
 import com.hyk.serializer.reflect.ReflectionCache;
 import com.hyk.serializer.util.ObjectReferenceUtil;
-import com.hyk.util.buffer.ByteArray;
-import com.hyk.io.ByteDataBuffer;
 
 /**
  * @author qiying.wang
@@ -21,7 +20,7 @@ public class ArraySerializerStream<T> extends SerailizerStream<T>
 {
 
 	@Override
-	protected T unmarshal(Class<T> type, ByteDataBuffer data) throws NotSerializableException, IOException
+	protected T unmarshal(Class<T> type, ChannelDataBuffer data) throws NotSerializableException, IOException
 	{
 		try
 		{
@@ -60,7 +59,7 @@ public class ArraySerializerStream<T> extends SerailizerStream<T>
 	}
 
 	@Override
-	protected ByteDataBuffer marshal(Object value,ByteDataBuffer data) throws NotSerializableException, IOException
+	protected ChannelDataBuffer marshal(Object value,ChannelDataBuffer data) throws NotSerializableException, IOException
 	{
 		int len = Array.getLength(value);
 		writeInt(data, len);

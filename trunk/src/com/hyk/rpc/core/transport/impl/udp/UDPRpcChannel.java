@@ -10,7 +10,7 @@ import java.nio.ByteBuffer;
 import java.nio.channels.DatagramChannel;
 import java.util.concurrent.Executor;
 
-import com.hyk.io.ByteDataBuffer;
+import com.hyk.io.buffer.ChannelDataBuffer;
 import com.hyk.rpc.core.address.Address;
 import com.hyk.rpc.core.address.SimpleSockAddress;
 import com.hyk.rpc.core.transport.RpcChannelData;
@@ -49,8 +49,8 @@ public class UDPRpcChannel extends AbstractDefaultRpcChannel
 		recvBuffer.flip();
 		
 		SimpleSockAddress address = new SimpleSockAddress(target.getAddress().getHostAddress(), target.getPort());
-		ByteDataBuffer data = ByteDataBuffer.allocate(recvBuffer.limit());
-		data.put(recvBuffer);
+		ChannelDataBuffer data = ChannelDataBuffer.allocate(recvBuffer.limit());
+		data.writeBytes(recvBuffer);
 		data.flip();
 		return new RpcChannelData(data, address);
 
@@ -61,7 +61,7 @@ public class UDPRpcChannel extends AbstractDefaultRpcChannel
 	{
 		SimpleSockAddress address = (SimpleSockAddress)data.address;
 		InetSocketAddress addr = new InetSocketAddress(address.getHost(), address.getPort());
-		channel.send(data.content.toByteBuffer(), addr);
+		channel.send(ChannelDataBuffer.asByteBuffer(data.content), addr);
 	}
 
 	@Override

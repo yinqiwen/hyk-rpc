@@ -12,7 +12,7 @@ package com.hyk.rpc.core.transport.impl;
 import java.io.IOException;
 import java.util.concurrent.Executor;
 
-import com.hyk.io.ByteDataBuffer;
+import com.hyk.io.buffer.ChannelDataBuffer;
 import com.hyk.rpc.core.address.Address;
 import com.hyk.rpc.core.transport.RpcChannelData;
 
@@ -31,7 +31,7 @@ public abstract class AbstractDefaultBufferRpcChannel extends AbstractDefaultRpc
 	class BufferRpcChannelData
 	{
 		Address remoteAddress;
-		ByteDataBuffer data;
+		ChannelDataBuffer data;
 		
 		int length = -1;
 		public boolean isReady()

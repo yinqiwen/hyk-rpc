@@ -10,7 +10,7 @@ import java.util.zip.GZIPInputStream;
 import java.util.zip.GZIPOutputStream;
 
 import com.hyk.compress.compressor.Compressor;
-import com.hyk.io.ByteDataBuffer;
+import com.hyk.io.buffer.ChannelDataBuffer;
 
 /**
  * @author Administrator
@@ -20,17 +20,17 @@ public class GZipCompressor implements Compressor
 {
 	public static final String NAME = "gz";
 	@Override
-	public ByteDataBuffer compress(ByteDataBuffer data) throws IOException
+	public ChannelDataBuffer compress(ChannelDataBuffer data) throws IOException
 	{
-		ByteDataBuffer ret = ByteDataBuffer.allocate(data.readableBytes() / 3);
+		ChannelDataBuffer ret = ChannelDataBuffer.allocate(data.readableBytes() / 3);
 		
 		return compress(data,ret);
 	}
 
 	@Override
-	public ByteDataBuffer decompress(ByteDataBuffer data) throws IOException
+	public ChannelDataBuffer decompress(ChannelDataBuffer data) throws IOException
 	{
-		ByteDataBuffer ret = ByteDataBuffer.allocate(data.readableBytes() * 3);
+		ChannelDataBuffer ret = ChannelDataBuffer.allocate(data.readableBytes() * 3);
 		GZIPInputStream gis = new GZIPInputStream(data.getInputStream());
 		int b;
 		
@@ -53,11 +53,11 @@ public class GZipCompressor implements Compressor
 	}
 
 	@Override
-	public ByteDataBuffer compress(ByteDataBuffer data, ByteDataBuffer out) throws IOException
+	public ChannelDataBuffer compress(ChannelDataBuffer data, ChannelDataBuffer out) throws IOException
 	{
 		GZIPOutputStream gos = new GZIPOutputStream(out.getOutputStream());
 		//List<ByteBuffer> bufs = data.buffers();
-		for(ByteBuffer buf:data.buffers())
+		for(ByteBuffer buf:ChannelDataBuffer.asByteBuffers(data))
 		{
 			byte[] raw = buf.array();
 			int offset = buf.position();
