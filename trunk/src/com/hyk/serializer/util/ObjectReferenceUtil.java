@@ -17,24 +17,25 @@ import java.util.List;
  */
 public class ObjectReferenceUtil
 {
-	private static ThreadLocal<List<Object>>	serializeRferenceTable	= new ThreadLocal<List<Object>>()
-																		{
-																			protected List<Object> initialValue()
+	private static ThreadLocal<List<Object>>	serializeRferenceTable		= new ThreadLocal<List<Object>>()
 																			{
-																				return new ArrayList<Object>();
-																			}
-																		};
+																				protected List<Object> initialValue()
+																				{
+																					return new ArrayList<Object>();
+																				}
+																			};
 	private static ThreadLocal<List<Object>>	deserializeRferenceTable	= new ThreadLocal<List<Object>>()
-																		{
-																			protected List<Object> initialValue()
 																			{
-																				return new ArrayList<Object>();
-																			}
-																		};
+																				protected List<Object> initialValue()
+																				{
+																					return new ArrayList<Object>();
+																				}
+																			};
 
 	public static void addSerializeThreadLocalObject(Object obj)
 	{
-		//System.out.println("@@@@ " + serializeRferenceTable.get().size() + " " + obj.getClass());
+		// System.out.println("@@@@ " + serializeRferenceTable.get().size() +
+		// " " + obj.getClass());
 		serializeRferenceTable.get().add(obj);
 	}
 
@@ -55,21 +56,22 @@ public class ObjectReferenceUtil
 		}
 		return -1;
 	}
-	
+
 	public static void cleanSerializeThreadLocalObjects()
 	{
 		serializeRferenceTable.get().clear();
 	}
-	
+
 	public static void addDeserializeThreadLocalObject(Object obj)
 	{
-		//System.out.println("####" + deserializeRferenceTable.get().size() + " " + obj.getClass());
+		// System.out.println("####" + deserializeRferenceTable.get().size() +
+		// " " + obj.getClass());
 		deserializeRferenceTable.get().add(obj);
 	}
 
 	public static Object getDeserializeThreadLocalObject(int seq)
 	{
-		//System.out.println("#### query" + seq);
+		// System.out.println("#### query" + seq);
 		return deserializeRferenceTable.get().get(seq);
 	}
 
@@ -85,7 +87,7 @@ public class ObjectReferenceUtil
 		}
 		return -1;
 	}
-	
+
 	public static void cleanDeserializeThreadLocalObjects()
 	{
 		deserializeRferenceTable.get().clear();

@@ -129,7 +129,7 @@ public class RemoteObjectFactory
 		return ref.getImpl();
 	}
 	
-	public long getRemoteObjectId(Object obj) 
+	public static long getRemoteObjectId(Object obj) 
 	{
 		if(Proxy.isProxyClass(obj.getClass()))
 		{
@@ -141,6 +141,19 @@ public class RemoteObjectFactory
 			}
 		}
 		return 0;
+	}
+	
+	public static Address getRemoteObjectAddress(Object obj) 
+	{
+		if(Proxy.isProxyClass(obj.getClass()))
+		{
+			InvocationHandler handler = Proxy.getInvocationHandler(obj);
+			if(handler instanceof RemoteObjectProxy)
+			{
+				return ((RemoteObjectProxy)handler).getHostAddress();
+			}
+		}
+		return null;
 	}
 	
 	public Object getRawObject(Object obj)

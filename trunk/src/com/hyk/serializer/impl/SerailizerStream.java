@@ -413,10 +413,7 @@ public abstract class SerailizerStream<T>
 			//data.position(data.position() + size);
 			return s;
 		}
-		else
-		{
-			throw new IOException("No enought data in stream!" + data.getInputStream().available());
-		}
+		throw new IOException("No enought data in stream!" + data.getInputStream().available() +"-" + size);
 	}
 
 	protected static void writeByte(ChannelDataBuffer data, final byte value) throws IOException
