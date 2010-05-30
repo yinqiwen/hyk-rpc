@@ -98,9 +98,14 @@ public class RPC
 		return remoteObjectFactory.publish(obj, objid);
 	}
 	
-	public long getRemoteObjectId(Object obj)
+	public static long getRemoteObjectId(Object obj)
 	{
-		return remoteObjectFactory.getRemoteObjectId(obj);
+		return RemoteObjectFactory.getRemoteObjectId(obj);
+	}
+	
+	public static Address getRemoteObjectAddress(Object obj)
+	{
+		return RemoteObjectFactory.getRemoteObjectAddress(obj);
 	}
 	
 	public void close()
