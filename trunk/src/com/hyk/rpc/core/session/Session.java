@@ -79,12 +79,12 @@ public class Session
 	{
 		// request.setSessionID(id);
 		channel.sendMessage(request);
-		if(!channel.isReliable())
+		if(!channel.isReliable() && null == retransmitTask)
 		{
 			Runnable task = new RetransmitTimerTask();
 			retransmitTask = sessionManager.timer.schedule(task, retransmitTimeStep);
 		}
-		if(sessionManager.getSessionTimeout() > 0)
+		if(sessionManager.getSessionTimeout() > 0 && null == sessionTimeoutTask)
 		{
 			Runnable task = new SessionTimeoutTask();
 			sessionTimeoutTask = sessionManager.timer.schedule(task, sessionManager.getSessionTimeout());
@@ -123,12 +123,18 @@ public class Session
 		if(null != retransmitTask)
 		{
 			retransmitTask.cancel();
+			retransmitTask = null;
 		}
 		if(null != sessionTimeoutTask)
 		{
 			sessionTimeoutTask.cancel();
+			sessionTimeoutTask = null;
 		}
 		channel.clearSessionData(request.getId());
+		responseListener = null;
+		requestListener = null;
+		request = null;
+		response = null;
 	}
 
 	public void processRequest()
@@ -230,6 +236,7 @@ public class Session
 		@Override
 		public void run()
 		{
+			sessionManager.removeClientSession(request.getSessionID());
 			Message resMsg = MessageFactory.instance.createResponse(request, new Rpctimeout(""));
 			processResponse(resMsg);
 		}
