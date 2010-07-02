@@ -1,16 +1,10 @@
-import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
 import java.io.IOException;
-import java.io.ObjectInputStream;
-import java.io.ObjectOutputStream;
 import java.nio.ByteBuffer;
-import java.util.List;
-
-import com.hyk.io.ByteDataBuffer;
-import com.hyk.serializer.StandardSerializer;
-import com.hyk.util.buffer.ByteArray;
 
 import target.TargetClassTop;
+
+import com.hyk.io.buffer.ChannelDataBuffer;
+import com.hyk.serializer.StandardSerializer;
 
 /**
  * 
@@ -35,16 +29,16 @@ public class JavaSerializer {
 		StandardSerializer ser = new StandardSerializer();
 		long start = System.currentTimeMillis();
 		for (int i = 0; i < 99999; i++) {
-			ByteDataBuffer array = ser.serialize(test);
+			ChannelDataBuffer array = ser.serialize(test);
 			//array.free();
 		}
-		ByteDataBuffer array = ser.serialize(test);
+		ChannelDataBuffer array = ser.serialize(test);
 		long end = System.currentTimeMillis();
 		System.out.println("####Serialize time:" + (end - start));
 		
 		//byte[] data = bos.toByteArray();
-		System.out.println("####Serialize size:" + array.size());
-		ByteBuffer[] bufs = array.buffers();
+		System.out.println("####Serialize size:" + array.readableBytes());
+		ByteBuffer[] bufs = ChannelDataBuffer.asByteBuffers(array);
 		
 		start = System.currentTimeMillis();
 		for (int i = 0; i < 99999; i++) {

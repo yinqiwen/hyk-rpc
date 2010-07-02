@@ -12,7 +12,7 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
-import com.hyk.io.ByteDataBuffer;
+import com.hyk.io.buffer.ChannelDataBuffer;
 import com.hyk.rpc.core.message.Message;
 import com.hyk.rpc.core.message.MessageFactory;
 import com.hyk.rpc.core.message.Response;
@@ -71,7 +71,7 @@ public class HykSerializerTest extends TestCase {
 	{
 		int expected = 1;
 		//byte[] data = serializer.serialize(expected);
-		ByteDataBuffer data = serializer.serialize(expected);
+		ChannelDataBuffer data = serializer.serialize(expected);
 		int actually = serializer.deserialize(int.class, data);
 		assertEquals(actually, expected);
 		
@@ -106,7 +106,7 @@ public class HykSerializerTest extends TestCase {
 	public void testObject2() throws NotSerializableException, IOException, InstantiationException
 	{
 		TestF t = new TestF();
-		ByteDataBuffer data = serializer.serialize(t);
+		ChannelDataBuffer data = serializer.serialize(t);
 		serializer.deserialize(TestF.class, data);
 	}
 	public void testMessage() throws NotSerializableException, IOException, InstantiationException
@@ -117,7 +117,7 @@ public class HykSerializerTest extends TestCase {
 		//paras[0].setValue("safasgas");
 		Object[] paras = new Object[]{"safasgas"};
 		Message request = MessageFactory.instance.createRequest(-1, "hello", paras);
-		ByteDataBuffer data = serializer.serialize(request);
+		ChannelDataBuffer data = serializer.serialize(request);
 		//byte[] data = serializer.serialize_(msg);
 		//System.out.println(new String(data.toByteDataBuffer()));
 		serializer.deserialize(Message.class, data);
@@ -125,7 +125,7 @@ public class HykSerializerTest extends TestCase {
 		Message response = MessageFactory.instance.createResponse(request, new NullPointerException("waht!"));
 		assertNotNull(response.getValue());
 		data = serializer.serialize(response);
-		System.out.println(data.size());
+		System.out.println(data.readableBytes());
 		response = serializer.deserialize(Message.class, data);
 		data = serializer.serialize(request);
 		assertNotNull(response.getValue());
@@ -137,7 +137,7 @@ public class HykSerializerTest extends TestCase {
 	{
 		int[] array = new int[]{0,1,2,456,-789,-48100,10625, 0};
 		//byte[] data = serializer.serialize(array);
-		ByteDataBuffer data = serializer.serialize(array);
+		ChannelDataBuffer data = serializer.serialize(array);
 		int[] array2 = serializer.deserialize(int[].class, data);
 		assertEquals(true, Arrays.equals(array, array2));	
 		
@@ -153,13 +153,13 @@ public class HykSerializerTest extends TestCase {
 		
 		byte[] content = new byte[32];
 		data = serializer.serialize(content);
-		System.out.println("####" + data.size());
+		System.out.println("####" + data.readableBytes());
 	}
 	
 	public void testEnum() throws NotSerializableException, IOException, InstantiationException
 	{
 		//byte[] data = serializer.serialize(TEST.A);
-		ByteDataBuffer data = serializer.serialize(TEST.A);
+		ChannelDataBuffer data = serializer.serialize(TEST.A);
 		TEST result = serializer.deserialize(TEST.class, data);
 		assertEquals(result, TEST.A);
 		
@@ -172,7 +172,7 @@ public class HykSerializerTest extends TestCase {
 	{
 		byte b = (byte) 128;
 		//byte[] data = serializer.serialize(b);
-		ByteDataBuffer data = serializer.serialize(b);
+		ChannelDataBuffer data = serializer.serialize(b);
 		byte result = serializer.deserialize(byte.class, data);
 		assertEquals(result, b);
 		
@@ -185,7 +185,8 @@ public class HykSerializerTest extends TestCase {
 	public void testString() throws NotSerializableException, IOException, InstantiationException
 	{
 		//byte[] data = serializer.serialize("hello,world");
-		ByteDataBuffer data = serializer.serialize("hello,world");
+		ChannelDataBuffer data = serializer.serialize("hello,world");
+		System.out.println("####" + data.capacity());
 		String result = serializer.deserialize(String.class, data);
 		assertEquals(result, "hello,world");
 	}
@@ -193,7 +194,7 @@ public class HykSerializerTest extends TestCase {
 	public void testException() throws NotSerializableException, IOException, InstantiationException
 	{
 		NullPointerException exception = new NullPointerException("asdasfas");
-		ByteDataBuffer data = serializer.serialize(exception);
+		ChannelDataBuffer data = serializer.serialize(exception);
 		NullPointerException result = serializer.deserialize(NullPointerException.class, data);
 		assertEquals(result.getMessage(), exception.getMessage());
 	}
@@ -202,7 +203,7 @@ public class HykSerializerTest extends TestCase {
 	{
 		Object obj = Proxy.newProxyInstance(HykSerializerTest.class.getClassLoader(), new Class[]{TI.class}, new TH());
 		//byte[] data = serializer.serialize(obj);
-		ByteDataBuffer data = serializer.serialize(obj);
+		ChannelDataBuffer data = serializer.serialize(obj);
 		TI t = (TI) serializer.deserialize(Proxy.getProxyClass(HykSerializerTest.class.getClassLoader(), new Class[]{TI.class}), data);
 		assertEquals(expectedProxyTestResult, t.say());
 	}
@@ -222,7 +223,7 @@ public class HykSerializerTest extends TestCase {
 		List<Object> list = new LinkedList<Object>();
 		list.add("asdsa");
 		list.add(120);
-		ByteDataBuffer data = serializer.serialize(list);
+		ChannelDataBuffer data = serializer.serialize(list);
 		List<Object> ret = serializer.deserialize(List.class, data);
 		assertEquals(ret, list);
 		
@@ -244,15 +245,15 @@ public class HykSerializerTest extends TestCase {
 		for (int i = 0; i < 999999; i++) {
 			//byte[] buf = new byte[100];
 			//byte[] data = serializer.serialize_(test);
-			ByteDataBuffer array = serializer.serialize(test);
+			ChannelDataBuffer array = serializer.serialize(test);
 			//array.free();
 		}
 		//byte[] data = serializer.serialize_(test);
-		ByteDataBuffer array = serializer.serialize(test);
+		ChannelDataBuffer array = serializer.serialize(test);
 		long end = System.currentTimeMillis();
 		System.out.println("####Serialize time:" + (end - start));
 
-		System.out.println("####Serialize size:" + array.size());
+		System.out.println("####Serialize size:" + array.readableBytes());
 		//System.out.println("####Serialize size:" + data.length);
 		
 		start = System.currentTimeMillis();

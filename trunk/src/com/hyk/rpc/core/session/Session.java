@@ -236,6 +236,10 @@ public class Session
 		@Override
 		public void run()
 		{
+			if(null == request || null == sessionManager)
+			{
+				return;
+			}
 			sessionManager.removeClientSession(request.getSessionID());
 			Message resMsg = MessageFactory.instance.createResponse(request, new Rpctimeout(""));
 			processResponse(resMsg);
