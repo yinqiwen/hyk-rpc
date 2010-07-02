@@ -36,9 +36,9 @@ public class Client
 	 */
 	public static void main(String[] args) throws IOException, RpcException
 	{
-		UDPRpcChannel transport = new UDPRpcChannel(Executors.newFixedThreadPool(10), 48100);
-		// TCPRpcChannel transport = new
-		// TCPRpcChannel(Executors.newFixedThreadPool(10), 48100);
+		//UDPRpcChannel transport = new UDPRpcChannel(Executors.newFixedThreadPool(10), 48100);
+		 TCPRpcChannel transport = new
+		 TCPRpcChannel(Executors.newFixedThreadPool(10), 48100);
 		RPC rpc = new RPC(transport);
 
 		NameService serv = rpc.getRemoteNaming(new SimpleSockAddress(InetAddress.getLocalHost().getHostAddress(), 48101));

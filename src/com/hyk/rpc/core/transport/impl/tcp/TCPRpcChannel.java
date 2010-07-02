@@ -24,7 +24,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.hyk.io.buffer.ChannelDataBuffer;
-import com.hyk.rpc.core.address.Address;
 import com.hyk.rpc.core.address.SimpleSockAddress;
 import com.hyk.rpc.core.transport.RpcChannelData;
 import com.hyk.rpc.core.transport.impl.AbstractDefaultBufferRpcChannel;
