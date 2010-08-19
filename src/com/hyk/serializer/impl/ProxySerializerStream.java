@@ -15,7 +15,7 @@ import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.Proxy;
 
 import com.hyk.io.buffer.ChannelDataBuffer;
-import com.hyk.serializer.util.ObjectReferenceUtil;
+import com.hyk.serializer.util.ContextUtil;
 
 /**
  *
@@ -28,16 +28,17 @@ public class ProxySerializerStream<T> extends SerailizerStream<T>
 	{
 		try
 		{	
+			
 			String[] interfaceNames = readObject(data, String[].class);
 			Class[] interfaces = new Class[interfaceNames.length];
-			ClassLoader loader = ClassLoader.getSystemClassLoader();
+			ClassLoader loader = ContextUtil.getDeserializeClassLoader();
 			for (int i = 0; i < interfaceNames.length; i++) {
 				interfaces[i] = Class.forName(interfaceNames[i], true, loader);
 			}
 			Class proxyHandlerClass = Class.forName(readString(data), true, loader);
 			InvocationHandler handler  = (InvocationHandler) readObject(data, proxyHandlerClass);
 			T ret =  (T) Proxy.newProxyInstance(loader, interfaces, handler);
-			ObjectReferenceUtil.addDeserializeThreadLocalObject(ret);
+			ContextUtil.addDeserializeThreadLocalObject(ret);
 			return ret;
 		}
 		catch(Exception e)

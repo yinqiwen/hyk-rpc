@@ -12,7 +12,7 @@ import com.hyk.serializer.impl.SerailizerStream;
 import com.hyk.serializer.io.BufferedInputStream;
 import com.hyk.serializer.io.HykObjectInput;
 import com.hyk.serializer.io.HykObjectOutput;
-import com.hyk.serializer.util.ObjectReferenceUtil;
+import com.hyk.serializer.util.ContextUtil;
 
 /**
  * @author Administrator
@@ -149,7 +149,7 @@ public class HykSerializer implements Serializer {
 	public <T> T deserialize(Class<T> type, ChannelDataBuffer data)
 			throws NotSerializableException, IOException,
 			InstantiationException {
-		ObjectReferenceUtil.cleanDeserializeThreadLocalObjects();
+		ContextUtil.cleanDeserializeThreadLocalObjects();
 		//T ret = (T)SerializerImplFactory.getSerializer(type).unmarshal(type, data);
 		T ret = SerailizerStream.deserialize(type, data);
 		data.clear();
@@ -172,7 +172,7 @@ public class HykSerializer implements Serializer {
 
 	public ChannelDataBuffer serialize(Object obj, ChannelDataBuffer input)
 			throws NotSerializableException, IOException {
-		ObjectReferenceUtil.cleanSerializeThreadLocalObjects();
+		ContextUtil.cleanSerializeThreadLocalObjects();
 		SerailizerStream.serialize(obj, input);
 		input.getOutputStream().close();
 		return input;

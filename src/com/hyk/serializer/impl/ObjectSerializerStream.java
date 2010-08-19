@@ -13,7 +13,7 @@ import com.hyk.io.buffer.ChannelDataBuffer;
 import com.hyk.serializer.Externalizable;
 import com.hyk.serializer.annotation.Stream;
 import com.hyk.serializer.reflect.ReflectionCache;
-import com.hyk.serializer.util.ObjectReferenceUtil;
+import com.hyk.serializer.util.ContextUtil;
 
 /**
  * @author qiying.wang
@@ -32,7 +32,7 @@ public class ObjectSerializerStream<T> extends SerailizerStream<T>
 			{
 				throw new NotSerializableException(type.getName());
 			}
-			ObjectReferenceUtil.addDeserializeThreadLocalObject(ret);
+			ContextUtil.addDeserializeThreadLocalObject(ret);
 			if (ret instanceof Externalizable) {
 				Externalizable externalizable = (Externalizable) ret;
 				externalizable.readExternal(new Input(data));

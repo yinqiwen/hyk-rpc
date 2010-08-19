@@ -31,6 +31,7 @@ import com.hyk.rpc.core.session.SessionManager;
 import com.hyk.serializer.HykSerializer;
 import com.hyk.serializer.Serializer;
 import com.hyk.serializer.impl.SerailizerStream;
+import com.hyk.serializer.util.ContextUtil;
 import com.hyk.util.thread.ThreadLocalUtil;
 
 /**
@@ -372,6 +373,7 @@ public abstract class RpcChannel
 			// }
 			
 			ThreadLocalUtil.getThreadLocalUtil(SessionManager.class).setThreadLocalObject(sessionManager);
+			ContextUtil.setDeserializeClassLoader(getClass().getClassLoader());
 			MessageFragment fragment = serializer.deserialize(MessageFragment.class, content);
 			fragment.setAddress(data.address);
 			if(logger.isDebugEnabled())

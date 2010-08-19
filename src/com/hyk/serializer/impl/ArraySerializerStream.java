@@ -10,7 +10,7 @@ import java.lang.reflect.Array;
 import com.hyk.io.buffer.ChannelDataBuffer;
 import com.hyk.serializer.io.Type;
 import com.hyk.serializer.reflect.ReflectionCache;
-import com.hyk.serializer.util.ObjectReferenceUtil;
+import com.hyk.serializer.util.ContextUtil;
 
 /**
  * @author qiying.wang
@@ -36,7 +36,7 @@ public class ArraySerializerStream<T> extends SerailizerStream<T>
 				int len = readInt(data);
 				int index = 0;
 				Object array = Array.newInstance(componentTypeClass, len);
-				ObjectReferenceUtil.addDeserializeThreadLocalObject(array);
+				ContextUtil.addDeserializeThreadLocalObject(array);
 				Type componentType = ReflectionCache.getType(componentTypeClass);
 				while(index < len)
 				{
