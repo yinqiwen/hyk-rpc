@@ -15,7 +15,7 @@ import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 
 import com.hyk.io.buffer.ChannelDataBuffer;
-import com.hyk.serializer.util.ObjectReferenceUtil;
+import com.hyk.serializer.util.ContextUtil;
 
 /**
  *
@@ -39,7 +39,7 @@ public class OtherSerializerStream extends SerailizerStream<Object>
 		{
 			ObjectInputStream ois = new ObjectInputStream(data.getInputStream());
 			Object ret = ois.readObject();
-			ObjectReferenceUtil.addDeserializeThreadLocalObject(ret);
+			ContextUtil.addDeserializeThreadLocalObject(ret);
 			// don't close the stream
 			return ret;
 		}

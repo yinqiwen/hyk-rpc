@@ -10,7 +10,7 @@ import com.hyk.serializer.SerializerInput;
 import com.hyk.serializer.SerializerOutput;
 import com.hyk.serializer.io.Type;
 import com.hyk.serializer.reflect.ReflectionCache;
-import com.hyk.serializer.util.ObjectReferenceUtil;
+import com.hyk.serializer.util.ContextUtil;
 import com.hyk.io.buffer.ChannelDataBuffer;
 import com.hyk.util.reflect.ClassUtil;
 
@@ -636,7 +636,7 @@ public abstract class SerailizerStream<T>
 			{
 				case INDICATOR_TYPE:
 				{
-					type = (Class<T>)Class.forName(readString(data));
+					type = (Class<T>)Class.forName(readString(data), true, ContextUtil.getDeserializeClassLoader());
 					dataType = ReflectionCache.getType(type);
 					break;
 				}
@@ -653,7 +653,7 @@ public abstract class SerailizerStream<T>
 				case INDICATOR_LOOP_REF:
 				{
 					int refSeq = readInt(data);
-					return (T)ObjectReferenceUtil.getDeserializeThreadLocalObject(refSeq);
+					return (T)ContextUtil.getDeserializeThreadLocalObject(refSeq);
 				}
 				case INDICATOR_NULL:
 				{
@@ -738,7 +738,7 @@ public abstract class SerailizerStream<T>
 			dataType = Type.NULL;
 		}
 		// loop reference
-		int refSeq = null != value?ObjectReferenceUtil.querySerializeThreadLocalObjectIndex(value):-1;
+		int refSeq = null != value?ContextUtil.querySerializeThreadLocalObjectIndex(value):-1;
 		if(refSeq != -1)
 		{
 			writeTag(data, INDICATOR_LOOP_REF);
@@ -785,7 +785,7 @@ public abstract class SerailizerStream<T>
 			case OTHER:
 			case ARRAY:
 			{
-				ObjectReferenceUtil.addSerializeThreadLocalObject(value);
+				ContextUtil.addSerializeThreadLocalObject(value);
 				break;
 			}
 		}

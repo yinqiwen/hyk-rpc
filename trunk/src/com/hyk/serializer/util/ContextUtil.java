@@ -15,22 +15,39 @@ import java.util.List;
 /**
  *
  */
-public class ObjectReferenceUtil
+public class ContextUtil
 {
-	private static ThreadLocal<List<Object>>	serializeRferenceTable		= new ThreadLocal<List<Object>>()
-																			{
-																				protected List<Object> initialValue()
-																				{
-																					return new ArrayList<Object>();
-																				}
-																			};
-	private static ThreadLocal<List<Object>>	deserializeRferenceTable	= new ThreadLocal<List<Object>>()
-																			{
-																				protected List<Object> initialValue()
-																				{
-																					return new ArrayList<Object>();
-																				}
-																			};
+	private static ThreadLocal<List<Object>> serializeRferenceTable = new ThreadLocal<List<Object>>()
+	{
+		protected List<Object> initialValue()
+		{
+			return new ArrayList<Object>();
+		}
+	};
+	private static ThreadLocal<List<Object>> deserializeRferenceTable = new ThreadLocal<List<Object>>()
+	{
+		protected List<Object> initialValue()
+		{
+			return new ArrayList<Object>();
+		}
+	};
+	private static ThreadLocal<ClassLoader> deserializeClassLoader = new ThreadLocal<ClassLoader>()
+	{
+		protected ClassLoader initialValue()
+		{
+			return ClassLoader.getSystemClassLoader();
+		}
+	};
+	
+	public static void setDeserializeClassLoader(ClassLoader loader)
+	{
+		deserializeClassLoader.set(loader);
+	}
+	
+	public static ClassLoader getDeserializeClassLoader()
+	{
+		return deserializeClassLoader.get();
+	}
 
 	public static void addSerializeThreadLocalObject(Object obj)
 	{
@@ -47,9 +64,9 @@ public class ObjectReferenceUtil
 	public static int querySerializeThreadLocalObjectIndex(Object obj)
 	{
 		List<Object> list = serializeRferenceTable.get();
-		for(int i = 0; i < list.size(); i++)
+		for (int i = 0; i < list.size(); i++)
 		{
-			if(list.get(i) == obj)
+			if (list.get(i) == obj)
 			{
 				return i;
 			}
@@ -78,9 +95,9 @@ public class ObjectReferenceUtil
 	public static int queryDeserializeThreadLocalObjectIndex(Object obj)
 	{
 		List<Object> list = deserializeRferenceTable.get();
-		for(int i = 0; i < list.size(); i++)
+		for (int i = 0; i < list.size(); i++)
 		{
-			if(list.get(i) == obj)
+			if (list.get(i) == obj)
 			{
 				return i;
 			}
