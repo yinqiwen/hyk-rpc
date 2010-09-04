@@ -24,41 +24,47 @@ public class ProxySerializerStream<T> extends SerailizerStream<T>
 {
 
 	@Override
-	protected T unmarshal(Class<T> type, ChannelDataBuffer data) throws NotSerializableException, IOException, InstantiationException
+	protected T unmarshal(Class<T> type, ChannelDataBuffer data)
+	        throws NotSerializableException, IOException,
+	        InstantiationException
 	{
 		try
-		{	
-			
+		{
 			String[] interfaceNames = readObject(data, String[].class);
 			Class[] interfaces = new Class[interfaceNames.length];
 			ClassLoader loader = ContextUtil.getDeserializeClassLoader();
-			for (int i = 0; i < interfaceNames.length; i++) {
+			for (int i = 0; i < interfaceNames.length; i++)
+			{
 				interfaces[i] = Class.forName(interfaceNames[i], true, loader);
 			}
-			Class proxyHandlerClass = Class.forName(readString(data), true, loader);
-			InvocationHandler handler  = (InvocationHandler) readObject(data, proxyHandlerClass);
-			T ret =  (T) Proxy.newProxyInstance(loader, interfaces, handler);
+			Class proxyHandlerClass = Class.forName(readString(data), true,
+			        loader);
+			InvocationHandler handler = (InvocationHandler) readObject(data,
+			        proxyHandlerClass);
+			T ret = (T) Proxy.newProxyInstance(loader, interfaces, handler);
 			ContextUtil.addDeserializeThreadLocalObject(ret);
 			return ret;
 		}
-		catch(Exception e)
+		catch (Exception e)
 		{
 			throw new IOException(e);
 		}
 	}
 
 	@Override
-	protected ChannelDataBuffer marshal(T value, ChannelDataBuffer data) throws NotSerializableException, IOException
+	protected ChannelDataBuffer marshal(T value, ChannelDataBuffer data)
+	        throws NotSerializableException, IOException
 	{
 		Class[] interfaces = value.getClass().getInterfaces();
 		String[] interfaceNames = new String[interfaces.length];
-		for (int i = 0; i < interfaceNames.length; i++) {
+		for (int i = 0; i < interfaceNames.length; i++)
+		{
 			interfaceNames[i] = interfaces[i].getName();
 		}
 		writeObject(data, interfaceNames);
 		InvocationHandler handler = Proxy.getInvocationHandler(value);
 		writeString(data, handler.getClass().getName());
-		writeObject(data,handler);
+		writeObject(data, handler);
 		return data;
 	}
 
