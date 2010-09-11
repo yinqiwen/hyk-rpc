@@ -10,6 +10,9 @@ import java.util.Map;
 import java.util.Properties;
 import java.util.concurrent.ConcurrentHashMap;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import com.hyk.rpc.core.address.Address;
 import com.hyk.rpc.core.constant.RpcConstants;
 import com.hyk.rpc.core.util.RemoteUtil;
@@ -20,6 +23,7 @@ import com.hyk.rpc.core.util.RemoteUtil;
  */
 public class RemoteObjectFactory
 {
+	protected Logger			logger					= LoggerFactory.getLogger(getClass());
 	private Address				localAddress;
 	private Map<Long, RemoteObjectReference>	remoteRawObjectTable	= new ConcurrentHashMap<Long, RemoteObjectReference>();
 
@@ -63,6 +67,7 @@ public class RemoteObjectFactory
 		if(null != remoteObjectStorage)
 		{
 			List<RemoteObjectReference> refs = remoteObjectStorage.loadAll();
+			
 			if(null != refs)
 			{
 				for(RemoteObjectReference ref:refs)
@@ -107,6 +112,8 @@ public class RemoteObjectFactory
 		{
 			if(Proxy.getInvocationHandler(obj) instanceof  RemoteObjectProxy)
 			{
+				RemoteObjectProxy setting = (RemoteObjectProxy) Proxy.getInvocationHandler(obj);
+				setting.setObjID(id);
 				return obj;
 			}
 		}
