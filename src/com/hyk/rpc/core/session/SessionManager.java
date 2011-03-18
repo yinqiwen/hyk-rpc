@@ -122,6 +122,11 @@ public class SessionManager implements MessageListener
 	{
 		return sessionTimeout;
 	}
+	
+	public void setSessionTimeout(int value)
+	{
+		sessionTimeout = value;
+	}
 
 	@Override
 	public void onMessage(Message msg)
